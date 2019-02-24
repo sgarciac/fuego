@@ -1,18 +1,19 @@
 # fuego
 A command-line firestore client
 
-## Installing
+## Installation
 
-Install via go
+Install fuego via [go](https://golang.org/dl/):
 
-```
+```sh
 go get github.com/sgarciac/fuego
 ```
 
+Or use one of the precompiled binaries
 
 ### Hacking
 
-Creating executables:
+Creating binary executables:
 
 ```sh
 (gox -os="linux darwin windows" -arch="amd64" -output="dist/fuego_{{.OS}}_{{.Arch}}")
