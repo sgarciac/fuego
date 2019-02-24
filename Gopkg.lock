@@ -38,6 +38,17 @@
   version = "v3.6.0"
 
 [[projects]]
+  digest = "1:e81f98d138993c2cc169e08de69f5e8641e06b40909e372176b2076a5c7df04c"
+  name = "github.com/alecthomas/participle"
+  packages = [
+    ".",
+    "lexer",
+  ]
+  pruneopts = "UT"
+  revision = "970ac163e3eaa95cf96536baeb4ed224af005b0a"
+  version = "v0.2.0"
+
+[[projects]]
   digest = "1:72856926f8208767b837bf51e3373f49139f61889b67dc7fd3c2a0fd711e3f7a"
   name = "github.com/golang/protobuf"
   packages = [
@@ -262,6 +273,7 @@
   input-imports = [
     "cloud.google.com/go/firestore",
     "firebase.google.com/go",
+    "github.com/alecthomas/participle",
     "google.golang.org/api/option",
     "gopkg.in/urfave/cli.v1",
   ]

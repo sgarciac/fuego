@@ -44,3 +44,7 @@
 [prune]
   go-tests = true
   unused-packages = true
+
+[[constraint]]
+  name = "github.com/alecthomas/participle"
+  version = "0.2.0"
