@@ -60,7 +60,7 @@ fuego get people Rv7ZfnLQWprdXuulqMdf
 You can also update an existing document:
 
 ```
-fuego set people Rv7ZfnLQWprdXuulqMdf '{"name": "sergio", "age": 41}' # It's my birthday!
+fuego set people Rv7ZfnLQWprdXuulqMdf '{"name": "sergio", "age": 42}' # It's my birthday!
 ```
 
 In both ```add``` and ```set``` commands, the document argument can be either a
