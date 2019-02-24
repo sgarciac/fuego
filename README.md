@@ -19,10 +19,10 @@ You can add new documents:
 
 ```sh
 fuego add people '{"name": "sergio", "age": 41}'
-# -> Rv7ZfnLQWprdXuulqMdf
+# Rv7ZfnLQWprdXuulqMdf
 ```
 
-And then read it:
+Of fetch them:
 
 ```sh
 fuego get people Rv7ZfnLQWprdXuulqMdf
@@ -59,6 +59,7 @@ Creating binary executables:
 Releasing on github:
 
 ```sh
+# create and push a tag
 export GITHUB_TOKEN=mytoken
 export TAG=v0.0.1
 ghr -t $GITHUB_TOKEN -u processone -r dpk --replace --draft  $TAG dist/
