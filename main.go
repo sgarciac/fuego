@@ -67,7 +67,7 @@ func main() {
 		{
 			Name:      "get",
 			Aliases:   []string{"g"},
-			Usage:     "Get a document tfrom a collection",
+			Usage:     "Get a document from a collection",
 			ArgsUsage: "collection-path document-id",
 			Action:    getCommandAction,
 		},
