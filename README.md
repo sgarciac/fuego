@@ -59,9 +59,10 @@ Creating binary executables:
 Releasing on github:
 
 ```sh
-# create and push a tag
+# create and push a tag git tag -a v0.0.1 -m "Release description"
+# git push --tags
 export GITHUB_TOKEN=mytoken
 export TAG=v0.0.1
-ghr -t $GITHUB_TOKEN -u processone -r dpk --replace --draft  $TAG dist/
+ghr -t $GITHUB_TOKEN -u processone --replace --draft  $TAG dist/
 ```
 
