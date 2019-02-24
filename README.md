@@ -9,7 +9,7 @@ Install fuego via [go](https://golang.org/dl/):
 go get github.com/sgarciac/fuego
 ```
 
-Or use one of the precompiled binaries
+Or use one of the precompiled binaries (untested) from the release.
 
 ### Hacking
 

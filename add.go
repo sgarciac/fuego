@@ -30,11 +30,12 @@ func addData(
 
 func addCommandAction(c *cli.Context) error {
 	collectionPath := c.Args().First()
+	data := c.Args().Get(1)
 	client, err := createClient(credentials)
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("Failed to create client. \n%v", err), 80)
 	}
-	id, err := addData(client, collectionPath, c.Args().Get(1))
+	id, err := addData(client, collectionPath, data)
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("Failed to add data. \n%v", err), 80)
 	}

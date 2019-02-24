@@ -33,6 +33,14 @@ func unmarshallData(data string) (map[string]interface{}, error) {
 	return object, nil
 }
 
+func marshallData(object map[string]interface{}) (string, error) {
+	buffer, err := json.MarshalIndent(object, "", "    ")
+	if err != nil {
+		return "", err
+	}
+	return string(buffer), nil
+}
+
 func main() {
 	app := cli.NewApp()
 	app.Version = "0.0.1"
@@ -52,9 +60,16 @@ func main() {
 		{
 			Name:      "add",
 			Aliases:   []string{"a"},
-			Usage:     "Add a new document",
-			ArgsUsage: "collection-path json",
+			Usage:     "Add a new document to a collection",
+			ArgsUsage: "collection-path json-document",
 			Action:    addCommandAction,
+		},
+		{
+			Name:      "get",
+			Aliases:   []string{"g"},
+			Usage:     "Get a document tfrom a collection",
+			ArgsUsage: "collection-path document-id",
+			Action:    getCommandAction,
 		},
 	}
 
