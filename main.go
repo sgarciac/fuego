@@ -65,6 +65,13 @@ func main() {
 			Action:    addCommandAction,
 		},
 		{
+			Name:      "set",
+			Aliases:   []string{"s"},
+			Usage:     "Set the contents of a document",
+			ArgsUsage: "collection-path document-id json-document",
+			Action:    setCommandAction,
+		},
+		{
 			Name:      "get",
 			Aliases:   []string{"g"},
 			Usage:     "Get a document from a collection",
