@@ -13,6 +13,31 @@ Or use one of the precompiled binaries (untested) from the [latest release](http
 
 ## Usage
 
+### Authentication
+
+You'll need a Service Account key file to be able to access your project's
+firestore database. To create a service account private key file, if you don't
+have one, go to your firebase project console, then _Project settings_ and then
+click on the _Service accounts_ tab and generate a new private key.
+
+Once you have your service account key file, fuego will be able to find it using
+one of the following options:
+
+1. Use the ```--credentials``` flag, i.e.:
+
+```sh
+fuego --credentials ./my-account-service-private-key.json get people Rv7ZfnLQWprdXuulqMdf
+```
+
+or
+
+2. Via the GOOGLE_APPLICATION_CREDENTIALS environment variable:
+
+```sh
+export GOOGLE_APPLICATION_CREDENTIALS=./my-account-service-private-key.json
+fuego get people Rv7ZfnLQWprdXuulqMdf
+```
+
 ### Writing and reading data
 
 You can add new documents:
@@ -59,7 +84,8 @@ Creating binary executables:
 Releasing on github:
 
 ```sh
-# create and push a tag git tag -a v0.0.1 -m "Release description"
+# create and push a tag:
+# git tag -a v0.0.1 -m "Release description"
 # git push --tags
 export GITHUB_TOKEN=mytoken
 export TAG=v0.0.1
