@@ -78,6 +78,13 @@ func main() {
 			ArgsUsage: "collection-path document-id",
 			Action:    getCommandAction,
 		},
+		{
+			Name:      "query",
+			Aliases:   []string{"q"},
+			Usage:     "Query a collection",
+			ArgsUsage: "collection-path QUERY*",
+			Action:    queryCommandAction,
+		},
 	}
 
 	err := app.Run(os.Args)

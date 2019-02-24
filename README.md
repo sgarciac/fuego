@@ -91,4 +91,3 @@ export GITHUB_TOKEN=mytoken
 export TAG=v0.0.1
 ghr -t $GITHUB_TOKEN -u processone --replace --draft  $TAG dist/
 ```
-
