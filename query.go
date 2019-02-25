@@ -1,17 +1,24 @@
 package main
 
 import (
-	//firestore "cloud.google.com/go/firestore"
-	//"context"
+	firestore "cloud.google.com/go/firestore"
+	"context"
 	"fmt"
 	"github.com/alecthomas/participle"
 	"github.com/alecthomas/participle/lexer"
 	"gopkg.in/urfave/cli.v1"
-	//	"strings"
-	//	"text/scanner"
+	"strings"
 )
 
-// Queries grammar (overkill)
+// Queries grammar (It is probably overkill to use a parser generator)
+type Boolean bool
+
+// Capture a bool
+func (b *Boolean) Capture(values []string) error {
+	*b = strings.ToUpper(values[0]) == "TRUE"
+	return nil
+}
+
 type Firestorequery struct {
 	Key      string          `@Ident`
 	Operator string          `@Operator`
@@ -19,56 +26,73 @@ type Firestorequery struct {
 }
 
 type Firestorevalue struct {
-	String *string  `  @String`
-	Number *float64 `| @Number`
+	String  *string  `  @String`
+	Number  *float64 `| @Number`
+	Boolean *Boolean `| @("true" | "false" | "TRUE" | "FALSE")`
 }
 
-// query collection-path query*
-func queryCommandAction(c *cli.Context) error {
-	//collectionPath := c.Args().First()
-	query := c.Args().Get(1)
+func (value *Firestorevalue) get() interface{} {
+	if value.String != nil {
+		return *value.String
+	} else if value.Number != nil {
+		return *value.Number
+	}
+	return *value.Boolean
+}
+
+func getParser() *participle.Parser {
 	queryLexer := lexer.Must(lexer.Regexp(`(\s+)` +
 		`|(?P<Ident>[a-zA-Z_][a-zA-Z0-9_\.]*)` +
 		`|(?P<Number>[-+]?\d*\.?\d+)` +
 		`|(?P<String>'[^']*'|"[^"]*")` +
-		`|(?P<Operator><=|>=|<|>|=)`,
+		`|(?P<Operator><=|>=|<|>|==)`,
 	))
-
-	var parsedQuery Firestorequery
 	parser := participle.MustBuild(
 		&Firestorequery{},
 		participle.Lexer(queryLexer),
 		participle.Unquote("String"),
-
-		// participle.Elide("Comment"),
-		// Need to solve left recursion detection first, if possible.
-		// participle.UseLookahead(),
+		participle.CaseInsensitive("Bool"),
 	)
-	err := parser.ParseString(query, &parsedQuery)
+	return parser
+}
+
+// query collection-path query*
+func queryCommandAction(c *cli.Context) error {
+	collectionPath := c.Args().First()
+	client, err := createClient(credentials)
+	parser := getParser()
+
 	if err != nil {
-		return err
+		return cli.NewExitError(fmt.Sprintf("Failed to create client. \n%v", err), 80)
 	}
-	//var s scanner.Scanner
-	//s.Init(strings.NewReader(query))
-	//s.Filename = "Example"
-	//for tok := s.Scan(); tok != scanner.EOF; tok = s.Scan() {
-	//	fmt.Printf("%s: %s\n", s.Position, s.TokenText())
-	//}
-	fmt.Printf("%s\n", parsedQuery.Key)
-	fmt.Printf("%s\n", parsedQuery.Operator)
-	//	fmt.Printf("%v\n", *(parsedQuery.Value.String))
-	fmt.Printf("%v\n", *(parsedQuery.Value.Number))
 
-	//client, err := createClient(credentials)
-	//if err != nil {
-	//	return cli.NewExitError(fmt.Sprintf("Failed to create client. \n%v", err), 80)
-	//}
-	//data, err := getData(client, collectionPath, id)
-	//if err != nil {
-	//	return cli.NewExitError(fmt.Sprintf("Failed to get data. \n%v", err), 80)
-	//}
-	//fmt.Fprintf(c.App.Writer, "%v\n", data)
+	collectionRef := client.Collection(collectionPath)
+	var documentIterator *firestore.DocumentIterator
+	if c.NArg() > 1 {
+		queryString := c.Args().Get(1)
+		var parsedQuery Firestorequery
+		if err := parser.ParseString(queryString, &parsedQuery); err != nil {
+			return fmt.Errorf("Error parsing query '%s':\n%s", queryString, err)
+		}
+		fmt.Fprintf(c.App.Writer, "%v\n", parsedQuery.Value.get())
+		query := collectionRef.Where(parsedQuery.Key, parsedQuery.Operator, parsedQuery.Value.get())
+		for i := 2; i < c.NArg(); i++ {
+			queryString = c.Args().Get(i)
+			if err := parser.ParseString(queryString, &parsedQuery); err != nil {
+				return fmt.Errorf("Error parsing query '%s':\n%s", queryString, err)
+			}
+			query = query.Where(parsedQuery.Key, parsedQuery.Operator, parsedQuery.Value.get())
+		}
+		documentIterator = query.Documents(context.Background())
+	} else {
+		documentIterator = collectionRef.Documents(context.Background())
+	}
 
-	//defer client.Close()
+	docs, err := documentIterator.GetAll()
+	if err != nil {
+		return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 80)
+	}
+
+	fmt.Fprintf(c.App.Writer, "%v\n", len(docs))
 	return nil
 }
