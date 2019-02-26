@@ -150,7 +150,7 @@ Let's say we want to find the least recent nobel from the USA, we can write the 
 fuego query --limit 1 --orderby year --orderdir ASC nobel "birthplace.country == USA" 
 ```
 
-oops, we get the following error from the server:
+oops, we get the following error from the server, because our compound query needs a filter:
 
 ```
 rpc error: code = FailedPrecondition desc = The query requires an index. 
@@ -158,7 +158,7 @@ You can create it here:
 https://console.firebase.google.com/project/myproject/database/firestore/indexes?create_index=EgVub2JlbBoWChJiaXJ0aH....
 ```
 
-After creating the index, we re-run the query and obtain:
+After creating the index, we re-run the query and now we obtain:
 
 ```json
 [
