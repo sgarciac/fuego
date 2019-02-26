@@ -150,7 +150,7 @@ Let's say we want to find the least recent nobel from the USA, we can write the 
 fuego query --limit 1 --orderby year --orderdir ASC nobel "birthplace.country == USA" 
 ```
 
-oops, we get the following error from the server, because our compound query needs a filter:
+oops, we get the following error from the server, because our compound query needs an index:
 
 ```
 rpc error: code = FailedPrecondition desc = The query requires an index. 
