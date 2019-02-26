@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"gopkg.in/urfave/cli.v1"
 	"io/ioutil"
 	"log"
@@ -11,6 +12,11 @@ import (
 
 // Global configuration
 var credentials string
+
+// Common errors
+func cliClientError(err error) *cli.ExitError {
+	return cli.NewExitError(fmt.Sprintf("Failed to create client. \n%v", err), 80)
+}
 
 // unmarshall data
 func unmarshallData(data string) (map[string]interface{}, error) {
@@ -33,7 +39,7 @@ func unmarshallData(data string) (map[string]interface{}, error) {
 	return object, nil
 }
 
-func marshallData(object map[string]interface{}) (string, error) {
+func marshallData(object interface{}) (string, error) {
 	buffer, err := json.MarshalIndent(object, "", "    ")
 	if err != nil {
 		return "", err
@@ -84,6 +90,38 @@ func main() {
 			Usage:     "Query a collection",
 			ArgsUsage: "collection-path QUERY*",
 			Action:    queryCommandAction,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "orderby, ob",
+					Usage: "`FIELD_PATH` to order results by",
+				},
+				cli.StringFlag{
+					Name:  "orderdir, od",
+					Usage: "`DIRECTION` to order results (options: ASC/DESC)",
+					Value: "DESC",
+				},
+				cli.IntFlag{
+					Name:  "limit, l",
+					Usage: "Fetch a maximum of `LIMIT` documents",
+					Value: 100,
+				},
+				cli.StringFlag{
+					Name:  "startat, sat",
+					Usage: "Results start at document `ID`",
+				},
+				cli.StringFlag{
+					Name:  "startafter, sar",
+					Usage: "Results start after document `ID`",
+				},
+				cli.StringFlag{
+					Name:  "endat, ea",
+					Usage: "Results end at document `ID`",
+				},
+				cli.StringFlag{
+					Name:  "endbefore, eb",
+					Usage: "Results end before document `ID`",
+				},
+			},
 		},
 	}
 

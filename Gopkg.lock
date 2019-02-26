@@ -274,6 +274,7 @@
     "cloud.google.com/go/firestore",
     "firebase.google.com/go",
     "github.com/alecthomas/participle",
+    "github.com/alecthomas/participle/lexer",
     "google.golang.org/api/option",
     "gopkg.in/urfave/cli.v1",
   ]

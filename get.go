@@ -30,11 +30,11 @@ func getCommandAction(c *cli.Context) error {
 	id := c.Args().Get(1)
 	client, err := createClient(credentials)
 	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to create client. \n%v", err), 80)
+		return cliClientError(err)
 	}
 	data, err := getData(client, collectionPath, id)
 	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to get data. \n%v", err), 80)
+		return cli.NewExitError(fmt.Sprintf("Failed to get data. \n%v", err), 82)
 	}
 	fmt.Fprintf(c.App.Writer, "%v\n", data)
 	defer client.Close()

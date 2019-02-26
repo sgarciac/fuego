@@ -10,6 +10,12 @@ import (
 	"strings"
 )
 
+type queryable interface {
+	Documents(ctx context.Context) *firestore.DocumentIterator
+	Where(path, op string, value interface{}) firestore.Query
+	Limit(n int) firestore.Query
+}
+
 // Queries grammar (It is probably overkill to use a parser generator)
 type Boolean bool
 
@@ -56,43 +62,103 @@ func getParser() *participle.Parser {
 	return parser
 }
 
+func getDir(name string) firestore.Direction {
+	if name == "DESC" {
+		return firestore.Desc
+	} else {
+		return firestore.Asc
+	}
+}
+
 // query collection-path query*
 func queryCommandAction(c *cli.Context) error {
 	collectionPath := c.Args().First()
+
+	// pagination
+	startAt := c.String("startat")
+	startAfter := c.String("startafter")
+	endAt := c.String("endat")
+	endBefore := c.String("endbefore")
+
 	client, err := createClient(credentials)
+	if err != nil {
+		return cliClientError(err)
+	}
+
 	parser := getParser()
 
-	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to create client. \n%v", err), 80)
-	}
-
 	collectionRef := client.Collection(collectionPath)
-	var documentIterator *firestore.DocumentIterator
-	if c.NArg() > 1 {
-		queryString := c.Args().Get(1)
+	query := collectionRef.Limit(c.Int("limit"))
+
+	for i := 1; i < c.NArg(); i++ {
+		queryString := c.Args().Get(i)
 		var parsedQuery Firestorequery
 		if err := parser.ParseString(queryString, &parsedQuery); err != nil {
-			return fmt.Errorf("Error parsing query '%s':\n%s", queryString, err)
+			return cli.NewExitError(fmt.Sprintf("Error parsing query '%s'", queryString), 83)
 		}
-		fmt.Fprintf(c.App.Writer, "%v\n", parsedQuery.Value.get())
-		query := collectionRef.Where(parsedQuery.Key, parsedQuery.Operator, parsedQuery.Value.get())
-		for i := 2; i < c.NArg(); i++ {
-			queryString = c.Args().Get(i)
-			if err := parser.ParseString(queryString, &parsedQuery); err != nil {
-				return fmt.Errorf("Error parsing query '%s':\n%s", queryString, err)
-			}
-			query = query.Where(parsedQuery.Key, parsedQuery.Operator, parsedQuery.Value.get())
-		}
-		documentIterator = query.Documents(context.Background())
-	} else {
-		documentIterator = collectionRef.Documents(context.Background())
+		query = query.Where(parsedQuery.Key, parsedQuery.Operator, parsedQuery.Value.get())
 	}
+
+	// order by
+	if c.String("orderby") != "" {
+		query = query.OrderBy(c.String("orderby"), getDir(c.String("orderdir")))
+	}
+
+	if startAt != "" {
+		documentRef := collectionRef.Doc(startAt)
+		docsnap, err := documentRef.Get(context.Background())
+		if err != nil {
+			return cli.NewExitError(fmt.Sprintf("Failed to get '%s' within the collection", startAt), 83)
+		}
+		query = query.StartAt(docsnap)
+	}
+
+	if startAfter != "" {
+		documentRef := collectionRef.Doc(startAfter)
+		docsnap, err := documentRef.Get(context.Background())
+		if err != nil {
+			return cli.NewExitError(fmt.Sprintf("Failed to get '%s' within the collection", startAfter), 83)
+		}
+		query = query.StartAfter(docsnap)
+	}
+
+	if endAt != "" {
+		documentRef := collectionRef.Doc(endAt)
+		docsnap, err := documentRef.Get(context.Background())
+		if err != nil {
+			return cli.NewExitError(fmt.Sprintf("Failed to get '%s' within the collection", endAt), 83)
+		}
+		query = query.EndAt(docsnap)
+	}
+
+	if endBefore != "" {
+		documentRef := collectionRef.Doc(endBefore)
+		docsnap, err := documentRef.Get(context.Background())
+		if err != nil {
+			return cli.NewExitError(fmt.Sprintf("Failed to get '%s' within the collection", endBefore), 83)
+		}
+		query = query.EndBefore(docsnap)
+	}
+
+	documentIterator := query.Documents(context.Background())
 
 	docs, err := documentIterator.GetAll()
 	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 80)
+		return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
 	}
 
-	fmt.Fprintf(c.App.Writer, "%v\n", len(docs))
+	var displayItems []map[string]interface{}
+	for _, doc := range docs {
+		var displayItem = make(map[string]interface{})
+		displayItem["ID"] = doc.Ref.ID
+		displayItem["CreateTime"] = doc.CreateTime
+		displayItem["ReadTime"] = doc.ReadTime
+		displayItem["UpdateTime"] = doc.UpdateTime
+		displayItem["Data"] = doc.Data()
+		displayItems = append(displayItems, displayItem)
+	}
+
+	jsonString, _ := marshallData(displayItems)
+	fmt.Fprintln(c.App.Writer, jsonString)
 	return nil
 }

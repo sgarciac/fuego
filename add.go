@@ -33,11 +33,11 @@ func addCommandAction(c *cli.Context) error {
 	data := c.Args().Get(1)
 	client, err := createClient(credentials)
 	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to create client. \n%v", err), 80)
+		return cliClientError(err)
 	}
 	id, err := addData(client, collectionPath, data)
 	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to add data. \n%v", err), 80)
+		return cli.NewExitError(fmt.Sprintf("Failed to add data. \n%v", err), 81)
 	}
 	fmt.Fprintf(c.App.Writer, "%v\n", id)
 	defer client.Close()

@@ -36,11 +36,11 @@ func setCommandAction(c *cli.Context) error {
 	data := c.Args().Get(2)
 	client, err := createClient(credentials)
 	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to create client. \n%v", err), 80)
+		return cliClientError(err)
 	}
 	err = setData(client, collectionPath, id, data)
 	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to write data. \n%v", err), 80)
+		return cli.NewExitError(fmt.Sprintf("Failed to write data. \n%v", err), 85)
 	}
 	fmt.Fprintf(c.App.Writer, "%v\n", id)
 	defer client.Close()

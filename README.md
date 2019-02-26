@@ -76,20 +76,112 @@ Let's explain queries by example. First, we'll create a collection of physics
 nobel laureates, 
 
 ```sh
-fuego add nobel '{"name": "Arthur Ashkin", "year": 2018, "birthplace":
-{"country":"US", "city": "New York"}}'
+fuego add nobel '{"name": "Arthur Ashkin", "year": 2018, "birthplace": {"country":"USA", "city": "New York"}}'
+fuego add nobel '{"name": "Gerard Mourou", "year": 2018, "birthplace": {"country":"FRA", "city": "Albertville"}}'
+fuego add nobel '{"name": "Donna Strickland", "year": 2018, "birthplace": {"country":"CAN", "city": "Guelph"}}'
+fuego add nobel '{"name": "Rainer Weiss", "year": 2017, "birthplace": {"country":"DEU", "city": "Berlin"}}'
+fuego add nobel '{"name": "Kip Thorne", "year": 2017, "birthplace": {"country":"USA", "city": "Logan"}}'
+fuego add nobel '{"name": "Barry Barish", "year": 2017, "birthplace": {"country":"USA", "city": "Omaha"}}'
+fuego add nobel '{"name": "David Thouless", "year": 2016, "birthplace": {"country":"GBR", "city": "Bearsden"}}'
+```
 
-fuego add nobel '{"name": "Gerard Mourou", "year": 2018, "birthplace":
-{"country":"FR", "city": "Albertville"}}'
+We can query the full collection:
 
-fuego add nobel '{"name": "Gerard Mourou", "year": 2018, "birthplace":
-{"country":"FR", "city": "Albertville"}}'
+```sh
+fuego query nobel
+# Prints all our nobel laureates like this:
+# [
+#    {
+#        "CreateTime": "2019-02-26T02:39:45.293936Z",
+#        "Data": {
+#            "birthplace": {
+#                "city": "Bearsden",
+#                "country": "GBR"
+#            },
+#            "name": "David Thouless",
+#            "year": 2016
+#        },
+#        "ID": "BJseSVoBatOOt8gcwZWx",
+#        "ReadTime": "2019-02-26T02:55:19.419627Z",
+#        "UpdateTime": "2019-02-26T02:39:45.293936Z"
+#    },
+# .... etc
+```
 
+Which will fetch and display the documents in the collection, unfiltered. By default, fuego will fetch only 100 documents. You can change the limit using the ```--limit``` flag.
 
+You can also order the results using the ```--orderby``` and ```--orderdir``` flags. For example, to sort our nobel laureates by country of origin:
 
+```sh
+fuego query --orderby country
+``` 
+
+You can add filters, using the firestore supported operators (>, <, >=, <= and ==). You can combine several filters in a single query. For example, to get the 2018 nobel laureates from the USA:
+
+```sh
+fuego query nobel 'birthplace.country == "USA"' 'year == 2018'
+```
+
+which will print:
+
+```json
+[
+    {
+        "CreateTime": "2019-02-26T02:14:02.692077Z",
+        "Data": {
+            "birthplace": {
+                "city": "New York",
+                "country": "USA"
+            },
+            "name": "Arthur Ashkin",
+            "year": 2018
+        },
+        "ID": "glHCUu7EZ3gkuDaVlXqv",
+        "ReadTime": "2019-02-26T03:00:15.576398Z",
+        "UpdateTime": "2019-02-26T02:59:55.889775Z"
+    }
+]
 
 ```
 
+Let's say we want to find the least recent nobel from the USA, we can write the following query:
+
+```sh
+fuego query --limit 1 --orderby year --orderdir ASC nobel "birthplace.country == USA" 
+```
+
+oops, we get the following error from the server:
+
+```
+rpc error: code = FailedPrecondition desc = The query requires an index. 
+You can create it here: 
+https://console.firebase.google.com/project/myproject/database/firestore/indexes?create_index=EgVub2JlbBoWChJiaXJ0aH....
+```
+
+After creating the index, we re-run the query and obtain:
+
+```json
+[
+    {
+        "CreateTime": "2019-02-26T02:39:44.458647Z",
+        "Data": {
+            "birthplace": {
+                "city": "Omaha",
+                "country": "USA"
+            },
+            "name": "Barry Barish",
+            "year": 2017
+        },
+        "ID": "ainH3nkOA2xusEBON2An",
+        "ReadTime": "2019-02-26T03:12:07.156643Z",
+        "UpdateTime": "2019-02-26T02:39:44.458647Z"
+    }
+]
+```
+
+#### Pagination of query results
+
+You can use the firestore pagination parameters, combining --limit with the flags --startat, --startafter, --endat, and --endbefore, which all accept the ID of a document.
 
 ### Hacking
 
