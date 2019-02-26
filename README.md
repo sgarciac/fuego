@@ -70,6 +70,9 @@ json string (if it starts with the character '{') or a path to a json file, i.e.
 fuego add animals ./dog.json
 ```
 
+### Queries
+
+
 
 ### Hacking
 
