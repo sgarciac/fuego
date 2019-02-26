@@ -144,6 +144,8 @@ which will print:
 
 ```
 
+At the moment, only numeric, string and boolean values are supported in filters.
+
 Let's say we want to find the least recent nobel from the USA, we can write the following query:
 
 ```sh
