@@ -1,4 +1,7 @@
 # fuego
+
+[![Mentioned in Awesome Firebase](https://awesome.re/mentioned-badge.svg)](https://github.com/jthegedus/awesome-firebase)
+
 A command-line firestore client
 
 ## Installation
