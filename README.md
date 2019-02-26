@@ -72,6 +72,23 @@ fuego add animals ./dog.json
 
 ### Queries
 
+Let's explain queries by example. First, we'll create a collection of physics
+nobel laureates, 
+
+```sh
+fuego add nobel '{"name": "Arthur Ashkin", "year": 2018, "birthplace":
+{"country":"US", "city": "New York"}}'
+
+fuego add nobel '{"name": "Gerard Mourou", "year": 2018, "birthplace":
+{"country":"FR", "city": "Albertville"}}'
+
+fuego add nobel '{"name": "Gerard Mourou", "year": 2018, "birthplace":
+{"country":"FR", "city": "Albertville"}}'
+
+
+
+
+```
 
 
 ### Hacking
