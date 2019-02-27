@@ -10,12 +10,6 @@ import (
 	"strings"
 )
 
-type queryable interface {
-	Documents(ctx context.Context) *firestore.DocumentIterator
-	Where(path, op string, value interface{}) firestore.Query
-	Limit(n int) firestore.Query
-}
-
 // Queries grammar (It is probably overkill to use a parser generator)
 type Boolean bool
 
