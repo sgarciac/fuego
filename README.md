@@ -6,7 +6,7 @@ A command-line firestore client
 
 ## Installation
 
-Install fuego via [go](https://golang.org/dl/):
+Install fuego via [go get](https://golang.org/dl/):
 
 ```sh
 go get github.com/sgarciac/fuego
