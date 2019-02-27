@@ -116,7 +116,7 @@ Which will fetch and display the documents in the collection, unfiltered. By def
 You can also order the results using the ```--orderby``` and ```--orderdir``` flags. For example, to sort our nobel laureates by country of origin:
 
 ```sh
-fuego query --orderby country
+fuego query --orderby country --orderdir ASC nobel
 ``` 
 
 You can add filters, using the firestore supported operators (>, <, >=, <= and ==). You can combine several filters in a single query. For example, to get the 2018 nobel laureates from the USA:
