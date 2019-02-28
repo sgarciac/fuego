@@ -8,14 +8,29 @@ import (
 	"github.com/alecthomas/participle/lexer"
 	"gopkg.in/urfave/cli.v1"
 	"strings"
+	"time"
 )
 
+const rfc3339pattern = `([0-9]+)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])[Tt]([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]|60)(\.[0-9]+)?(([Zz])|([\+|\-]([01][0-9]|2[0-3]):[0-5][0-9]))`
+
 // Queries grammar (It is probably overkill to use a parser generator)
+
+// Boolean is an alias for bool.
 type Boolean bool
+
+// DateTime is an alias for time.Time
+type DateTime time.Time
 
 // Capture a bool
 func (b *Boolean) Capture(values []string) error {
 	*b = strings.ToUpper(values[0]) == "TRUE"
+	return nil
+}
+
+// Capture a timestamp.Timestamp
+func (t *DateTime) Capture(values []string) error {
+	ttime, _ := time.Parse(time.RFC3339, values[0])
+	*t = DateTime(ttime)
 	return nil
 }
 
@@ -26,9 +41,10 @@ type Firestorequery struct {
 }
 
 type Firestorevalue struct {
-	String  *string  `  @String`
-	Number  *float64 `| @Number`
-	Boolean *Boolean `| @("true" | "false" | "TRUE" | "FALSE")`
+	String   *string   `  @String`
+	Number   *float64  `| @Number`
+	DateTime *DateTime `| @DateTime`
+	Boolean  *Boolean  `| @("true" | "false" | "TRUE" | "FALSE")`
 }
 
 func (value *Firestorevalue) get() interface{} {
@@ -36,12 +52,15 @@ func (value *Firestorevalue) get() interface{} {
 		return *value.String
 	} else if value.Number != nil {
 		return *value.Number
+	} else if value.DateTime != nil {
+		return time.Time(*value.DateTime)
 	}
-	return *value.Boolean
+	return !!*value.Boolean
 }
 
 func getParser() *participle.Parser {
 	queryLexer := lexer.Must(lexer.Regexp(`(\s+)` +
+		`|(?P<DateTime>` + rfc3339pattern + `)` +
 		`|(?P<Ident>[a-zA-Z_][a-zA-Z0-9_\.]*)` +
 		`|(?P<Number>[-+]?\d*\.?\d+)` +
 		`|(?P<String>'[^']*'|"[^"]*")` +
@@ -59,9 +78,8 @@ func getParser() *participle.Parser {
 func getDir(name string) firestore.Direction {
 	if name == "DESC" {
 		return firestore.Desc
-	} else {
-		return firestore.Asc
 	}
+	return firestore.Asc
 }
 
 // query collection-path query*
@@ -90,6 +108,7 @@ func queryCommandAction(c *cli.Context) error {
 		if err := parser.ParseString(queryString, &parsedQuery); err != nil {
 			return cli.NewExitError(fmt.Sprintf("Error parsing query '%s'", queryString), 83)
 		}
+
 		query = query.Where(parsedQuery.Key, parsedQuery.Operator, parsedQuery.Value.get())
 	}
 
