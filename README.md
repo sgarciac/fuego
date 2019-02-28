@@ -147,13 +147,6 @@ which will print:
 
 ```
 
-At the moment, numeric, string, boolean and timestamp values are supported in filters. Examples of queries:
-
-"age >= 34", "name == 'paul'", "married == true", and "birthday == 1977-06-28T04:00:00Z"
-
-Timestamps values use RFC3339.
-
-
 Let's say we want to find the least recent nobel from the USA, we can write the following query:
 
 ```sh
@@ -188,6 +181,13 @@ After creating the index, we re-run the query and now we obtain:
     }
 ]
 ```
+#### Value types in filters
+
+At the moment, numeric, string, boolean and timestamp values are supported in filters. Examples of queries:
+
+"age >= 34", "name == 'paul'", "married == true", and "birthday == 1977-06-28T04:00:00Z"
+
+Timestamps values should use RFC3339 and should not be quoted. Boolean values are represented by unquoted *true* and *false*.
 
 #### Pagination of query results
 
