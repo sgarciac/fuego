@@ -1,13 +1,10 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"gopkg.in/urfave/cli.v1"
-	"io/ioutil"
 	"log"
 	"os"
-	"strings"
 )
 
 // Global configuration
@@ -16,35 +13,6 @@ var credentials string
 // Common errors
 func cliClientError(err error) *cli.ExitError {
 	return cli.NewExitError(fmt.Sprintf("Failed to create client. \n%v", err), 80)
-}
-
-// unmarshall data
-func unmarshallData(data string) (map[string]interface{}, error) {
-	trimmed := strings.TrimSpace(data)
-	var buffer []byte
-	if strings.HasPrefix(trimmed, "{") {
-		buffer = []byte(trimmed)
-	} else {
-		var err error
-		buffer, err = ioutil.ReadFile(data)
-		if err != nil {
-			return nil, err
-		}
-	}
-	var object map[string]interface{}
-	err := json.Unmarshal(buffer, &object)
-	if err != nil {
-		return nil, err
-	}
-	return object, nil
-}
-
-func marshallData(object interface{}) (string, error) {
-	buffer, err := json.MarshalIndent(object, "", "    ")
-	if err != nil {
-		return "", err
-	}
-	return string(buffer), nil
 }
 
 func main() {
@@ -69,6 +37,12 @@ func main() {
 			Usage:     "Add a new document to a collection",
 			ArgsUsage: "collection-path json-document",
 			Action:    addCommandAction,
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "timestamp, ts",
+					Usage: "treat strings values that match rfc3339 as timestamps",
+				},
+			},
 		},
 		{
 			Name:      "set",

@@ -26,10 +26,10 @@ click on the _Service accounts_ tab and generate a new private key.
 Once you have your service account key file, fuego will be able to find it using
 one of the following options:
 
-1. Use the ```--credentials``` flag, i.e.:
+1. Use the ```--credentials``` flag everytime you execute fuego, i.e.:
 
 ```sh
-fuego --credentials ./my-account-service-private-key.json get people Rv7ZfnLQWprdXuulqMdf
+fuego --credentials ./my-account-service-private-key.json get mycollection mydocumentid
 ```
 
 or
@@ -38,19 +38,19 @@ or
 
 ```sh
 export GOOGLE_APPLICATION_CREDENTIALS=./my-account-service-private-key.json
-fuego get people Rv7ZfnLQWprdXuulqMdf
+fuego get mycollection mydocumentid
 ```
 
 ### Writing and reading data
 
-You can add new documents:
+You can add new documents, using JSON:
 
 ```sh
 fuego add people '{"name": "sergio", "age": 41}'
-# Rv7ZfnLQWprdXuulqMdf
+# Rv7ZfnLQWprdXuulqMdf <- fuego prints the ID of the newly created document
 ```
 
-Of fetch them:
+Of fetch them, using the ID:
 
 ```sh
 fuego get people Rv7ZfnLQWprdXuulqMdf
@@ -72,6 +72,22 @@ json string (if it starts with the character '{') or a path to a json file, i.e.
 ```sh
 fuego add animals ./dog.json
 ```
+
+#### A note on types
+
+fuego read and write commands are constrained by JSON data types: string,
+number, object, array and boolean, which don't cover all of firestore data
+types. 
+
+When writing data, you can make fuego treat all strings that match the
+rfc3339 datetime format as firestore timestamps, using the --timestamp (or --ts) flag. For
+example:
+
+```sh
+fuego add --ts dates '{"randomdate": "2012-11-01T22:08:41+00:00"}'
+```
+
+will add a new document whose field named "randomdate" is a timestamp and not a string.
 
 ### Queries
 
@@ -113,7 +129,9 @@ fuego query nobel
 
 Which will fetch and display the documents in the collection, unfiltered. By default, fuego will fetch only 100 documents. You can change the limit using the ```--limit``` flag.
 
-You can also order the results using the ```--orderby``` and ```--orderdir``` flags. For example, to sort our nobel laureates by country of origin:
+You can also order the results using the ```--orderby``` and ```--orderdir```
+flags. For example, to sort our nobel laureates by country of origin, in
+ascending order:
 
 ```sh
 fuego query --orderby birthplace.country --orderdir ASC nobel
@@ -187,7 +205,8 @@ At the moment, numeric, string, boolean and timestamp values are supported in fi
 
 "age >= 34", "name == 'paul'", "married == true", and "birthday == 1977-06-28T04:00:00Z"
 
-Timestamps values should use RFC3339 and should not be quoted. Boolean values are represented by unquoted *true* and *false*.
+Note that timestamps values should use the RFC3339 format and should not be
+quoted. Boolean values are represented by the unquoted *true* and *false* strings.
 
 #### Pagination of query results
 
