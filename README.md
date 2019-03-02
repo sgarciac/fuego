@@ -214,21 +214,15 @@ You can use the firestore pagination parameters, combining --limit with the flag
 
 ### Hacking
 
-Creating binary executables:
+Releases are managed by goreleaser.
 
-```sh
-(gox -os="linux darwin windows" -arch="amd64" -output="dist/fuego_{{.OS}}_{{.Arch}}")
-(cd dist; gzip *)
+Steps:
 
-```
+1. export GITHUB_TOKEN=`your_token`
+2. Update version in main.go (i.e v0.1.0)
+3. Update CHANGELOG.md
+4. Commit changes
+3. git tag -a v0.1.0 -m "First release"
+4. git push origin v0.1.0
 
-Releasing on github:
 
-```sh
-# create and push a tag:
-# git tag -a v0.0.1 -m "Release description"
-# git push --tags
-export GITHUB_TOKEN=mytoken
-export TAG=v0.0.1
-ghr -t $GITHUB_TOKEN -u processone --replace --draft  $TAG dist/
-```

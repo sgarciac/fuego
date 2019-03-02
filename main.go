@@ -17,7 +17,7 @@ func cliClientError(err error) *cli.ExitError {
 
 func main() {
 	app := cli.NewApp()
-	app.Version = "0.0.1"
+	app.Version = "0.2.0"
 	app.Name = "Fuego"
 	app.Usage = "A firestore client"
 	app.EnableBashCompletion = true
