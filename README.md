@@ -220,9 +220,11 @@ Steps:
 
 1. export GITHUB_TOKEN=`your_token`
 2. Update version in main.go (i.e v0.1.0)
-3. Update CHANGELOG.md
+3. Update CHANGELOG.md (set version)
 4. Commit changes
-3. git tag -a v0.1.0 -m "First release"
-4. git push origin v0.1.0
+5. git tag -a v0.1.0 -m "First release"
+6. git push origin v0.1.0
+7. goreleaser (options: --rm-dist --release-notes=<file>)
+
 
 

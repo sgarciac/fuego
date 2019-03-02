@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.2.0]
 ### Added
 - Support for timestamp values in queries
 - Support for timestamp in writing operations operation
