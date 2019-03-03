@@ -1,0 +1,30 @@
+#! /bin/sh
+
+# file: examples/equality_test.sh
+
+oneTimeSetUp() {
+    TEST_COLLECTION=tests-`uuidgen`
+}
+
+oneTimeTearDown(){
+    echo "Deleting test collection $TEST_COLLECTION"
+    firebase --project gozque-dev firestore:delete -y -r $TEST_COLLECTION
+}
+
+testWriteAndReadDocument() {
+    # Adding...
+    expectedValue="string1"
+    id=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"${expectedValue}\"}") || fail "Failed to add document"
+    result=$(../fuego get ${TEST_COLLECTION} ${id} | jq ".level1")
+    assertEquals "\"${expectedValue}\"" $result
+
+    # And setting...
+    expectedValue="string2"
+    id=$(../fuego set ${TEST_COLLECTION} ${id} "{\"level1\": \"${expectedValue}\"}") || fail "Failed to set document"
+    result=$(../fuego get ${TEST_COLLECTION} ${id} | jq ".level1")
+    assertEquals "\"${expectedValue}\"" $result
+}
+
+
+# Load shUnit2.
+. ./shunit2
