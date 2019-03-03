@@ -1,13 +1,13 @@
 #! /bin/sh
 
-# file: examples/equality_test.sh
+# You'll need jq to run the tests
 
 oneTimeSetUp() {
     TEST_COLLECTION=tests-`uuidgen`
 }
 
-oneTimeTearDown(){
-    echo "Deleting test collection $TEST_COLLECTION"
+
+tearDown() {
     firebase --project gozque-dev firestore:delete -y -r $TEST_COLLECTION
 }
 
@@ -16,14 +16,62 @@ testWriteAndReadDocument() {
     expectedValue="string1"
     id=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"${expectedValue}\"}") || fail "Failed to add document"
     result=$(../fuego get ${TEST_COLLECTION} ${id} | jq ".level1")
-    assertEquals "\"${expectedValue}\"" $result
+    assertEquals "Failed to read added value" "\"${expectedValue}\"" "${result}"
 
     # And setting...
     expectedValue="string2"
-    id=$(../fuego set ${TEST_COLLECTION} ${id} "{\"level1\": \"${expectedValue}\"}") || fail "Failed to set document"
+    ../fuego set ${TEST_COLLECTION} ${id} "{\"level1\": \"${expectedValue}\"}" || fail "Failed to set document"
     result=$(../fuego get ${TEST_COLLECTION} ${id} | jq ".level1")
-    assertEquals "\"${expectedValue}\"" $result
+    assertEquals "Failed to read set value" "\"${expectedValue}\"" "${result}"
 }
+
+testQueryKeys(){
+    # Query integer value on first level key
+    id=$(../fuego add ${TEST_COLLECTION} "{\"level1\": 1, \"level2root\": {\"number\": 1}}") || fail "Failed to add document"
+    result=$(../fuego query ${TEST_COLLECTION} "level1 == 1" | jq ".[0].ID")
+    assertEquals "Failed to query integer on first level key" "\"${id}\"" "$result"
+    
+    # Query integer value on second level key
+    result=$(../fuego query ${TEST_COLLECTION} "level2root.number == 1" | jq ".[0].ID")
+    assertEquals "Failed to query integer on second level key" "\"${id}\"" "$result"
+}
+
+testQueryDifferentValueTypes(){
+    # Query integer value
+    id=$(../fuego add --ts ${TEST_COLLECTION} "{\"number\": 1, \"timestamp\": \"2019-02-26T02:39:44.458Z\", \"string\": \"string1\", \"bool\": true}") || fail "Failed to add document"
+
+    result=$(../fuego query ${TEST_COLLECTION} "number == 1" | jq ".[0].ID")
+    assertEquals "Failed to query integer on value" "\"${id}\"" "$result"
+
+    # Add and query timestamp
+    result=$(../fuego query ${TEST_COLLECTION} "timestamp == 2019-02-26T02:39:44.458Z" | jq ".[0].ID")
+    assertEquals "Failed to query timestamp" "\"${id}\"" "$result"
+
+    # query string double quote
+    result=$(../fuego query ${TEST_COLLECTION} "string == \"string1\"" | jq ".[0].ID")
+    assertEquals "Failed to query timestamp" "\"${id}\"" "$result"
+
+    # query string single quote
+    result=$(../fuego query ${TEST_COLLECTION} "bool == true" | jq ".[0].ID")
+    assertEquals "Failed to query timestamp" "\"${id}\"" "$result"
+}
+
+
+testQueryInequality(){
+    # query bigger than
+    for i in $(seq 1 3); do
+        ../fuego add ${TEST_COLLECTION} "{\"level1\": {\"level2\": $i}}"
+    done
+
+    result=$(../fuego query ${TEST_COLLECTION} "level1.level2 > 2" | jq "length")
+    assertEquals "Failed to query >" "1" "$result"
+
+    # less than or equal
+    result=$(../fuego query ${TEST_COLLECTION} "level1.level2 <= 2" | jq "length")
+    assertEquals "Failed to query <=" "2" "$result"
+}
+
+
 
 
 # Load shUnit2.
