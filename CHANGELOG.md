@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.3.0]
+- Support arbitrary strings as field paths in queries
+
 ## [0.2.1]
 ### Added
 - Support for timestamp values in queries
