@@ -199,9 +199,17 @@ After creating the index, we re-run the query and now we obtain:
     }
 ]
 ```
-#### Value types in filters
+#### Value and field path types in filters
 
-At the moment, numeric, string, boolean and timestamp values are supported in filters. Examples of queries:
+Field paths in queries that contain only alphanumeric characters, '.'s or '_'s,
+can be unquoted, as in the previous examples. For field paths that use
+other characters, quoted strings must be used""
+
+```sh
+fuego query weirdcollection '"    " == "even blank keys are valid"'
+```
+
+As for values, numeric, string, boolean and timestamp values are supported in filters. Examples of queries:
 
 "age >= 34", "name == 'paul'", "married == true", and "birthday == 1977-06-28T04:00:00Z"
 
