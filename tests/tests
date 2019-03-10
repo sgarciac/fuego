@@ -1,6 +1,7 @@
 #! /bin/sh
 
 # You'll need jq to run the tests
+# set the GOOGLE_APPLICATION_CREDENTIALS
 
 oneTimeSetUp() {
     TEST_COLLECTION=tests-`uuidgen`
@@ -91,6 +92,40 @@ testCompoundQuery(){
     result=$(../fuego query ${TEST_COLLECTION} "key2 == 1" "key1 == \"key1\"" | jq "length")
     assertEquals "Failed to query on two keys" "0" "$result"
 
+}
+
+testOrderAndPagination(){
+    r1=$(../fuego add ${TEST_COLLECTION} "{\"level1\": {\"level2\": 1}}")
+    r2=$(../fuego add ${TEST_COLLECTION} "{\"level1\": {\"level2\": 2}}")
+    r3=$(../fuego add ${TEST_COLLECTION} "{\"level1\": {\"level2\": 3}}")
+
+    # limit 1 result
+    result=$(../fuego query --limit 1 ${TEST_COLLECTION}  | jq "length")
+    assertEquals "Failed to set a limit" "1" "$result"
+
+    # order ASC
+    result=$(../fuego query --limit 1 --orderby 'level1.level2' --orderdir ASC ${TEST_COLLECTION}  | jq ".[0].Data.level1.level2")
+    assertEquals "Failed to order ASC" "1" "$result"
+
+    # order DESC
+    result=$(../fuego query --limit 1 --orderby 'level1.level2' --orderdir DESC ${TEST_COLLECTION}  | jq ".[0].Data.level1.level2")
+    assertEquals "Failed to order DESC" "3" "$result"
+
+    # Start at
+    result=$(../fuego query --limit 1 --orderby 'level1.level2' --orderdir DESC --startat ${r2} ${TEST_COLLECTION}  | jq ".[0].ID")
+    assertEquals "startat failed" "$result" "\"$r2\""
+
+    # Start after
+    result=$(../fuego query --limit 1 --orderby 'level1.level2' --orderdir DESC --startafter ${r2} ${TEST_COLLECTION}  | jq ".[0].ID")
+    assertEquals "startat failed" "$result" "\"$r1\""
+
+    # End at
+    result=$(../fuego query --orderby 'level1.level2' --orderdir DESC --endat ${r2} ${TEST_COLLECTION}  | jq "length")
+    assertEquals "endat failed" "2" "$result"
+
+    # End before
+    result=$(../fuego query --orderby 'level1.level2' --orderdir DESC --endbefore ${r2} ${TEST_COLLECTION}  | jq "length")
+    assertEquals "endbefore failed" "1" "$result"
 }
 
 
