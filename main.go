@@ -39,6 +39,12 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
+			Name:    "collections",
+			Aliases: []string{"c"},
+			Usage:   "List the root level collections",
+			Action:  collectionsCommandAction,
+		},
+		{
 			Name:      "add",
 			Aliases:   []string{"a"},
 			Usage:     "Add a new document to a collection",
