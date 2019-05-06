@@ -89,6 +89,7 @@ func queryCommandAction(c *cli.Context) error {
 	startAfter := c.String("startafter")
 	endAt := c.String("endat")
 	endBefore := c.String("endbefore")
+	selectFields := c.StringSlice("select")
 
 	client, err := createClient(credentials)
 	if err != nil {
@@ -149,6 +150,10 @@ func queryCommandAction(c *cli.Context) error {
 			return cli.NewExitError(fmt.Sprintf("Failed to get '%s' within the collection", endBefore), 83)
 		}
 		query = query.EndBefore(docsnap)
+	}
+
+	if selectFields != nil {
+		query = query.Select(selectFields...)
 	}
 
 	documentIterator := query.Documents(context.Background())
