@@ -153,7 +153,6 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	if selectFields != nil {
-		fmt.Println(selectFields)
 		query = query.Select(selectFields...)
 	}
 
