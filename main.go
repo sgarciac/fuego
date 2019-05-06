@@ -104,6 +104,10 @@ func main() {
 					Name:  "endbefore, eb",
 					Usage: "Results end before document `ID`",
 				},
+				cli.StringSliceFlag{
+					Name:  "select",
+					Usage: "Return only `FIELD_PATH` fields in result. Parameter can be given multiple times",
+				},
 			},
 		},
 	}
