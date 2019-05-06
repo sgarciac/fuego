@@ -152,7 +152,7 @@ func queryCommandAction(c *cli.Context) error {
 		query = query.EndBefore(docsnap)
 	}
 
-	if selectFields != nil {
+	if len(selectFields) > 0 {
 		query = query.Select(selectFields...)
 	}
 
