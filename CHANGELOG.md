@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.4.0]
+### Added
+- collections command
+- select flag in queries
+
 ## [0.3.0]
 ### Added
 - Support arbitrary strings as field paths in queries
