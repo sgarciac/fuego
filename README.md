@@ -41,6 +41,14 @@ export GOOGLE_APPLICATION_CREDENTIALS=./my-account-service-private-key.json
 fuego get mycollection mydocumentid
 ```
 
+### List collections
+
+```sh
+fuego collections
+```
+
+Will return the list of projet's collections.
+
 ### Writing and reading data
 
 You can add new documents, using JSON:
@@ -215,6 +223,14 @@ As for values, numeric, string, boolean and timestamp values are supported in fi
 
 Note that timestamps values should use the RFC3339 format and should not be
 quoted. Boolean values are represented by the unquoted *true* and *false* strings.
+
+#### Selecting specific fields
+
+Use the --select flag to explicitely ask for specific fields (you can define many)
+
+```sh
+fuego query --select name --select year --limit 1 --orderby year --orderdir ASC nobel "birthplace.country == 'USA'" 
+```
 
 #### Pagination of query results
 
