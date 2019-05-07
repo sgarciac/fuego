@@ -1,3 +1,22 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+
+- [fuego](#fuego)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Authentication](#authentication)
+    - [List collections](#list-collections)
+    - [Writing and reading data](#writing-and-reading-data)
+      - [A note on types](#a-note-on-types)
+    - [Queries](#queries)
+      - [Value and field path types in filters](#value-and-field-path-types-in-filters)
+      - [Selecting specific fields](#selecting-specific-fields)
+      - [Pagination of query results](#pagination-of-query-results)
+  - [Hacking](#hacking)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # fuego
 
 [![Mentioned in Awesome Firebase](https://awesome.re/mentioned-badge.svg)](https://github.com/jthegedus/awesome-firebase)
@@ -236,7 +255,7 @@ fuego query --select name --select year --limit 1 --orderby year --orderdir ASC 
 
 You can use the firestore pagination parameters, combining --limit with the flags --startat, --startafter, --endat, and --endbefore, which all accept the ID of a document.
 
-### Hacking
+## Hacking
 
 Releases are managed by goreleaser.
 
