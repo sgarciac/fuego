@@ -1,7 +1,7 @@
 package main
 
 import (
-	firestore "cloud.google.com/go/firestore"
+	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
 	"gopkg.in/urfave/cli.v1"
@@ -24,6 +24,9 @@ func queryCommandAction(c *cli.Context) error {
 	endAt := c.String("endat")
 	endBefore := c.String("endbefore")
 	selectFields := c.StringSlice("select")
+	limit := c.Int("limit")
+	batch := c.Int("batch")
+	orderby := c.String("orderby")
 
 	queryParser := getQueryParser()
 	fieldPathParser := getFieldPathParser()
@@ -34,7 +37,7 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	collectionRef := client.Collection(collectionPath)
-	query := collectionRef.Limit(c.Int("limit"))
+	query := collectionRef.Limit(batch)
 
 	for i := 1; i < c.NArg(); i++ {
 		queryString := c.Args().Get(i)
@@ -53,6 +56,9 @@ func queryCommandAction(c *cli.Context) error {
 				c.String("orderby"), err), 83)
 		}
 		query = query.OrderByPath(parsedOrderBy.Key, getDir(c.String("orderdir")))
+	} else {
+		// default ordering for batched queries must be the documentID
+		query = query.OrderBy(firestore.DocumentID, firestore.Asc)
 	}
 
 	if startAt != "" {
@@ -104,25 +110,50 @@ func queryCommandAction(c *cli.Context) error {
 		query = query.SelectPaths(selectFieldPaths...)
 	}
 
-	documentIterator := query.Documents(context.Background())
-
-	docs, err := documentIterator.GetAll()
-	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
-	}
-
 	var displayItems []map[string]interface{}
-	for _, doc := range docs {
-		var displayItem = make(map[string]interface{})
-		displayItem["ID"] = doc.Ref.ID
-		displayItem["CreateTime"] = doc.CreateTime
-		displayItem["ReadTime"] = doc.ReadTime
-		displayItem["UpdateTime"] = doc.UpdateTime
-		displayItem["Data"] = doc.Data()
-		displayItems = append(displayItems, displayItem)
+
+	// make queries with a maximum of `batch` results until we have `limit` results or no more documents are returned
+	for limit > 0 {
+		documentIterator := query.Documents(context.Background())
+
+		docs, err := documentIterator.GetAll()
+		if err != nil {
+			return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
+		}
+
+		var last *firestore.DocumentSnapshot
+		for _, doc := range docs {
+			var displayItem = make(map[string]interface{})
+			last = doc
+
+			displayItem["ID"] = doc.Ref.ID
+			displayItem["CreateTime"] = doc.CreateTime
+			displayItem["ReadTime"] = doc.ReadTime
+			displayItem["UpdateTime"] = doc.UpdateTime
+			displayItem["Data"] = doc.Data()
+			displayItems = append(displayItems, displayItem)
+		}
+
+		if len(docs) == 0 {
+			// no more results
+			limit = 0
+		} else {
+			limit -= len(docs)
+			// we need to figure out what the ordering is and add the correct fields
+			if orderby != "" {
+				query = query.StartAfter(last.Data()[orderby])
+			} else {
+				query = query.StartAfter(last.Ref.ID)
+			}
+		}
+		fmt.Println(len(docs), limit)
 	}
 
 	jsonString, _ := marshallData(displayItems)
-	fmt.Fprintln(c.App.Writer, jsonString)
+	_, err = fmt.Fprintln(c.App.Writer, jsonString)
+	if err != nil {
+		return cli.NewExitError(fmt.Sprintf("Failed to print result \n%v", err), 85)
+	}
+
 	return nil
 }
