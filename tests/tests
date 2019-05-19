@@ -32,13 +32,18 @@ testQueryKeys(){
     id=$(../fuego add ${TEST_COLLECTION} "{\" \": 1, \"level1\": 1, \"level2root\": {\"number\": 1}}") || fail "Failed to add document"
     result=$(../fuego query ${TEST_COLLECTION} "level1 == 1" | jq ".[0].ID")
     assertEquals "Failed to query integer on first level key" "\"${id}\"" "$result"
-    
+
     # Query integer value on second level key
     result=$(../fuego query ${TEST_COLLECTION} "level2root.number == 1" | jq ".[0].ID")
     assertEquals "Failed to query integer on second level key" "\"${id}\"" "$result"
+
     # Query integer on empty key using string as key
     result=$(../fuego query ${TEST_COLLECTION} "\" \" == 1" | jq ".[0].ID")
     assertEquals "Failed to query value on empty key" "\"${id}\"" "$result"
+
+		# Combine quoting and non quoting parts of a key
+    result=$(../fuego query ${TEST_COLLECTION} "\"level2root\".number == 1" | jq ".[0].ID")
+    assertEquals "Failed to query value combining quoting and non quoting parts of a key" "\"${id}\"" "$result"
 }
 
 testQueryWithSelect(){

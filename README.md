@@ -228,16 +228,17 @@ After creating the index, we re-run the query and now we obtain:
 ```
 #### Value and field path types in filters
 
-I our previous examples, all the segments of the path part of a filter
-contained alphanumeric or the _ character and did not start with a number. 
-
-If this condition is not met, you can still quote the different parts of the path:
+I our previous examples, all the segments of the path part of a filter contained
+alphanumeric or the _ character and did not start with a number. When this
+conditions are met, they can be written unquoted. Otherwise, they need to be
+unquoted.
 
 ```sh
 fuego query weirdcollection 'really."    ".strage." but valid ".fieldname == "even blank keys are valid"'
 ```
 
-As for values, numeric, string, boolean and timestamp values are supported in filters. Examples of queries:
+As for values, numeric, string, boolean and timestamp values are supported in
+filters. Examples of queries:
 
 "age >= 34", "name == 'paul'", "married == true", and "birthday == 1977-06-28T04:00:00Z"
 
@@ -255,7 +256,9 @@ fuego query --select name --select year --limit 1 --orderby year --orderdir ASC 
 
 #### Pagination of query results
 
-You can use the firestore pagination parameters, combining --limit with the flags --startat, --startafter, --endat, and --endbefore, which all accept the ID of a document.
+You can use the firestore pagination parameters, combining --limit with the
+flags --startat, --startafter, --endat, and --endbefore, which all accept the ID
+of a document.
 
 ## Hacking
 
