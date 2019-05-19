@@ -1,6 +1,4 @@
 # TODO
 
-- Add tests for pagination
-- Support TOML as an input format for documents
-- Support arbitrary strings as field names
-- Display help message when wrong number of arguments
+- Support quoted strings in --orderby and --select parameters
+- Support multiple orderby fields
