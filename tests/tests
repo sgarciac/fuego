@@ -41,6 +41,12 @@ testQueryKeys(){
     assertEquals "Failed to query value on empty key" "\"${id}\"" "$result"
 }
 
+testQueryWithSelect(){
+    ../fuego add ${TEST_COLLECTION} "{\"p1\": 1, \"p2\": {\"number\": 1, \"string\":\"blah\"}}"
+    result=$(../fuego query --select p1 --select p2.number ${TEST_COLLECTION} "p1 == 1" | jq -c ".[0].Data")
+    assertEquals "Failed to select properties" "${result}" "{\"p1\":1,\"p2\":{\"number\":1}}"
+}
+
 testQueryDifferentValueTypes(){
     # Query integer value
     id=$(../fuego add --ts ${TEST_COLLECTION} "{\"number\": 1, \"timestamp\": \"2019-02-26T02:39:44.458Z\", \"string\": \"string1\", \"bool\": true}") || fail "Failed to add document"

@@ -245,7 +245,8 @@ quoted. Boolean values are represented by the unquoted *true* and *false* string
 
 #### Selecting specific fields
 
-Use the --select flag to explicitely ask for specific fields (you can define many)
+Use the --select flag to explicitely ask for the specific fields you want to be
+retrieved (you can define many using several --select)
 
 ```sh
 fuego query --select name --select year --limit 1 --orderby year --orderdir ASC nobel "birthplace.country == 'USA'" 
