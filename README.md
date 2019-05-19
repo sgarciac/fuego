@@ -228,12 +228,13 @@ After creating the index, we re-run the query and now we obtain:
 ```
 #### Value and field path types in filters
 
-Field paths in queries that contain only alphanumeric characters, '.'s or '_'s,
-can be unquoted, as in the previous examples. For field paths that use
-other characters, quoted strings must be used""
+I our previous examples, all the segments of the path part of a filter
+contained alphanumeric or the _ character and did not start with a number. 
+
+If this condition is not met, you can still quote the different parts of the path:
 
 ```sh
-fuego query weirdcollection '"    " == "even blank keys are valid"'
+fuego query weirdcollection 'really."    ".strage." but valid ".fieldname == "even blank keys are valid"'
 ```
 
 As for values, numeric, string, boolean and timestamp values are supported in filters. Examples of queries:

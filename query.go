@@ -33,7 +33,7 @@ func (t *DateTime) Capture(values []string) error {
 }
 
 type Firestorequery struct {
-	Key      string          `@(SimpleFieldPath | String)`
+	Key      []string        `@(SimpleFieldPath | String)(Dot @(SimpleFieldPath | String))*`
 	Operator string          `@Operator`
 	Value    *Firestorevalue `@@`
 }
@@ -59,16 +59,16 @@ func (value *Firestorevalue) get() interface{} {
 func getParser() *participle.Parser {
 	queryLexer := lexer.Must(lexer.Regexp(`(\s+)` +
 		`|(?P<DateTime>` + rfc3339pattern + `)` +
-		`|(?P<SimpleFieldPath>[a-zA-Z_][a-zA-Z0-9_\.]*)` +
+		`|(?P<SimpleFieldPath>[a-zA-Z_][a-zA-Z0-9_]*)` +
 		`|(?P<Number>[-+]?\d*\.?\d+)` +
-		`|(?P<String>'[^']*'|"[^"]*")` +
-		`|(?P<Operator><=|>=|<|>|==)`,
+		`|(?P<String>('[^']*')|("[^"]*"))` +
+		`|(?P<Operator><=|>=|<|>|==)` +
+		`|(?P<Dot>\.)`,
 	))
 	parser := participle.MustBuild(
 		&Firestorequery{},
 		participle.Lexer(queryLexer),
 		participle.Unquote("String"),
-		participle.CaseInsensitive("Bool"),
 	)
 	return parser
 }
@@ -108,7 +108,7 @@ func queryCommandAction(c *cli.Context) error {
 			return cli.NewExitError(fmt.Sprintf("Error parsing query '%s' %v", queryString, err), 83)
 		}
 
-		query = query.Where(parsedQuery.Key, parsedQuery.Operator, parsedQuery.Value.get())
+		query = query.WherePath(parsedQuery.Key, parsedQuery.Operator, parsedQuery.Value.get())
 	}
 
 	// order by
