@@ -61,7 +61,7 @@ func getParser() *participle.Parser {
 		`|(?P<DateTime>` + rfc3339pattern + `)` +
 		`|(?P<SimpleFieldPath>[a-zA-Z_][a-zA-Z0-9_]*)` +
 		`|(?P<Number>[-+]?\d*\.?\d+)` +
-		`|(?P<String>('[^']*')|("[^"]*"))` +
+		`|(?P<String>('[^']*')|("((\\")|[^"])*"))` +
 		`|(?P<Operator><=|>=|<|>|==)` +
 		`|(?P<Dot>\.)`,
 	))
@@ -107,7 +107,6 @@ func queryCommandAction(c *cli.Context) error {
 		if err := parser.ParseString(queryString, &parsedQuery); err != nil {
 			return cli.NewExitError(fmt.Sprintf("Error parsing query '%s' %v", queryString, err), 83)
 		}
-
 		query = query.WherePath(parsedQuery.Key, parsedQuery.Operator, parsedQuery.Value.get())
 	}
 
