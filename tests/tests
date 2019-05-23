@@ -48,8 +48,8 @@ testQueryKeys(){
 
 testQueryWithSelect(){
     ../fuego add ${TEST_COLLECTION} "{\"p1\": 1, \"p2\": {\"number\": 1, \"string\":\"blah\"}}"
-    result=$(../fuego query --select p1 --select p2.number ${TEST_COLLECTION} "p1 == 1" | jq -c ".[0].Data")
-    assertEquals "Failed to select properties" "${result}" "{\"p1\":1,\"p2\":{\"number\":1}}"
+    result=$(../fuego query --select p1 --select '"p2".number' ${TEST_COLLECTION} "p1 == 1" | jq -c ".[0].Data")
+    assertEquals "Failed to select properties" "{\"p1\":1,\"p2\":{\"number\":1}}" "${result}" 
 }
 
 testQueryDifferentValueTypes(){
@@ -88,8 +88,8 @@ testQueryInequality(){
 }
 
 testCompoundQuery(){
-    id=$(../fuego add ${TEST_COLLECTION} "{\"key1\": \"key1\", \"key2\": 2}") || fail "Failed to add document"
-    id=$(../fuego add ${TEST_COLLECTION} "{\"key1\": \"whatever\", \"key2\": 2}") || fail "Failed to add document"
+    ../fuego add ${TEST_COLLECTION} "{\"key1\": \"key1\", \"key2\": 2}" || fail "Failed to add document"
+    ../fuego add ${TEST_COLLECTION} "{\"key1\": \"whatever\", \"key2\": 2}" || fail "Failed to add document"
 
     # query first on a single field
     result=$(../fuego query ${TEST_COLLECTION} "key2 == 2" | jq "length")
@@ -138,6 +138,18 @@ testOrderAndPagination(){
     # End before
     result=$(../fuego query --orderby 'level1.level2' --orderdir DESC --endbefore ${r2} ${TEST_COLLECTION}  | jq "length")
     assertEquals "endbefore failed" "1" "$result"
+}
+
+
+testParsingFieldPaths(){
+    r1=$(../fuego add ${TEST_COLLECTION} "{\"le.vel1\": {\" level2 \": 1, \"a\": 1}}")
+    r2=$(../fuego add ${TEST_COLLECTION} "{\"le.vel1\": {\" level2 \": 2, \"a\": 2}}")
+    r3=$(../fuego add ${TEST_COLLECTION} "{\"le.vel1\": {\" level2 \": 3, \"a\": 3}}")
+
+    # order ASC
+    result=$(../fuego query --select "\"le.vel1\".' level2 '" --limit 1 --orderby "\"le.vel1\".' level2 '" --orderdir ASC ${TEST_COLLECTION}  | jq -c ".[0].Data" )
+    assertEquals "Failed to query parsing difficult field paths" "{\"le.vel1\":{\" level2 \":1}}" "$result"
+
 }
 
 
