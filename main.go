@@ -74,14 +74,13 @@ func main() {
 			ArgsUsage: "collection-path QUERY*",
 			Action:    queryCommandAction,
 			Flags: []cli.Flag{
-				cli.StringFlag{
+				cli.StringSliceFlag{
 					Name:  "orderby, ob",
 					Usage: "`FIELD_PATH` to order results by",
 				},
-				cli.StringFlag{
+				cli.StringSliceFlag{
 					Name:  "orderdir, od",
 					Usage: "`DIRECTION` to order results (options: ASC/DESC)",
-					Value: "DESC",
 				},
 				cli.IntFlag{
 					Name:  "limit, l",

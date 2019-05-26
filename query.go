@@ -24,6 +24,8 @@ func queryCommandAction(c *cli.Context) error {
 	endAt := c.String("endat")
 	endBefore := c.String("endbefore")
 	selectFields := c.StringSlice("select")
+	orderbyFields := c.StringSlice("orderby")
+	orderdirFields := c.StringSlice("orderdir")
 
 	queryParser := getQueryParser()
 	fieldPathParser := getFieldPathParser()
@@ -46,13 +48,19 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	// order by
-	if c.String("orderby") != "" {
+	for i, orderbyRaw := range orderbyFields {
 		var parsedOrderBy Firestorefieldpath
-		if err := fieldPathParser.ParseString(c.String("orderby"), &parsedOrderBy); err != nil {
+		var orderDir string
+		if err := fieldPathParser.ParseString(orderbyRaw, &parsedOrderBy); err != nil {
 			return cli.NewExitError(fmt.Sprintf("Error parsing orderby '%s' %v",
-				c.String("orderby"), err), 83)
+				orderbyRaw, err), 83)
 		}
-		query = query.OrderByPath(parsedOrderBy.Key, getDir(c.String("orderdir")))
+		if i < len(orderbyFields) {
+			orderDir = orderdirFields[i]
+		} else {
+			orderDir = "DESC"
+		}
+		query = query.OrderByPath(parsedOrderBy.Key, getDir(orderDir))
 	}
 
 	if startAt != "" {
