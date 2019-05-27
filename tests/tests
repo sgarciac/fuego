@@ -5,12 +5,27 @@
 # set the FIREBASE_TOKEN (generate token using firebasecli)
 # set a PROJECT_NAME to the firebase project you want to use
 
+
 oneTimeSetUp() {
+
+    # allow alternative GOOGLE_CLOUD_PROJECT parameter
+    if [ ! -z "${GOOGLE_CLOUD_PROJECT}" ]; then
+        PROJECT_NAME="${GOOGLE_CLOUD_PROJECT}"
+    fi
+
     TEST_COLLECTION=tests-`uuidgen`
+    echo "Testing on project ${PROJECT_NAME} with collection ${TEST_COLLECTION}"
+
+    # rebuild the executable to make sure tests match the latest source code
+    go build -o ../fuego  ..
 }
 
 tearDown() {
+    echo "Deleting collection ${TEST_COLLECTION}"
     firebase --token "$FIREBASE_TOKEN" --project "$PROJECT_NAME" firestore:delete -y -r $TEST_COLLECTION
+
+    # need a newline after the firebase command
+    echo
 }
 
 testWriteAndReadDocument() {
