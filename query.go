@@ -29,6 +29,7 @@ func queryCommandAction(c *cli.Context) error {
 	orderby := c.String("orderby")
 
 	queryParser := getQueryParser()
+	var queries []Firestorequery = nil
 	fieldPathParser := getFieldPathParser()
 
 	client, err := createClient(credentials)
@@ -37,6 +38,9 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	collectionRef := client.Collection(collectionPath)
+	if limit < batch {
+		batch = limit
+	}
 	query := collectionRef.Limit(batch)
 
 	for i := 1; i < c.NArg(); i++ {
@@ -45,6 +49,7 @@ func queryCommandAction(c *cli.Context) error {
 		if err := queryParser.ParseString(queryString, &parsedQuery); err != nil {
 			return cli.NewExitError(fmt.Sprintf("Error parsing query '%s' %v", queryString, err), 83)
 		}
+		queries = append(queries, parsedQuery)
 		query = query.WherePath(parsedQuery.Key, parsedQuery.Operator, parsedQuery.Value.get())
 	}
 
@@ -56,6 +61,16 @@ func queryCommandAction(c *cli.Context) error {
 				c.String("orderby"), err), 83)
 		}
 		query = query.OrderByPath(parsedOrderBy.Key, getDir(c.String("orderdir")))
+	} else if queries != nil {
+		// if we have a not equality filter we need to use that as ordering
+		if queries[0].Operator != "==" {
+			query = query.OrderByPath(queries[0].Key, firestore.Asc)
+		} else {
+			// if we have a equality query we still may have more than `limit` results
+			// therefore we set the ordering explicitly to the documentid. without any ordering we
+			// would be unable to use later startAt
+			query = query.OrderBy(firestore.DocumentID, firestore.Asc)
+		}
 	} else {
 		// default ordering for batched queries must be the documentID
 		query = query.OrderBy(firestore.DocumentID, firestore.Asc)
@@ -146,7 +161,6 @@ func queryCommandAction(c *cli.Context) error {
 				query = query.StartAfter(last.Ref.ID)
 			}
 		}
-		fmt.Println(len(docs), limit)
 	}
 
 	jsonString, _ := marshallData(displayItems)

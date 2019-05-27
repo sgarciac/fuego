@@ -4,6 +4,8 @@
 # set the GOOGLE_APPLICATION_CREDENTIALS
 # set the FIREBASE_TOKEN (generate token using firebasecli)
 # set a PROJECT_NAME to the firebase project you want to use
+#
+# run specific tests with ./tests -- nameoffirsttest nameofsecondtest
 
 
 oneTimeSetUp() {
