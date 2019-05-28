@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"gopkg.in/urfave/cli.v1"
+	"os"
 )
 
 func getDir(name string) firestore.Direction {
@@ -126,9 +127,10 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	var displayItems []map[string]interface{}
+	to_query := limit
 
 	// make queries with a maximum of `batch` results until we have `limit` results or no more documents are returned
-	for limit > 0 {
+	for to_query > 0 {
 		documentIterator := query.Documents(context.Background())
 
 		docs, err := documentIterator.GetAll()
@@ -138,6 +140,7 @@ func queryCommandAction(c *cli.Context) error {
 
 		var last *firestore.DocumentSnapshot
 		for _, doc := range docs {
+
 			var displayItem = make(map[string]interface{})
 			last = doc
 
@@ -151,9 +154,13 @@ func queryCommandAction(c *cli.Context) error {
 
 		if len(docs) == 0 {
 			// no more results
-			limit = 0
+			to_query = 0
 		} else {
-			limit -= len(docs)
+			to_query -= len(docs)
+			// if we do not need a complete batch we must adjust the limit
+			if to_query < batch {
+				query = query.Limit(to_query)
+			}
 			// we need to figure out what the ordering is and add the correct fields
 			if orderby != "" {
 				query = query.StartAfter(last.Data()[orderby])
