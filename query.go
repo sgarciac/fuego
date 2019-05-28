@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"gopkg.in/urfave/cli.v1"
-	"os"
 )
 
 func getDir(name string) firestore.Direction {
@@ -55,11 +54,11 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	// order by
-	if c.String("orderby") != "" {
+	if orderby != "" {
 		var parsedOrderBy Firestorefieldpath
-		if err := fieldPathParser.ParseString(c.String("orderby"), &parsedOrderBy); err != nil {
+		if err := fieldPathParser.ParseString(orderby, &parsedOrderBy); err != nil {
 			return cli.NewExitError(fmt.Sprintf("Error parsing orderby '%s' %v",
-				c.String("orderby"), err), 83)
+				orderby, err), 83)
 		}
 		query = query.OrderByPath(parsedOrderBy.Key, getDir(c.String("orderdir")))
 	} else if queries != nil {
