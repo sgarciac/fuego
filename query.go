@@ -24,9 +24,10 @@ func queryCommandAction(c *cli.Context) error {
 	endAt := c.String("endat")
 	endBefore := c.String("endbefore")
 	selectFields := c.StringSlice("select")
+	orderbyFields := c.StringSlice("orderby")
+	orderdirFields := c.StringSlice("orderdir")
 	limit := c.Int("limit")
 	batch := c.Int("batch")
-	orderby := c.String("orderby")
 
 	queryParser := getQueryParser()
 	var queries []Firestorequery = nil
@@ -54,13 +55,21 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	// order by
-	if orderby != "" {
-		var parsedOrderBy Firestorefieldpath
-		if err := fieldPathParser.ParseString(orderby, &parsedOrderBy); err != nil {
-			return cli.NewExitError(fmt.Sprintf("Error parsing orderby '%s' %v",
-				orderby, err), 83)
+	if len(orderbyFields) != 0 {
+		for i, orderbyRaw := range orderbyFields {
+			var parsedOrderBy Firestorefieldpath
+			var orderDir string
+			if err := fieldPathParser.ParseString(orderbyRaw, &parsedOrderBy); err != nil {
+				return cli.NewExitError(fmt.Sprintf("Error parsing orderby '%s' %v",
+					orderbyRaw, err), 83)
+			}
+			if i < len(orderbyFields) {
+				orderDir = orderdirFields[i]
+			} else {
+				orderDir = "DESC"
+			}
+			query = query.OrderByPath(parsedOrderBy.Key, getDir(orderDir))
 		}
-		query = query.OrderByPath(parsedOrderBy.Key, getDir(c.String("orderdir")))
 	} else if queries != nil {
 		// if we have a not equality filter we need to use that as ordering
 		if queries[0].Operator != "==" {
@@ -161,8 +170,8 @@ func queryCommandAction(c *cli.Context) error {
 				query = query.Limit(to_query)
 			}
 			// we need to figure out what the ordering is and add the correct fields
-			if orderby != "" {
-				query = query.StartAfter(last.Data()[orderby])
+			if len(orderbyFields) != 0 {
+				query = query.StartAfter(last)
 			} else {
 				query = query.StartAfter(last.Ref.ID)
 			}
