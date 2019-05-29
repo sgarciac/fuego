@@ -55,7 +55,7 @@ func queryCommandAction(c *cli.Context) error {
 			return cli.NewExitError(fmt.Sprintf("Error parsing orderby '%s' %v",
 				orderbyRaw, err), 83)
 		}
-		if i < len(orderbyFields) {
+		if i < len(orderdirFields) {
 			orderDir = orderdirFields[i]
 		} else {
 			orderDir = "DESC"
