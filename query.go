@@ -4,6 +4,7 @@ import (
 	firestore "cloud.google.com/go/firestore"
 	"context"
 	"fmt"
+	"google.golang.org/api/iterator"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -31,6 +32,7 @@ func queryCommandAction(c *cli.Context) error {
 	fieldPathParser := getFieldPathParser()
 
 	client, err := createClient(credentials)
+
 	if err != nil {
 		return cliClientError(err)
 	}
@@ -113,24 +115,35 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	documentIterator := query.Documents(context.Background())
+	defer documentIterator.Stop()
 
-	docs, err := documentIterator.GetAll()
-	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
-	}
+	isFirst := true
+	fmt.Println("[")
+	for {
+		doc, err := documentIterator.Next()
+		if err == iterator.Done {
+			break
+		}
 
-	var displayItems []map[string]interface{}
-	for _, doc := range docs {
+		// separate entries by comma
+		if !isFirst {
+			fmt.Println(",")
+		} else {
+			isFirst = false
+		}
+
+		if err != nil {
+			return cli.NewExitError(fmt.Sprintf("Failed to list documents. \n%v", err), 86)
+		}
 		var displayItem = make(map[string]interface{})
 		displayItem["ID"] = doc.Ref.ID
 		displayItem["CreateTime"] = doc.CreateTime
 		displayItem["ReadTime"] = doc.ReadTime
 		displayItem["UpdateTime"] = doc.UpdateTime
 		displayItem["Data"] = doc.Data()
-		displayItems = append(displayItems, displayItem)
+		jsonString, _ := marshallData(displayItem)
+		fmt.Fprintln(c.App.Writer, jsonString)
 	}
-
-	jsonString, _ := marshallData(displayItems)
-	fmt.Fprintln(c.App.Writer, jsonString)
+	fmt.Println("]")
 	return nil
 }
