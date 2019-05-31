@@ -274,5 +274,25 @@ Steps:
 6. git push origin v0.1.0
 7. goreleaser (options: --rm-dist --release-notes=<file>)
 
+### Testing
+The tests are located in [test](./test/test) as a shuint2 shell script. You have to provide a gcp project with
+an active Firestore instance. You need to have the commandline tool [jq](https://stedolan.github.io/jq/) installed.
+
+To execute the tests go into the tests directory and run:
+```
+GOOGLE_APPLICATION_CREDENTIALS=my_credentialfile \
+FIREBASE_TOKEN=token_generated_by_firebasecli \
+PROJECT_NAME=my_project \
+./tests 
+```
+Alternatively you can use:
+```
+GOOGLE_CLOUD_PROJECT=my_project ./tests
+```
+You may need to log in to use this shortcut:
+```
+gcloud auth application-default login
+```
+
 
 

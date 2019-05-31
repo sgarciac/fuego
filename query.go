@@ -1,7 +1,7 @@
 package main
 
 import (
-	firestore "cloud.google.com/go/firestore"
+	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
 	"gopkg.in/urfave/cli.v1"
@@ -26,8 +26,11 @@ func queryCommandAction(c *cli.Context) error {
 	selectFields := c.StringSlice("select")
 	orderbyFields := c.StringSlice("orderby")
 	orderdirFields := c.StringSlice("orderdir")
+	limit := c.Int("limit")
+	batch := c.Int("batch")
 
 	queryParser := getQueryParser()
+	var queries []Firestorequery = nil
 	fieldPathParser := getFieldPathParser()
 
 	client, err := createClient(credentials)
@@ -36,7 +39,10 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	collectionRef := client.Collection(collectionPath)
-	query := collectionRef.Limit(c.Int("limit"))
+	if limit < batch {
+		batch = limit
+	}
+	query := collectionRef.Limit(batch)
 
 	for i := 1; i < c.NArg(); i++ {
 		queryString := c.Args().Get(i)
@@ -44,23 +50,39 @@ func queryCommandAction(c *cli.Context) error {
 		if err := queryParser.ParseString(queryString, &parsedQuery); err != nil {
 			return cli.NewExitError(fmt.Sprintf("Error parsing query '%s' %v", queryString, err), 83)
 		}
+		queries = append(queries, parsedQuery)
 		query = query.WherePath(parsedQuery.Key, parsedQuery.Operator, parsedQuery.Value.get())
 	}
 
 	// order by
-	for i, orderbyRaw := range orderbyFields {
-		var parsedOrderBy Firestorefieldpath
-		var orderDir string
-		if err := fieldPathParser.ParseString(orderbyRaw, &parsedOrderBy); err != nil {
-			return cli.NewExitError(fmt.Sprintf("Error parsing orderby '%s' %v",
-				orderbyRaw, err), 83)
+	if len(orderbyFields) != 0 {
+		for i, orderbyRaw := range orderbyFields {
+			var parsedOrderBy Firestorefieldpath
+			var orderDir string
+			if err := fieldPathParser.ParseString(orderbyRaw, &parsedOrderBy); err != nil {
+				return cli.NewExitError(fmt.Sprintf("Error parsing orderby '%s' %v",
+					orderbyRaw, err), 83)
+			}
+			if i < len(orderbyFields) {
+				orderDir = orderdirFields[i]
+			} else {
+				orderDir = "DESC"
+			}
+			query = query.OrderByPath(parsedOrderBy.Key, getDir(orderDir))
 		}
-		if i < len(orderbyFields) {
-			orderDir = orderdirFields[i]
+	} else if queries != nil {
+		// if we have a not equality filter we need to use that as ordering
+		if queries[0].Operator != "==" {
+			query = query.OrderByPath(queries[0].Key, firestore.Asc)
 		} else {
-			orderDir = "DESC"
+			// if we have a equality query we still may have more than `limit` results
+			// therefore we set the ordering explicitly to the documentid. without any ordering we
+			// would be unable to use later startAt
+			query = query.OrderBy(firestore.DocumentID, firestore.Asc)
 		}
-		query = query.OrderByPath(parsedOrderBy.Key, getDir(orderDir))
+	} else {
+		// default ordering for batched queries must be the documentID
+		query = query.OrderBy(firestore.DocumentID, firestore.Asc)
 	}
 
 	if startAt != "" {
@@ -112,25 +134,55 @@ func queryCommandAction(c *cli.Context) error {
 		query = query.SelectPaths(selectFieldPaths...)
 	}
 
-	documentIterator := query.Documents(context.Background())
-
-	docs, err := documentIterator.GetAll()
-	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
-	}
-
 	var displayItems []map[string]interface{}
-	for _, doc := range docs {
-		var displayItem = make(map[string]interface{})
-		displayItem["ID"] = doc.Ref.ID
-		displayItem["CreateTime"] = doc.CreateTime
-		displayItem["ReadTime"] = doc.ReadTime
-		displayItem["UpdateTime"] = doc.UpdateTime
-		displayItem["Data"] = doc.Data()
-		displayItems = append(displayItems, displayItem)
+	to_query := limit
+
+	// make queries with a maximum of `batch` results until we have `limit` results or no more documents are returned
+	for to_query > 0 {
+		documentIterator := query.Documents(context.Background())
+
+		docs, err := documentIterator.GetAll()
+		if err != nil {
+			return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
+		}
+
+		var last *firestore.DocumentSnapshot
+		for _, doc := range docs {
+
+			var displayItem = make(map[string]interface{})
+			last = doc
+
+			displayItem["ID"] = doc.Ref.ID
+			displayItem["CreateTime"] = doc.CreateTime
+			displayItem["ReadTime"] = doc.ReadTime
+			displayItem["UpdateTime"] = doc.UpdateTime
+			displayItem["Data"] = doc.Data()
+			displayItems = append(displayItems, displayItem)
+		}
+
+		if len(docs) == 0 {
+			// no more results
+			to_query = 0
+		} else {
+			to_query -= len(docs)
+			// if we do not need a complete batch we must adjust the limit
+			if to_query < batch {
+				query = query.Limit(to_query)
+			}
+			// we need to figure out what the ordering is and add the correct fields
+			if len(orderbyFields) != 0 {
+				query = query.StartAfter(last)
+			} else {
+				query = query.StartAfter(last.Ref.ID)
+			}
+		}
 	}
 
 	jsonString, _ := marshallData(displayItems)
-	fmt.Fprintln(c.App.Writer, jsonString)
+	_, err = fmt.Fprintln(c.App.Writer, jsonString)
+	if err != nil {
+		return cli.NewExitError(fmt.Sprintf("Failed to print result \n%v", err), 85)
+	}
+
 	return nil
 }

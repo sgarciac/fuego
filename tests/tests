@@ -4,13 +4,30 @@
 # set the GOOGLE_APPLICATION_CREDENTIALS
 # set the FIREBASE_TOKEN (generate token using firebasecli)
 # set a PROJECT_NAME to the firebase project you want to use
+#
+# run specific tests with ./tests -- nameoffirsttest nameofsecondtest
+
 
 oneTimeSetUp() {
+
+    # allow alternative GOOGLE_CLOUD_PROJECT parameter
+    if [ ! -z "${GOOGLE_CLOUD_PROJECT}" ]; then
+        PROJECT_NAME="${GOOGLE_CLOUD_PROJECT}"
+    fi
+
     TEST_COLLECTION=tests-`uuidgen`
+    echo "Testing on project ${PROJECT_NAME} with collection ${TEST_COLLECTION}"
+
+    # rebuild the executable to make sure tests match the latest source code
+    go build -o ../fuego  ..
 }
 
 tearDown() {
+    echo "Deleting collection ${TEST_COLLECTION}"
     firebase --token "$FIREBASE_TOKEN" --project "$PROJECT_NAME" firestore:delete -y -r $TEST_COLLECTION
+
+    # need a newline after the firebase command
+    echo
 }
 
 testWriteAndReadDocument() {
@@ -104,6 +121,26 @@ testCompoundQuery(){
     result=$(../fuego query ${TEST_COLLECTION} "key2 == 1" "key1 == \"key1\"" | jq "length")
     assertEquals "Failed to query on two keys" "0" "$result"
 
+}
+
+testQueryBatched(){
+    # this unittest is testing several aspects to only need to create the bigger collection once (reduce test runtime)
+
+    # create 50 items in parallel
+    seq 50 | xargs -I@ -P 50 ../fuego add ${TEST_COLLECTION} '{"id": @}' > /dev/null
+
+    # make sure we receive exactly limit entries
+    result=$(../fuego query --limit 25 --batch 10 ${TEST_COLLECTION}  | jq "length" )
+    assertEquals "Failed to query in batches" "25" "$result"
+
+    # make sure we receive exactly limit entries
+    result=$(../fuego query --limit 100 --batch 200 ${TEST_COLLECTION}  | jq "length" )
+    assertEquals "Failed to query in batches" "50" "$result"
+
+    # make sure ordering is still working
+    # as we have the documents with id 1..50 the 15th item will have value 16
+    result=$(../fuego query --limit 20 --batch 5 --orderby id --orderdir ASC ${TEST_COLLECTION}  | jq -c ".[15].Data.id"  )
+    assertEquals "Failed to query in batches" "16" "$result"
 }
 
 testOrderAndPagination(){
