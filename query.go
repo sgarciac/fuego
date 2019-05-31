@@ -55,34 +55,19 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	// order by
-	if len(orderbyFields) != 0 {
-		for i, orderbyRaw := range orderbyFields {
-			var parsedOrderBy Firestorefieldpath
-			var orderDir string
-			if err := fieldPathParser.ParseString(orderbyRaw, &parsedOrderBy); err != nil {
-				return cli.NewExitError(fmt.Sprintf("Error parsing orderby '%s' %v",
-					orderbyRaw, err), 83)
-			}
-			if i < len(orderbyFields) {
-				orderDir = orderdirFields[i]
-			} else {
-				orderDir = "DESC"
-			}
-			query = query.OrderByPath(parsedOrderBy.Key, getDir(orderDir))
+	for i, orderbyRaw := range orderbyFields {
+		var parsedOrderBy Firestorefieldpath
+		var orderDir string
+		if err := fieldPathParser.ParseString(orderbyRaw, &parsedOrderBy); err != nil {
+			return cli.NewExitError(fmt.Sprintf("Error parsing orderby '%s' %v",
+				orderbyRaw, err), 83)
 		}
-	} else if queries != nil {
-		// if we have a not equality filter we need to use that as ordering
-		if queries[0].Operator != "==" {
-			query = query.OrderByPath(queries[0].Key, firestore.Asc)
+		if i < len(orderdirFields) {
+			orderDir = orderdirFields[i]
 		} else {
-			// if we have a equality query we still may have more than `limit` results
-			// therefore we set the ordering explicitly to the documentid. without any ordering we
-			// would be unable to use later startAt
-			query = query.OrderBy(firestore.DocumentID, firestore.Asc)
+			orderDir = "ASC"
 		}
-	} else {
-		// default ordering for batched queries must be the documentID
-		query = query.OrderBy(firestore.DocumentID, firestore.Asc)
+		query = query.OrderByPath(parsedOrderBy.Key, getDir(orderDir))
 	}
 
 	if startAt != "" {
@@ -170,11 +155,7 @@ func queryCommandAction(c *cli.Context) error {
 				query = query.Limit(to_query)
 			}
 			// we need to figure out what the ordering is and add the correct fields
-			if len(orderbyFields) != 0 {
-				query = query.StartAfter(last)
-			} else {
-				query = query.StartAfter(last.Ref.ID)
-			}
+			query = query.StartAfter(last)
 		}
 	}
 
