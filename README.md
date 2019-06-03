@@ -255,10 +255,15 @@ fuego query --select name --select year --limit 1 --orderby year --orderdir ASC 
 ```
 
 #### Pagination of query results
+There are two ways to page through query results. 
 
-You can use the firestore pagination parameters, combining --limit with the
-flags --startat, --startafter, --endat, and --endbefore, which all accept the ID
-of a document.
+First you can use the firestore pagination parameters to manually page through results. 
+Combining --limit with the flags --startat, --startafter, --endat, and --endbefore, 
+which all accept the ID of a document.
+
+Second you can use the --batch parameter. This will cause fuego to do the pagination
+internally. This is helpful for very big queries which hit the firestore query timeout (about a minute).
+Very likely you will have to increase the --limit parameter from its default.
 
 ## Hacking
 
