@@ -255,10 +255,15 @@ fuego query --select name --select year --limit 1 --orderby year --orderdir ASC 
 ```
 
 #### Pagination of query results
+There are two ways to page through query results. 
 
-You can use the firestore pagination parameters, combining --limit with the
-flags --startat, --startafter, --endat, and --endbefore, which all accept the ID
-of a document.
+First you can use the firestore pagination parameters to manually page through results. 
+Combining --limit with the flags --startat, --startafter, --endat, and --endbefore, 
+which all accept the ID of a document.
+
+Second you can use the --batch parameter. This will cause fuego to do the pagination
+internally. This is helpful for very big queries which hit the firestore query timeout (about a minute).
+Very likely you will have to increase the --limit parameter from its default.
 
 ## Hacking
 
@@ -273,6 +278,26 @@ Steps:
 5. git tag -a v0.1.0 -m "First release"
 6. git push origin v0.1.0
 7. goreleaser (options: --rm-dist --release-notes=<file>)
+
+### Testing
+The tests are located in [test](./test/test) as a shuint2 shell script. You have to provide a gcp project with
+an active Firestore instance. You need to have the commandline tool [jq](https://stedolan.github.io/jq/) installed.
+
+To execute the tests go into the tests directory and run:
+```
+GOOGLE_APPLICATION_CREDENTIALS=my_credentialfile \
+FIREBASE_TOKEN=token_generated_by_firebasecli \
+PROJECT_NAME=my_project \
+./tests 
+```
+Alternatively you can use:
+```
+GOOGLE_CLOUD_PROJECT=my_project ./tests
+```
+You may need to log in to use this shortcut:
+```
+gcloud auth application-default login
+```
 
 
 
