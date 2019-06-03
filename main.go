@@ -109,8 +109,8 @@ func main() {
 				},
 				cli.IntFlag{
 					Name:  "batch, b",
-					Usage: "Will fetch documents in several requests with at most `BATCH` documents per request to prevent timeouts.",
-					Value: 100,
+					Usage: "Will fetch documents in several requests with at most `BATCH` documents per request to prevent timeouts (currently 60s).",
+					Value: 1000,
 				},
 			},
 		},

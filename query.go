@@ -4,8 +4,64 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
+	"google.golang.org/api/iterator"
 	"gopkg.in/urfave/cli.v1"
+	"io"
+	"log"
 )
+
+// wrapper to stream the json serialized results
+type displayItemWriter struct {
+	isFirst bool
+	writer  *io.Writer
+}
+
+func newDisplayItemWriter(writer *io.Writer) displayItemWriter {
+	return displayItemWriter{true, writer}
+}
+
+func (d *displayItemWriter) Write(doc *firestore.DocumentSnapshot) error {
+	if d.isFirst {
+		_, err := fmt.Fprintln(*d.writer, "[")
+		if err != nil {
+			return err
+		}
+		d.isFirst = false
+	} else {
+		_, err := fmt.Fprintln(*d.writer, ",")
+		if err != nil {
+			return err
+		}
+	}
+
+	var displayItem = make(map[string]interface{})
+
+	displayItem["ID"] = doc.Ref.ID
+	displayItem["CreateTime"] = doc.CreateTime
+	displayItem["ReadTime"] = doc.ReadTime
+	displayItem["UpdateTime"] = doc.UpdateTime
+	displayItem["Data"] = doc.Data()
+
+	jsonString, err := marshallData(displayItem)
+	if err != nil {
+		return err
+	}
+
+	_, err = fmt.Fprintln(*d.writer, jsonString)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *displayItemWriter) Close() {
+	if !d.isFirst {
+		_, err := fmt.Fprintln(*d.writer, "]")
+		if err != nil {
+			log.Panicf("Could not write finishing part of results. %v", err)
+		}
+	}
+}
 
 func getDir(name string) firestore.Direction {
 	if name == "DESC" {
@@ -30,10 +86,10 @@ func queryCommandAction(c *cli.Context) error {
 	batch := c.Int("batch")
 
 	queryParser := getQueryParser()
-	var queries []Firestorequery = nil
 	fieldPathParser := getFieldPathParser()
 
 	client, err := createClient(credentials)
+
 	if err != nil {
 		return cliClientError(err)
 	}
@@ -50,7 +106,6 @@ func queryCommandAction(c *cli.Context) error {
 		if err := queryParser.ParseString(queryString, &parsedQuery); err != nil {
 			return cli.NewExitError(fmt.Sprintf("Error parsing query '%s' %v", queryString, err), 83)
 		}
-		queries = append(queries, parsedQuery)
 		query = query.WherePath(parsedQuery.Key, parsedQuery.Operator, parsedQuery.Value.get())
 	}
 
@@ -65,7 +120,7 @@ func queryCommandAction(c *cli.Context) error {
 		if i < len(orderdirFields) {
 			orderDir = orderdirFields[i]
 		} else {
-			orderDir = "ASC"
+			orderDir = "DESC"
 		}
 		query = query.OrderByPath(parsedOrderBy.Key, getDir(orderDir))
 	}
@@ -119,50 +174,53 @@ func queryCommandAction(c *cli.Context) error {
 		query = query.SelectPaths(selectFieldPaths...)
 	}
 
-	var displayItems []map[string]interface{}
-	to_query := limit
+	// max amount of documents still to retrieve
+	toQuery := limit
+
+	displayItemWriter := newDisplayItemWriter(&c.App.Writer)
+	defer displayItemWriter.Close()
 
 	// make queries with a maximum of `batch` results until we have `limit` results or no more documents are returned
-	for to_query > 0 {
+	for toQuery > 0 {
+		// TODO the Close call should not be defered out of a for loop. Maybe move the iteration into a function and
+		// defer there?
 		documentIterator := query.Documents(context.Background())
-
-		docs, err := documentIterator.GetAll()
-		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
-		}
-
 		var last *firestore.DocumentSnapshot
-		for _, doc := range docs {
+		retrieved := 0
 
-			var displayItem = make(map[string]interface{})
+		for {
+			doc, err := documentIterator.Next()
+			if err == iterator.Done {
+				break
+			} else if err != nil {
+				documentIterator.Stop()
+				return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
+			}
+
 			last = doc
+			retrieved ++
 
-			displayItem["ID"] = doc.Ref.ID
-			displayItem["CreateTime"] = doc.CreateTime
-			displayItem["ReadTime"] = doc.ReadTime
-			displayItem["UpdateTime"] = doc.UpdateTime
-			displayItem["Data"] = doc.Data()
-			displayItems = append(displayItems, displayItem)
+			err = displayItemWriter.Write(doc)
+			if err != nil {
+				documentIterator.Stop()
+				return cli.NewExitError(fmt.Sprintf("Error while writing output. \n%v", err), 86)
+			}
 		}
 
-		if len(docs) == 0 {
+		documentIterator.Stop()
+
+		if retrieved == 0 {
 			// no more results
-			to_query = 0
+			toQuery = 0
 		} else {
-			to_query -= len(docs)
-			// if we do not need a complete batch we must adjust the limit
-			if to_query < batch {
-				query = query.Limit(to_query)
+			toQuery -= retrieved
+			// if we do not need a complete batch we must adjust the max_query
+			if toQuery < batch {
+				query = query.Limit(toQuery)
 			}
 			// we need to figure out what the ordering is and add the correct fields
 			query = query.StartAfter(last)
 		}
-	}
-
-	jsonString, _ := marshallData(displayItems)
-	_, err = fmt.Fprintln(c.App.Writer, jsonString)
-	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to print result \n%v", err), 85)
 	}
 
 	return nil

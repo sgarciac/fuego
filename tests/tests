@@ -118,8 +118,8 @@ testCompoundQuery(){
     assertEquals "Failed to query on two keys" "1" "$result"
 
     # query on two fields, that fail
-    result=$(../fuego query ${TEST_COLLECTION} "key2 == 1" "key1 == \"key1\"" | jq "length")
-    assertEquals "Failed to query on two keys" "0" "$result"
+    result=$(../fuego query ${TEST_COLLECTION} "key2 == 1" "key1 == \"key1\"")
+    assertEquals "Failed to query on two keys" "" "$result"
 
 }
 
