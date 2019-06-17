@@ -10,24 +10,26 @@
 
 oneTimeSetUp() {
 
-    # allow alternative GOOGLE_CLOUD_PROJECT parameter
-    if [ ! -z "${GOOGLE_CLOUD_PROJECT}" ]; then
-        PROJECT_NAME="${GOOGLE_CLOUD_PROJECT}"
-    fi
-
-    TEST_COLLECTION=tests-`uuidgen`
-    echo "Testing on project ${PROJECT_NAME} with collection ${TEST_COLLECTION}"
+    gcloud beta emulators firestore start --host-port localhost:8122 2>/dev/null &
+    export FIRESTORE_EMULATOR_HOST=localhost:8122
+    echo "Started firestore emulator locally on ${FIRESTORE_EMULATOR_HOST}. Waiting for it to come online."
 
     # rebuild the executable to make sure tests match the latest source code
     go build -o ../fuego  ..
+
+    sleep 1
 }
 
-tearDown() {
-    echo "Deleting collection ${TEST_COLLECTION}"
-    firebase --token "$FIREBASE_TOKEN" --project "$PROJECT_NAME" firestore:delete -y -r $TEST_COLLECTION
+setUp() {
+    TEST_COLLECTION=tests-`uuidgen`
+    echo "Testing on project ${PROJECT_NAME} with collection ${TEST_COLLECTION}"
+}
 
-    # need a newline after the firebase command
-    echo
+oneTimeTearDown() {
+    PID=`pgrep -f cloud-firestore-emulator.jar`
+    echo "Killing firestore emulator ${PID}"
+    # kill all shell local background processes
+    kill ${PID}
 }
 
 testWriteAndReadDocument() {
@@ -58,7 +60,7 @@ testQueryKeys(){
     result=$(../fuego query ${TEST_COLLECTION} "\" \" == 1" | jq ".[0].ID")
     assertEquals "Failed to query value on empty key" "\"${id}\"" "$result"
 
-		# Combine quoting and non quoting parts of a key
+	# Combine quoting and non quoting parts of a key
     result=$(../fuego query ${TEST_COLLECTION} "\"level2root\".number == 1" | jq ".[0].ID")
     assertEquals "Failed to query value combining quoting and non quoting parts of a key" "\"${id}\"" "$result"
 }
