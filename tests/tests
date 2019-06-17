@@ -9,6 +9,11 @@
 
 
 oneTimeSetUp() {
+    # the golang firebase api requires a project even when using the local firestore emulator
+    if [ -z "${GOOGLE_CLOUD_PROJECT}${GCLOUD_PROJECT}" ] ; then
+        export GOOGLE_CLOUD_PROJECT=firestore-emulator-`uuidgen`
+        echo "Setting GOOGLE_CLOUD_PROJECT to ${GOOGLE_CLOUD_PROJECT} as fake project"
+    fi
 
     gcloud beta emulators firestore start --host-port localhost:8122 2>/dev/null &
     export FIRESTORE_EMULATOR_HOST=localhost:8122
