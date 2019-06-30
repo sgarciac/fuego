@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.5.0]
+### Added
+- batched queries
+- support complex property names in all commands
+- support for multiple orderby's parameters 
+
 ## [0.4.0]
 ### Added
 - collections command
