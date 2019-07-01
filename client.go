@@ -23,10 +23,5 @@ func createClient(credentials string) (*firestore.Client, error) {
 		return nil, err
 	}
 
-	client, err := firebaseApp.Firestore(context.Background())
-	if err != nil {
-		return nil, err
-	}
-
-	return client, nil
+	return firebaseApp.Firestore(context.Background())
 }
