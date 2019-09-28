@@ -16,12 +16,12 @@ oneTimeSetUp() {
     fi
 
     gcloud beta emulators firestore start --host-port localhost:8122 2>/dev/null &
+    export FIRESTORE_EMULATOR_PID=$!
     export FIRESTORE_EMULATOR_HOST=localhost:8122
     echo "Started firestore emulator locally on ${FIRESTORE_EMULATOR_HOST}. Waiting for it to come online."
 
     # rebuild the executable to make sure tests match the latest source code
     go build -o ../fuego  ..
-
     sleep 1
 }
 
@@ -31,10 +31,7 @@ setUp() {
 }
 
 oneTimeTearDown() {
-    PID=`pgrep -f cloud-firestore-emulator.jar`
-    echo "Killing firestore emulator ${PID}"
-    # kill all shell local background processes
-    kill ${PID}
+    kill ${FIRESTORE_EMULATOR_PID}
 }
 
 testWriteAndReadDocument() {
