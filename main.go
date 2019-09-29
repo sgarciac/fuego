@@ -9,6 +9,7 @@ import (
 
 // Global configuration
 var credentials string
+var projectId string
 
 // Common errors
 func cliClientError(err error) *cli.ExitError {
@@ -27,6 +28,11 @@ func main() {
 			Name:        "credentials, c",
 			Destination: &credentials,
 			Usage:       "Load google application credentials from `FILE`",
+		},
+		cli.StringFlag{
+			Name:        "projectid, p",
+			Destination: &projectId,
+			Usage:       "Overwrite project id",
 		},
 	}
 
