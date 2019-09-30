@@ -274,4 +274,4 @@ Very likely you will have to increase the --limit parameter from its default.
 
 ## Contributing
 
-See the [HACKING.md](HACKING) file for some guidance on how to contribute.
+See the [HACKING](HACKING.md) file for some guidance on how to contribute.
