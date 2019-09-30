@@ -14,3 +14,5 @@ fuego
 *firebase-adminsdk*
 vendor
 dist
+firebase-debug.log
+firestore-debug.log

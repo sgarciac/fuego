@@ -6,6 +6,7 @@
   - [Installation](#installation)
   - [Usage](#usage)
     - [Authentication](#authentication)
+    - [Firestore emulator](#firestore-emulator)
     - [List collections](#list-collections)
     - [Writing and reading data](#writing-and-reading-data)
       - [A note on types](#a-note-on-types)
@@ -13,8 +14,7 @@
       - [Value and field path types in filters](#value-and-field-path-types-in-filters)
       - [Selecting specific fields](#selecting-specific-fields)
       - [Pagination of query results](#pagination-of-query-results)
-  - [Hacking](#hacking)
-    - [Testing](#testing)
+  - [Contributing](#contributing)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -60,6 +60,12 @@ or
 export GOOGLE_APPLICATION_CREDENTIALS=./my-account-service-private-key.json
 fuego get mycollection mydocumentid
 ```
+
+### Firestore emulator
+
+Fuego supports the firestore emulator. Set the FIRESTORE_EMULATOR_HOST
+environment variable to something appropriate (usually, localhost:8080).
+if no project is set, fuego will default to 'default'.
 
 ### List collections
 
@@ -266,30 +272,6 @@ Second you can use the --batch parameter. This will cause fuego to do the pagina
 internally. This is helpful for very big queries which hit the firestore query timeout (about a minute).
 Very likely you will have to increase the --limit parameter from its default.
 
-## Hacking
+## Contributing
 
-Releases are managed by goreleaser.
-
-Steps:
-
-1. export GITHUB_TOKEN=`your_token`
-2. Update version in main.go (i.e v0.1.0)
-3. Update CHANGELOG.md (set version)
-4. Commit changes
-5. git tag -a v0.1.0 -m "First release"
-6. git push origin v0.1.0
-7. goreleaser (options: --rm-dist --release-notes=<file>)
-
-### Testing
-The tests are located in [test](./test/test) as a shuint2 shell script. It is using the firestore emulator provided
-by gcloud. You also need to have the commandline tool [jq](https://stedolan.github.io/jq/) installed.
-
-To execute the tests go into the `tests` directory and run:
-```
-./tests
-or
-./tests -- nameoffirsttest nameofsecondtest
-```
-
-
-
+See the [HACKING.md](HACKING) file for some guidance on how to contribute.

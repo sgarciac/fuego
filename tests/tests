@@ -1,40 +1,32 @@
 #! /bin/sh
 
-# You'll need jq to run the tests
-# set the GOOGLE_APPLICATION_CREDENTIALS
-# set the FIREBASE_TOKEN (generate token using firebasecli)
-# set a PROJECT_NAME to the firebase project you want to use
-#
-# run specific tests with ./tests -- nameoffirsttest nameofsecondtest
+# Preparation
+# make sure you have the following command line programs:
+# jq
+# uuidgen
+
+
+# Steps to run the tests
+# setup and run the firestore emulator in a different shell
+# execute ./tests
+# or, alternativelt, run specific tests with ./tests -- nameoffirsttest nameofsecondtest
 
 
 oneTimeSetUp() {
-    # the golang firebase api requires a project even when using the local firestore emulator
-    if [ -z "${GOOGLE_CLOUD_PROJECT}${GCLOUD_PROJECT}" ] ; then
-        export GOOGLE_CLOUD_PROJECT=firestore-emulator-`uuidgen`
-        echo "Setting GOOGLE_CLOUD_PROJECT to ${GOOGLE_CLOUD_PROJECT} as fake project"
-    fi
-
-    gcloud beta emulators firestore start --host-port localhost:8122 2>/dev/null &
-    export FIRESTORE_EMULATOR_HOST=localhost:8122
-    echo "Started firestore emulator locally on ${FIRESTORE_EMULATOR_HOST}. Waiting for it to come online."
-
+    export FIRESTORE_EMULATOR_HOST=${FIRESTORE_EMULATOR_HOST:=localhost:8080}
+    echo "Running tests againt ${FIRESTORE_EMULATOR_HOST}. (make sure firestore emulator is running)."
     # rebuild the executable to make sure tests match the latest source code
     go build -o ../fuego  ..
-
     sleep 1
 }
 
 setUp() {
     TEST_COLLECTION=tests-`uuidgen`
-    echo "Testing on project ${PROJECT_NAME} with collection ${TEST_COLLECTION}"
+    echo "Testing with collection ${TEST_COLLECTION}"
 }
 
 oneTimeTearDown() {
-    PID=`pgrep -f cloud-firestore-emulator.jar`
-    echo "Killing firestore emulator ${PID}"
-    # kill all shell local background processes
-    kill ${PID}
+    echo "DONE"
 }
 
 testWriteAndReadDocument() {
