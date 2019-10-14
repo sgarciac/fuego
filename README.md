@@ -26,13 +26,15 @@ A command-line firestore client
 
 ## Installation
 
-Install fuego via [go get](https://golang.org/dl/):
+If you are comfortable with installing go programs, install fuego via [go get](https://golang.org/dl/):
 
 ```sh
 go get github.com/sgarciac/fuego
 ```
 
-Or use one of the precompiled binaries (untested) from the [latest release](https://github.com/sgarciac/fuego/releases).
+Otherwise, use one of the precompiled binaries (untested) from the [latest
+release](https://github.com/sgarciac/fuego/releases). (builts available for
+windows, linux, macintosh/darwin)
 
 ## Usage
 
@@ -61,11 +63,12 @@ export GOOGLE_APPLICATION_CREDENTIALS=./my-account-service-private-key.json
 fuego get mycollection mydocumentid
 ```
 
-### Firestore emulator
+### Firestore emulator usage
 
-Fuego supports the firestore emulator. Set the FIRESTORE_EMULATOR_HOST
-environment variable to something appropriate (usually, localhost:8080).
-if no project is set, fuego will default to 'default'.
+If you need to use fuego with the firestore emulator instead of a real firestore
+database, set the FIRESTORE_EMULATOR_HOST environment variable to something
+appropriate (usually, localhost:8080). if no project is set, fuego will default
+to 'default'.
 
 ### List collections
 
