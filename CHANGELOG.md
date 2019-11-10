@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.0]
+### Added
+- support firestore emulator
+
 ## [0.5.0]
 ### Added
 - batched queries
