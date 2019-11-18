@@ -34,7 +34,7 @@ windows, linux, macintosh/darwin)
 
 ### Building it locally
 
-If you are comfortable building go programs, you can build fuego yourself [go](https://golang.org/dl/):
+If you are comfortable building programs, you can build fuego yourself using [go](https://golang.org/dl/):
 
 ```sh
 git clone https://github.com/sgarciac/fuego.git
