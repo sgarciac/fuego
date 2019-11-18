@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.6.1]
+### Added
+- Documentation and dependencies
+
 ## [0.6.0]
 ### Added
 - support firestore emulator
