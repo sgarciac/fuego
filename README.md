@@ -29,8 +29,9 @@ A command-line firestore client
 If you are comfortable with installing go programs, install fuego via [go get](https://golang.org/dl/):
 
 ```sh
-go get github.com/sgarciac/fuego
+GO111MODULE=on go get github.com/sgarciac/fuego 
 ```
+
 
 Otherwise, use one of the precompiled binaries (untested) from the [latest
 release](https://github.com/sgarciac/fuego/releases). (builts available for
