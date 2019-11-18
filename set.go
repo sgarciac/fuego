@@ -4,7 +4,7 @@ import (
 	firestore "cloud.google.com/go/firestore"
 	"context"
 	"fmt"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli"
 )
 
 func setData(

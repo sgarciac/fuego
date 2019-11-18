@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"google.golang.org/api/iterator"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli"
 )
 
 func collectionsCommandAction(c *cli.Context) error {
