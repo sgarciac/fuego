@@ -16,3 +16,4 @@ vendor
 dist
 firebase-debug.log
 firestore-debug.log
+.idea
