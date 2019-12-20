@@ -74,6 +74,13 @@ func main() {
 			Action:    getCommandAction,
 		},
 		{
+			Name:      "delete",
+			Aliases:   []string{"d"},
+			Usage:     "Delete a document from a collection",
+			ArgsUsage: "collection-path document-id",
+			Action:    deleteCommandAction,
+		},
+		{
 			Name:      "query",
 			Aliases:   []string{"q"},
 			Usage:     "Query a collection",
