@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.7.0]
+### Added
+- delete command
+
 ## [0.6.1]
 ### Added
 - Documentation and dependencies
