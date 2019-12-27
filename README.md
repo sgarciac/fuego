@@ -117,6 +117,15 @@ json string (if it starts with the character '{') or a path to a json file, i.e.
 fuego add animals ./dog.json
 ```
 
+To delete a document:
+
+```sh
+fuego get people Rv7ZfnLQWprdXuulqMdf
+```
+
+note: this won't delete any subcollection under the document.
+
+
 #### A note on types
 
 fuego read and write commands are constrained by JSON data types: string,

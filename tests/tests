@@ -29,19 +29,25 @@ oneTimeTearDown() {
     echo "DONE"
 }
 
-testWriteAndReadDocument() {
+testAddSetReadDeleteDocument() {
     # Adding...
     expectedValue="string1"
     id=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"${expectedValue}\"}") || fail "Failed to add document"
     result=$(../fuego get ${TEST_COLLECTION} ${id} | jq ".level1")
     assertEquals "Failed to read added value" "\"${expectedValue}\"" "${result}"
 
-    # And setting...
+    # Setting...
     expectedValue="string2"
     ../fuego set ${TEST_COLLECTION} ${id} "{\"level1\": \"${expectedValue}\"}" || fail "Failed to set document"
     result=$(../fuego get ${TEST_COLLECTION} ${id} | jq ".level1")
     assertEquals "Failed to read set value" "\"${expectedValue}\"" "${result}"
+
+		# And deleting...
+		../fuego delete ${TEST_COLLECTION} ${id}
+		assertFalse "Should not have read deleted value" "../fuego get ${TEST_COLLECTION} ${id}"
 }
+
+
 
 testQueryKeys(){
     # Query integer value on first level key

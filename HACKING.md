@@ -33,7 +33,9 @@ your GOPATH if you wish).
 
 ## Testing
 
-The tests are located in [test](./test/test) as a shuint2 shell script. 
+The tests are located in [test](./test/test) as a shunit2 shell script, against
+a the firebase emulator.
+
 To run the tests, you'll need to install:
 
  * [firestore emulator](https://firebase.google.com/docs/rules/emulator-setup) (via either gcloud or firebase CLI)
