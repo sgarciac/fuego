@@ -36,13 +36,13 @@ your GOPATH if you wish).
 The tests are located in [test](./test/test) as a shuint2 shell script. 
 To run the tests, you'll need to install:
 
- * The firestore emulator (via either gcloud or firebase CLI)
- * [https://stedolan.github.io/jq/](jq)
+ * [firestore emulator](https://firebase.google.com/docs/rules/emulator-setup) (via either gcloud or firebase CLI)
+ * [jq](https://stedolan.github.io/jq/)
  * uuidgen (apt-get install uuidgen-runtime in gnu/linux)
 
 To execute the tests, follow these steps 
 
-1. Run the [https://firebase.google.com/docs/rules/emulator-setup](firestore emulator)
+1. Run the [firestore emulator](https://firebase.google.com/docs/rules/emulator-setup)
 
 2. In a different shell, go into the `tests` directory and run the tests script:
 
