@@ -1,4 +1,4 @@
 # TODO
 
-- Support in, array-contains, array-contains-any operators
-- Support an "-id" option to add command
+- Add an "update" command (set with merge option), and explain the difference in
+  the README.
