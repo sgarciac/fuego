@@ -33,16 +33,18 @@ type Firestorefieldpath struct {
 }
 
 type Firestorequery struct {
-	Key      []string        `@(SimpleFieldPath | String)(Dot @(SimpleFieldPath | String))*`
+	// Must take care of the "in" operator.
+	Key      []string        `@(SimpleFieldPath | String | "in")(Dot @(SimpleFieldPath | String | "in"))*`
 	Operator string          `@Operator`
 	Value    *Firestorevalue `@@`
 }
 
 type Firestorevalue struct {
-	String   *string   `  @String`
-	Number   *float64  `| @Number`
-	DateTime *DateTime `| @DateTime`
-	Boolean  *Boolean  `| @("true" | "false" | "TRUE" | "FALSE")`
+	String   *string           `  @String`
+	Number   *float64          `| @Number`
+	DateTime *DateTime         `| @DateTime`
+	Boolean  *Boolean          `| @("true" | "false" | "TRUE" | "FALSE")`
+	List     []*Firestorevalue `| "[" {@@} "]"`
 }
 
 func (value *Firestorevalue) get() interface{} {
@@ -52,17 +54,26 @@ func (value *Firestorevalue) get() interface{} {
 		return *value.Number
 	} else if value.DateTime != nil {
 		return time.Time(*value.DateTime)
+	} else if value.Boolean != nil {
+		return !!*value.Boolean
+	} else {
+		list := []interface{}{}
+		for _, item := range value.List {
+			list = append(list, item.get())
+		}
+		return list
 	}
-	return !!*value.Boolean
 }
 
 func getQueryParser() *participle.Parser {
 	queryLexer := lexer.Must(lexer.Regexp(`(\s+)` +
 		`|(?P<DateTime>` + rfc3339pattern + `)` +
+		`|(?P<Operator><=|>=|<|>|==|in|array-contains-any|array-contains)` +
 		`|(?P<SimpleFieldPath>[a-zA-Z_][a-zA-Z0-9_]*)` +
 		`|(?P<Number>[-+]?\d*\.?\d+)` +
+		`|(?P<OpenList>\[)` +
+		`|(?P<CloseList>\])` +
 		`|(?P<String>('[^']*')|("((\\")|[^"])*"))` +
-		`|(?P<Operator><=|>=|<|>|==)` +
 		`|(?P<Dot>\.)`,
 	))
 	parser := participle.MustBuild(

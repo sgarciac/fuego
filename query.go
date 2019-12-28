@@ -4,8 +4,8 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
-	"google.golang.org/api/iterator"
 	"github.com/urfave/cli"
+	"google.golang.org/api/iterator"
 	"io"
 	"log"
 )
@@ -198,7 +198,7 @@ func queryCommandAction(c *cli.Context) error {
 			}
 
 			last = doc
-			retrieved ++
+			retrieved++
 
 			err = displayItemWriter.Write(doc)
 			if err != nil {

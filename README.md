@@ -190,7 +190,9 @@ ascending order:
 fuego query --orderby birthplace.country --orderdir ASC nobel
 ``` 
 
-You can add filters, using the firestore supported operators (>, <, >=, <= and ==). You can combine several filters in a single query. For example, to get the 2018 nobel laureates from the USA:
+You can add filters, using the firestore supported operators (>, <, >=, <=, ==,
+in, array-contains or array-contains-any). You can combine several filters in a
+single query. For example, to get the 2018 nobel laureates from the USA:
 
 ```sh
 fuego query nobel 'birthplace.country == "USA"' 'year == 2018'
@@ -263,13 +265,22 @@ unquoted.
 fuego query weirdcollection 'really."    ".strage." but valid ".fieldname == "even blank keys are valid"'
 ```
 
-As for values, numeric, string, boolean and timestamp values are supported in
+As for values, numeric, string, boolean (true or false) and timestamp values are supported in
 filters. Examples of queries:
 
 "age >= 34", "name == 'paul'", "married == true", and "birthday == 1977-06-28T04:00:00Z"
 
 Note that timestamps values should use the RFC3339 format and should not be
-quoted. Boolean values are represented by the unquoted *true* and *false* strings.
+quoted. Boolean values are represented by the unquoted *true* and *false*
+strings.
+
+Arrays values should be expressed as in the following example. Notice that items
+are separated by space:
+
+```sh
+fuego query cities 'name in ["bogota" "cali" "medellin"]'
+```
+
 
 #### Selecting specific fields
 
