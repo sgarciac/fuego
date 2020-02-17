@@ -120,7 +120,7 @@ fuego add animals ./dog.json
 To delete a document:
 
 ```sh
-fuego get people Rv7ZfnLQWprdXuulqMdf
+fuego delete people Rv7ZfnLQWprdXuulqMdf
 ```
 
 note: this won't delete any subcollection under the document.
