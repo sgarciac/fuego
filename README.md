@@ -142,6 +142,15 @@ fuego add --ts dates '{"randomdate": "2012-11-01T22:08:41+00:00"}'
 
 will add a new document whose field named "randomdate" is a timestamp and not a string.
 
+### Subcollections
+
+You can work on sub-collections using the full path with "/"s as separators. For
+example:
+
+```sh
+fuego query countries/france/cities
+```
+
 ### Queries
 
 Let's explain queries by example. First, we'll create a collection of physics
