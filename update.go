@@ -22,7 +22,7 @@ func updateData(
 		Collection(collection).
 		Doc(id).
 		Update(context.Background(),
-			flattenForUpdate(object, ""))
+			flattenForUpdate(object, nil))
 
 	if err != nil {
 		return err
@@ -49,15 +49,18 @@ func updateCommandAction(c *cli.Context) error {
 	return nil
 }
 
-func flattenForUpdate(data map[string]interface{}, root string) (result []firestore.Update) {
+func flattenForUpdate(data map[string]interface{}, path firestore.FieldPath) (result []firestore.Update) {
 	for k, v := range data {
+		currentPath := make(firestore.FieldPath, len(path), len(path)+1)
+		copy(currentPath, path)
+		currentPath = append(currentPath, k)
+
 		switch v.(type) {
 		case map[string]interface{}:
-			result = append(result, flattenForUpdate(v.(map[string]interface{}), root+k+".")...)
+			result = append(result, flattenForUpdate(v.(map[string]interface{}), currentPath)...)
 		default:
 			result = append(result, firestore.Update{
-				Path:      root + k,
-				FieldPath: nil,
+				FieldPath: currentPath,
 				Value:     v,
 			})
 		}
