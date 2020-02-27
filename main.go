@@ -67,6 +67,13 @@ func main() {
 			Flags:     writingFlags,
 		},
 		{
+			Name:      "update",
+			Aliases:   []string{"u"},
+			Usage:     "Updates / patches the contents of a document with the given json-document",
+			ArgsUsage: "collection-path document-id json-document",
+			Action:    updateCommandAction,
+		},
+		{
 			Name:      "get",
 			Aliases:   []string{"g"},
 			Usage:     "Get a document from a collection",
