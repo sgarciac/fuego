@@ -45,6 +45,16 @@ To run the tests, you'll need to install:
 To execute the tests, follow these steps 
 
 1. Run the [firestore emulator](https://firebase.google.com/docs/rules/emulator-setup)
+```
+$ gcloud beta emulators firestore start --host-port localhost:8080
+Executing: /home/user/google-cloud-sdk/platform/cloud-firestore-emulator/cloud_firestore_emulator start --host=localhost --port=8080
+[firestore] API endpoint: http://localhost:8080
+[firestore] If you are using a library that supports the FIRESTORE_EMULATOR_HOST environment variable, run:
+[firestore] 
+[firestore]    export FIRESTORE_EMULATOR_HOST=localhost:8080
+[firestore] 
+[firestore] Dev App Server is now running.
+```
 
 2. In a different shell, go into the `tests` directory and run the tests script:
 
