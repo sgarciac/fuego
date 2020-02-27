@@ -53,7 +53,7 @@ func flattenForUpdate(data map[string]interface{}, root string) (result []firest
 	for k, v := range data {
 		switch v.(type) {
 		case map[string]interface{}:
-			result = append(result, flattenForUpdate(v.(map[string]interface{}), k+".")...)
+			result = append(result, flattenForUpdate(v.(map[string]interface{}), root+k+".")...)
 		default:
 			result = append(result, firestore.Update{
 				Path:      root + k,
