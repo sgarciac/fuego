@@ -16,13 +16,14 @@ builds:
     - darwin
   goarch:
     - amd64
-archive:
-  replacements:
-    darwin: MacOS
-    linux: Linux
-    windows: Windows
-    386: 32-bit
-    amd64: 64-bit
+archives:
+  -
+    replacements:
+      darwin: MacOS
+      linux: Linux
+      windows: Windows
+      386: 32-bit
+      amd64: 64-bit
 checksum:
   name_template: 'checksums.txt'
 snapshot:
