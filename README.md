@@ -104,7 +104,7 @@ fuego get people Rv7ZfnLQWprdXuulqMdf
 # }
 ```
 
-You can also update an existing document:
+You can also replace an existing document:
 
 ```
 fuego set people Rv7ZfnLQWprdXuulqMdf '{"name": "sergio", "age": 42}' # It's my birthday!
