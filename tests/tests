@@ -64,6 +64,17 @@ testUpdatingDocument(){
     assertEquals "Failed to update existing fields" "${expectedValue}" "${result}"
 }
 
+testUpdatingDeepDocument(){
+    # add a new document
+    id=$(../fuego add ${TEST_COLLECTION} "{\"base\": \"value\"}") || fail "Failed to add document"
+
+    # add a new field
+    ../fuego update ${TEST_COLLECTION} ${id} "{\"level1\": {\"level2\": {\"level3\": {\"level4\": \"value\"}}}}" || fail "Failed to add document"
+    result=$(../fuego get ${TEST_COLLECTION} ${id} | jq .)
+    expectedValue=$(echo {\"base\": \"value\", \"level1\": {\"level2\": {\"level3\": {\"level4\": \"value\"}}}} | jq .)
+    assertEquals "Failed to update deeply nested field fields" "${expectedValue}" "${result}"
+}
+
 testQueryKeys(){
     # Query integer value on first level key
     id=$(../fuego add ${TEST_COLLECTION} "{\" \": 1, \"level1\": 1, \"level2root\": {\"number\": 1}}") || fail "Failed to add document"
