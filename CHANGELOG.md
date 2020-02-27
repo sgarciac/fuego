@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.9.0]
+### Added
+- support update command (set-merge)
+
+
 ## [0.8.0]
 ### Added
 - support array operations in, array-contains, array-contains-any
