@@ -64,14 +64,13 @@ func main() {
 			Usage:     "Set the contents of a document",
 			ArgsUsage: "collection-path document-id json-document",
 			Action:    setCommandAction,
-			Flags:     writingFlags,
-		},
-		{
-			Name:      "update",
-			Aliases:   []string{"u"},
-			Usage:     "Updates / patches the contents of a document with the given json-document",
-			ArgsUsage: "collection-path document-id json-document",
-			Action:    updateCommandAction,
+			Flags: append(
+				writingFlags,
+				cli.BoolFlag{
+					Name:  "merge",
+					Usage: "if set the set operation will do a update/patch",
+				},
+			),
 		},
 		{
 			Name:      "get",

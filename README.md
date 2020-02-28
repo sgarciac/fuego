@@ -128,7 +128,7 @@ note: this won't delete any subcollection under the document.
 To update an existing document:
 
 ```sh
-fuego update people Rv7ZfnLQWprdXuulqMdf '{"location": "unknown"}'
+fuego set --merge people Rv7ZfnLQWprdXuulqMdf '{"location": "unknown"}'
 # Rv7ZfnLQWprdXuulqMdf <- fuego prints the ID of the updated document
 fuego get people Rv7ZfnLQWprdXuulqMdf
 # {
