@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.9.2]
+### Added
+- fixed set merge
+
 ## [0.9.0]
 ### Added
 - support update command (set-merge)
