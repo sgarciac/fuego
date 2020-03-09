@@ -12,7 +12,8 @@ func setData(
 	collection string,
 	id string,
 	data string,
-	timestampify bool) error {
+	timestampify bool,
+	merge bool) error {
 
 	object, err := unmarshallData(data)
 	if err != nil {
@@ -23,10 +24,15 @@ func setData(
 		timestampifyMap(object)
 	}
 
+	var options []firestore.SetOption
+	if merge {
+		options = append(options, firestore.MergeAll)
+	}
+
 	_, err = client.
 		Collection(collection).
 		Doc(id).
-		Set(context.Background(), object)
+		Set(context.Background(), object, options...)
 
 	if err != nil {
 		return err
@@ -38,6 +44,7 @@ func setData(
 func setCommandAction(c *cli.Context) error {
 	collectionPath := c.Args().First()
 	timestampify := c.Bool("timestamp")
+	merge := c.Bool("merge")
 
 	id := c.Args().Get(1)
 	data := c.Args().Get(2)
@@ -45,7 +52,7 @@ func setCommandAction(c *cli.Context) error {
 	if err != nil {
 		return cliClientError(err)
 	}
-	err = setData(client, collectionPath, id, data, timestampify)
+	err = setData(client, collectionPath, id, data, timestampify, merge)
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("Failed to write data. \n%v", err), 85)
 	}

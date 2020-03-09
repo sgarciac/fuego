@@ -52,13 +52,13 @@ testUpdatingDocument(){
     id=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"value\"}") || fail "Failed to add document"
 
     # add a new field
-    ../fuego update ${TEST_COLLECTION} ${id} "{\"version\": 2}" || fail "Failed to add document"
+    ../fuego set --merge ${TEST_COLLECTION} ${id} "{\"version\": 2}" || fail "Failed to add document"
     result=$(../fuego get ${TEST_COLLECTION} ${id} | jq .)
     expectedValue=$(echo {\"level1\": \"value\", \"version\": 2} | jq .)
     assertEquals "Failed to update new fields" "${expectedValue}" "${result}"
 
     # overwrite existing field
-    ../fuego update ${TEST_COLLECTION} ${id} "{\"version\": 15}" || fail "Failed to add document"
+    ../fuego set --merge ${TEST_COLLECTION} ${id} "{\"version\": 15}" || fail "Failed to add document"
     result=$(../fuego get ${TEST_COLLECTION} ${id} | jq .)
     expectedValue=$(echo {\"level1\": \"value\", \"version\": 15} | jq .)
     assertEquals "Failed to update existing fields" "${expectedValue}" "${result}"
@@ -69,7 +69,7 @@ testUpdatingDeepDocument(){
     id=$(../fuego add ${TEST_COLLECTION} "{\"base\": \"value\"}") || fail "Failed to add document"
 
     # add a new field
-    ../fuego update ${TEST_COLLECTION} ${id} "{\"level1\": {\"level2\": {\"level3\": {\"level4\": \"value\"}}}}" || fail "Failed to add document"
+    ../fuego set --merge ${TEST_COLLECTION} ${id} "{\"level1\": {\"level2\": {\"level3\": {\"level4\": \"value\"}}}}" || fail "Failed to add document"
     result=$(../fuego get ${TEST_COLLECTION} ${id} | jq .)
     expectedValue=$(echo {\"base\": \"value\", \"level1\": {\"level2\": {\"level3\": {\"level4\": \"value\"}}}} | jq .)
     assertEquals "Failed to update deeply nested field fields" "${expectedValue}" "${result}"
