@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.10.0]
+### Added
+- Update firestore module.
+
+
 ## [0.9.2]
 ### Added
 - fixed set merge

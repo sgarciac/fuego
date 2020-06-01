@@ -7,5 +7,5 @@ require (
 	firebase.google.com/go v3.11.1+incompatible
 	github.com/alecthomas/participle v0.3.0
 	github.com/urfave/cli v1.22.1
-	google.golang.org/api v0.14.0
+	google.golang.org/api v0.20.0
 )
