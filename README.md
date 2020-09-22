@@ -74,8 +74,11 @@ fuego get mycollection mydocumentid
 
 If you need to use fuego with the firestore emulator instead of a real firestore
 database, set the FIRESTORE_EMULATOR_HOST environment variable to something
-appropriate (usually, localhost:8080). if no project is set, fuego will default
-to 'default'.
+appropriate (usually, localhost:8080).
+
+### Firebase project ID
+
+Set the project ID with `-projectid NAME`. Defaults to 'default'.
 
 ### List collections
 
