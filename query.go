@@ -71,8 +71,16 @@ func getDir(name string) firestore.Direction {
 	return firestore.Asc
 }
 
-func documentSnapshot(client *firestore.Client, document string, collectionRef *firestore.CollectionRef) (*firestore.DocumentSnapshot, error) {
+// get the snapshot of a document, receiving either a document path, or a
+// collection reference and a document id.  The document-path of document id are
+// passed in the 'document' parameter.
+func documentSnapshot(client *firestore.Client, document string, collectionRef *firestore.CollectionRef, group bool) (*firestore.DocumentSnapshot, error) {
 	var documentRef *firestore.DocumentRef
+
+	if group && !strings.Contains(document, "/") {
+		return nil, cli.NewExitError("If you use the group option, you must use a document-path for pagination arguments", 83)
+	}
+
 	if strings.Contains(document, "/") {
 		documentRef = client.Doc(document)
 	} else {
@@ -83,13 +91,15 @@ func documentSnapshot(client *firestore.Client, document string, collectionRef *
 
 // query collection-path query*
 func queryCommandAction(c *cli.Context) error {
-	collectionPath := c.Args().First()
+	collectionPathOrId := c.Args().First()
 
 	// pagination
 	startAt := c.String("startat")
 	startAfter := c.String("startafter")
 	endAt := c.String("endat")
 	endBefore := c.String("endbefore")
+
+	queryGroup := c.Bool("group")
 
 	selectFields := c.StringSlice("select")
 	orderbyFields := c.StringSlice("orderby")
@@ -106,11 +116,22 @@ func queryCommandAction(c *cli.Context) error {
 		return cliClientError(err)
 	}
 
-	collectionRef := client.Collection(collectionPath)
 	if limit < batch {
 		batch = limit
 	}
-	query := collectionRef.Limit(batch)
+
+	// init the query either from a collection ref or a collection group.
+	var query firestore.Query
+	var collectionRef *firestore.CollectionRef
+	var collectionGroupRef *firestore.CollectionGroupRef
+
+	if queryGroup {
+		collectionGroupRef = client.CollectionGroup(collectionPathOrId)
+		query = collectionGroupRef.Limit(batch)
+	} else {
+		collectionRef = client.Collection(collectionPathOrId)
+		query = collectionRef.Limit(batch)
+	}
 
 	for i := 1; i < c.NArg(); i++ {
 		queryString := c.Args().Get(i)
@@ -138,7 +159,7 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	if startAt != "" {
-		docsnap, err := documentSnapshot(client, startAt, collectionRef)
+		docsnap, err := documentSnapshot(client, startAt, collectionRef, queryGroup)
 		if err != nil {
 			return cli.NewExitError(fmt.Sprintf("Failed to get '%s'", startAt), 83)
 		}
@@ -146,7 +167,7 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	if startAfter != "" {
-		docsnap, err := documentSnapshot(client, startAfter, collectionRef)
+		docsnap, err := documentSnapshot(client, startAfter, collectionRef, queryGroup)
 		if err != nil {
 			return cli.NewExitError(fmt.Sprintf("Failed to get '%s'", startAfter), 83)
 		}
@@ -154,7 +175,7 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	if endAt != "" {
-		docsnap, err := documentSnapshot(client, endAt, collectionRef)
+		docsnap, err := documentSnapshot(client, endAt, collectionRef, queryGroup)
 		if err != nil {
 			return cli.NewExitError(fmt.Sprintf("Failed to get '%s'", endAt), 83)
 		}
@@ -162,7 +183,7 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	if endBefore != "" {
-		docsnap, err := documentSnapshot(client, endBefore, collectionRef)
+		docsnap, err := documentSnapshot(client, endBefore, collectionRef, queryGroup)
 		if err != nil {
 			return cli.NewExitError(fmt.Sprintf("Failed to get '%s'", endBefore), 83)
 		}

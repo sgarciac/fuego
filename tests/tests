@@ -22,6 +22,7 @@ oneTimeSetUp() {
 
 setUp() {
     TEST_COLLECTION=tests-`uuidgen`
+		TEST_COLLECTION_2=tests-`uuidgen`
     echo "Testing with collection ${TEST_COLLECTION}"
 }
 
@@ -102,6 +103,15 @@ testQueryWithSelect(){
     ../fuego add ${TEST_COLLECTION} "{\"p1\": 1, \"p2\": {\"number\": 1, \"string\":\"blah\"}}"
     result=$(../fuego query --select p1 --select '"p2".number' ${TEST_COLLECTION} "p1 == 1" | jq -c ".[0].Data")
     assertEquals "Failed to select properties" "{\"p1\":1,\"p2\":{\"number\":1}}" "${result}" 
+}
+
+testGroupQuery() {
+		../fuego set ${TEST_COLLECTION}/doc1/${TEST_COLLECTION_2}/doc1_1 '{}'
+		../fuego set ${TEST_COLLECTION}/doc1/${TEST_COLLECTION_2}/doc1_2 '{}'
+		../fuego set ${TEST_COLLECTION}/doc2/${TEST_COLLECTION_2}/doc2_1 '{}'
+		../fuego set ${TEST_COLLECTION}/doc2/${TEST_COLLECTION_2}/doc2_2 '{}'
+		result=$(../fuego query -g ${TEST_COLLECTION_2} | jq '. | length')
+		assertEquals "Failed to query group collection" "4" "${result}"
 }
 
 testQueryDifferentValueTypes(){
@@ -194,6 +204,7 @@ testQueryBatched(){
     result=$(../fuego query --limit 20 --batch 5 --orderby id --orderdir ASC ${TEST_COLLECTION}  | jq -c ".[15].Data.id"  )
     assertEquals "Failed to query in batches" "16" "$result"
 }
+
 
 testOrderAndPagination(){
     r1=$(../fuego add ${TEST_COLLECTION} "{\"level1\": {\"level2\": 1}}")
