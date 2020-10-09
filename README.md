@@ -4,16 +4,20 @@
 
 - [fuego](#fuego)
   - [Installation](#installation)
+    - [Precompiled binaries](#precompiled-binaries)
+    - [Building it locally](#building-it-locally)
   - [Usage](#usage)
     - [Authentication](#authentication)
-    - [Firestore emulator](#firestore-emulator)
+    - [Firestore emulator usage](#firestore-emulator-usage)
     - [List collections](#list-collections)
     - [Writing and reading data](#writing-and-reading-data)
       - [A note on types](#a-note-on-types)
+    - [Subcollections](#subcollections)
     - [Queries](#queries)
       - [Value and field path types in filters](#value-and-field-path-types-in-filters)
       - [Selecting specific fields](#selecting-specific-fields)
       - [Pagination of query results](#pagination-of-query-results)
+      - [Group queries](#group-queries)
   - [Contributing](#contributing)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -110,9 +114,9 @@ You can also replace an existing document:
 fuego set people/Rv7ZfnLQWprdXuulqMdf '{"name": "sergio", "age": 42}' # It's my birthday!
 ```
 
-Note: we can either use the arguments ```collection-path document-id
+*Note*: we can either use the arguments ```collection-path document-id
 json-data``` or ```document-path json-data```. This is also the case for the
-delete command.
+delete and the get commands.
 
 In both ```add``` and ```set``` commands, the document argument can be either a
 json string (if it starts with the character '{') or a path to a json file, i.e.:
@@ -326,6 +330,12 @@ which all accept the ID of a document.
 Second you can use the --batch parameter. This will cause fuego to do the pagination
 internally. This is helpful for very big queries which hit the firestore query timeout (about a minute).
 Very likely you will have to increase the --limit parameter from its default.
+
+#### Group queries
+
+You can make [group
+queries](https://firebase.google.com/docs/firestore/query-data/queries) by using
+the -g flag. 
 
 ## Contributing
 
