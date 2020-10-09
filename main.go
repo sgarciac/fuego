@@ -90,12 +90,16 @@ func main() {
 			Name:      "query",
 			Aliases:   []string{"q"},
 			Usage:     "Query a collection",
-			ArgsUsage: "collection-path QUERY*",
+			ArgsUsage: "[collection-path | collection-id] QUERY*",
 			Action:    queryCommandAction,
 			Flags: []cli.Flag{
 				cli.StringSliceFlag{
 					Name:  "orderby, ob",
 					Usage: "`FIELD_PATH` to order results by",
+				},
+				cli.BoolFlag{
+					Name:  "group, g",
+					Usage: "perform a group query",
 				},
 				cli.StringSliceFlag{
 					Name:  "orderdir, od",
