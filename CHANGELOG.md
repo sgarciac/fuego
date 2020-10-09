@@ -1,9 +1,13 @@
 # Changelog
 
+## [0.11.0]
+### Added
+- Support for document paths
+- Support for group queries
+
 ## [0.10.0]
 ### Added
 - Update firestore module.
-
 
 ## [0.9.2]
 ### Added
