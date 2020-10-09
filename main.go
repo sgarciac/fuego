@@ -62,7 +62,7 @@ func main() {
 			Name:      "set",
 			Aliases:   []string{"s"},
 			Usage:     "Set the contents of a document",
-			ArgsUsage: "collection-path document-id json-document",
+			ArgsUsage: "[collection-path document-id json-document | document-path json-document]",
 			Action:    setCommandAction,
 			Flags: append(
 				writingFlags,
@@ -76,14 +76,14 @@ func main() {
 			Name:      "get",
 			Aliases:   []string{"g"},
 			Usage:     "Get a document from a collection",
-			ArgsUsage: "collection-path document-id",
+			ArgsUsage: "[collection-path document-id | document-path]",
 			Action:    getCommandAction,
 		},
 		{
 			Name:      "delete",
 			Aliases:   []string{"d"},
 			Usage:     "Delete a document from a collection",
-			ArgsUsage: "collection-path document-id",
+			ArgsUsage: "[collection-path document-id | document-path]",
 			Action:    deleteCommandAction,
 		},
 		{

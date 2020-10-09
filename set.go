@@ -9,7 +9,8 @@ import (
 
 func setData(
 	client *firestore.Client,
-	collection string,
+	collectionPath string,
+	documentPath string,
 	id string,
 	data string,
 	timestampify bool,
@@ -29,10 +30,16 @@ func setData(
 		options = append(options, firestore.MergeAll)
 	}
 
-	_, err = client.
-		Collection(collection).
-		Doc(id).
-		Set(context.Background(), object, options...)
+	if collectionPath != "" {
+		_, err = client.
+			Collection(collectionPath).
+			Doc(id).
+			Set(context.Background(), object, options...)
+	} else {
+		_, err = client.
+			Doc(documentPath).
+			Set(context.Background(), object, options...)
+	}
 
 	if err != nil {
 		return err
@@ -42,21 +49,41 @@ func setData(
 }
 
 func setCommandAction(c *cli.Context) error {
-	collectionPath := c.Args().First()
+	argsLength := len(c.Args())
+
+	if argsLength < 2 || argsLength > 3 {
+		return cli.NewExitError("Wrong number of arguments", 85)
+	}
+
 	timestampify := c.Bool("timestamp")
 	merge := c.Bool("merge")
 
-	id := c.Args().Get(1)
-	data := c.Args().Get(2)
+	var collectionPath, id, data, documentPath string
+
+	if argsLength == 3 {
+		collectionPath = c.Args().First()
+		id = c.Args().Get(1)
+		data = c.Args().Get(2)
+	} else {
+		documentPath = c.Args().First()
+		data = c.Args().Get(1)
+	}
+
 	client, err := createClient(credentials)
 	if err != nil {
 		return cliClientError(err)
 	}
-	err = setData(client, collectionPath, id, data, timestampify, merge)
+
+	err = setData(client, collectionPath, documentPath, id, data, timestampify, merge)
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("Failed to write data. \n%v", err), 85)
 	}
-	fmt.Fprintf(c.App.Writer, "%v\n", id)
+
+	if collectionPath != "" {
+		fmt.Fprintf(c.App.Writer, "%v\n", id)
+	} else {
+		fmt.Fprintf(c.App.Writer, "%v\n", documentPath)
+	}
 	defer client.Close()
 	return nil
 }

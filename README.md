@@ -107,8 +107,12 @@ fuego get people Rv7ZfnLQWprdXuulqMdf
 You can also replace an existing document:
 
 ```
-fuego set people Rv7ZfnLQWprdXuulqMdf '{"name": "sergio", "age": 42}' # It's my birthday!
+fuego set people/Rv7ZfnLQWprdXuulqMdf '{"name": "sergio", "age": 42}' # It's my birthday!
 ```
+
+Note: we can either use the arguments ```collection-path document-id
+json-data``` or ```document-path json-data```. This is also the case for the
+delete command.
 
 In both ```add``` and ```set``` commands, the document argument can be either a
 json string (if it starts with the character '{') or a path to a json file, i.e.:
@@ -120,7 +124,7 @@ fuego add animals ./dog.json
 To delete a document:
 
 ```sh
-fuego delete people Rv7ZfnLQWprdXuulqMdf
+fuego delete people/Rv7ZfnLQWprdXuulqMdf
 ```
 
 note: this won't delete any subcollection under the document.

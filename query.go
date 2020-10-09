@@ -8,6 +8,7 @@ import (
 	"google.golang.org/api/iterator"
 	"io"
 	"log"
+	"strings"
 )
 
 // wrapper to stream the json serialized results
@@ -70,6 +71,16 @@ func getDir(name string) firestore.Direction {
 	return firestore.Asc
 }
 
+func documentSnapshot(client *firestore.Client, document string, collectionRef *firestore.CollectionRef) (*firestore.DocumentSnapshot, error) {
+	var documentRef *firestore.DocumentRef
+	if strings.Contains(document, "/") {
+		documentRef = client.Doc(document)
+	} else {
+		documentRef = collectionRef.Doc(document)
+	}
+	return documentRef.Get(context.Background())
+}
+
 // query collection-path query*
 func queryCommandAction(c *cli.Context) error {
 	collectionPath := c.Args().First()
@@ -79,6 +90,7 @@ func queryCommandAction(c *cli.Context) error {
 	startAfter := c.String("startafter")
 	endAt := c.String("endat")
 	endBefore := c.String("endbefore")
+
 	selectFields := c.StringSlice("select")
 	orderbyFields := c.StringSlice("orderby")
 	orderdirFields := c.StringSlice("orderdir")
@@ -126,37 +138,33 @@ func queryCommandAction(c *cli.Context) error {
 	}
 
 	if startAt != "" {
-		documentRef := collectionRef.Doc(startAt)
-		docsnap, err := documentRef.Get(context.Background())
+		docsnap, err := documentSnapshot(client, startAt, collectionRef)
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("Failed to get '%s' within the collection", startAt), 83)
+			return cli.NewExitError(fmt.Sprintf("Failed to get '%s'", startAt), 83)
 		}
 		query = query.StartAt(docsnap)
 	}
 
 	if startAfter != "" {
-		documentRef := collectionRef.Doc(startAfter)
-		docsnap, err := documentRef.Get(context.Background())
+		docsnap, err := documentSnapshot(client, startAfter, collectionRef)
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("Failed to get '%s' within the collection", startAfter), 83)
+			return cli.NewExitError(fmt.Sprintf("Failed to get '%s'", startAfter), 83)
 		}
 		query = query.StartAfter(docsnap)
 	}
 
 	if endAt != "" {
-		documentRef := collectionRef.Doc(endAt)
-		docsnap, err := documentRef.Get(context.Background())
+		docsnap, err := documentSnapshot(client, endAt, collectionRef)
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("Failed to get '%s' within the collection", endAt), 83)
+			return cli.NewExitError(fmt.Sprintf("Failed to get '%s'", endAt), 83)
 		}
 		query = query.EndAt(docsnap)
 	}
 
 	if endBefore != "" {
-		documentRef := collectionRef.Doc(endBefore)
-		docsnap, err := documentRef.Get(context.Background())
+		docsnap, err := documentSnapshot(client, endBefore, collectionRef)
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("Failed to get '%s' within the collection", endBefore), 83)
+			return cli.NewExitError(fmt.Sprintf("Failed to get '%s'", endBefore), 83)
 		}
 		query = query.EndBefore(docsnap)
 	}

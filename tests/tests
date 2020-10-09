@@ -42,6 +42,10 @@ testAddSetReadDeleteDocument() {
     result=$(../fuego get ${TEST_COLLECTION} ${id} | jq ".level1")
     assertEquals "Failed to read set value" "\"${expectedValue}\"" "${result}"
 
+		# Also test reading using document-path
+    result=$(../fuego get ${TEST_COLLECTION}/${id} | jq ".level1")
+    assertEquals "Failed to read set value" "\"${expectedValue}\"" "${result}"
+
 		# And deleting...
 		../fuego delete ${TEST_COLLECTION} ${id}
 		assertFalse "Should not have read deleted value" "../fuego get ${TEST_COLLECTION} ${id}"
@@ -51,8 +55,8 @@ testUpdatingDocument(){
     # add a new document
     id=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"value\"}") || fail "Failed to add document"
 
-    # add a new field
-    ../fuego set --merge ${TEST_COLLECTION} ${id} "{\"version\": 2}" || fail "Failed to add document"
+    # add a new field using document path
+    ../fuego set --merge ${TEST_COLLECTION}/${id} "{\"version\": 2}" || fail "Failed to add document"
     result=$(../fuego get ${TEST_COLLECTION} ${id} | jq .)
     expectedValue=$(echo {\"level1\": \"value\", \"version\": 2} | jq .)
     assertEquals "Failed to update new fields" "${expectedValue}" "${result}"
@@ -212,19 +216,34 @@ testOrderAndPagination(){
     result=$(../fuego query --limit 1 --orderby 'level1.level2' --orderdir DESC --startat ${r2} ${TEST_COLLECTION}  | jq ".[0].ID")
     assertEquals "startat failed" "$result" "\"$r2\""
 
+		# Start at using document path
+		result=$(../fuego query --limit 1 --orderby 'level1.level2' --orderdir DESC --startat ${TEST_COLLECTION}/${r2} ${TEST_COLLECTION}  | jq ".[0].ID")
+    assertEquals "startat failed" "$result" "\"$r2\""
+
     # Start after
-    result=$(../fuego query --limit 1 --orderby 'level1.level2' --orderdir DESC --startafter ${r2} ${TEST_COLLECTION}  | jq ".[0].ID")
+		result=$(../fuego query --limit 1 --orderby 'level1.level2' --orderdir DESC --startafter ${r2} ${TEST_COLLECTION}  | jq ".[0].ID")
+    assertEquals "startat failed" "$result" "\"$r1\""
+
+		# Start after using document path
+    result=$(../fuego query --limit 1 --orderby 'level1.level2' --orderdir DESC --startafter ${TEST_COLLECTION}/${r2} ${TEST_COLLECTION}  | jq ".[0].ID")
     assertEquals "startat failed" "$result" "\"$r1\""
 
     # End at
     result=$(../fuego query --orderby 'level1.level2' --orderdir DESC --endat ${r2} ${TEST_COLLECTION}  | jq "length")
     assertEquals "endat failed" "2" "$result"
 
+		# End at using document path
+    result=$(../fuego query --orderby 'level1.level2' --orderdir DESC --endat ${TEST_COLLECTION}/${r2} ${TEST_COLLECTION}  | jq "length")
+    assertEquals "endat failed" "2" "$result"
+
     # End before
     result=$(../fuego query --orderby 'level1.level2' --orderdir DESC --endbefore ${r2} ${TEST_COLLECTION}  | jq "length")
     assertEquals "endbefore failed" "1" "$result"
-}
 
+		# End before using document path
+    result=$(../fuego query --orderby 'level1.level2' --orderdir DESC --endbefore ${TEST_COLLECTION}/${r2} ${TEST_COLLECTION}  | jq "length")
+    assertEquals "endbefore failed" "1" "$result"
+}
 
 testParsingFieldPaths(){
     r1=$(../fuego add ${TEST_COLLECTION} "{\"le.vel1\": {\" level2 \": 1, \"a\": 1}}")
