@@ -51,10 +51,21 @@ go build . # and 'go install .' if you want
 
 ### Authentication
 
-You'll need a Service Account key file to be able to access your project's
-firestore database. To create a service account private key file, if you don't
-have one, go to your firebase project console, then _Project settings_ and then
-click on the _Service accounts_ tab and generate a new private key.
+#### GCloud Auth SDK
+
+To authenticate access your project's firestore database, run the following and complete
+the in-browser login:
+```sh
+gcloud auth login
+```
+Commands can then be run without the `--credentials` flag.
+
+#### Service account key
+
+Alternatively, you'll can use a Service Account key file. To create a service account
+private key file, if you don't have one, go to your firebase project console, then
+_Project settings_ and then  click on the _Service accounts_ tab and generate a new
+private key.
 
 Once you have your service account key file, fuego will be able to find it using
 one of the following options:
