@@ -8,6 +8,7 @@
     - [Building it locally](#building-it-locally)
   - [Usage](#usage)
     - [Authentication](#authentication)
+    - [Project](#project)
     - [Firestore emulator usage](#firestore-emulator-usage)
     - [List collections](#list-collections)
     - [Writing and reading data](#writing-and-reading-data)
@@ -74,14 +75,20 @@ export GOOGLE_APPLICATION_CREDENTIALS=./my-account-service-private-key.json
 fuego get mycollection mydocumentid
 ```
 
+### Project
+
+Firestore databases belong to projects. The google application credentials file
+usually define the project that firestore will work on. You can however, if
+necessary, define the project using the global option ```--projectid```.
+
 ### Firestore emulator usage
 
 If you need to use fuego with the firestore emulator instead of a real firestore
 database, set the FIRESTORE_EMULATOR_HOST environment variable to something
 appropriate (usually, localhost:8080). **NOTE**: When using the emulator, you
-are likely not using a GOOGLE_APPLICATION_CREDENTIALS file. Therefore, there
-wont be a default project. **You can set a project** using the global option
-```--projectid```, otherwise it will use 'default' as the project identifier. 
+are likely not using a GOOGLE_APPLICATION_CREDENTIALS file. Therefore, no
+project will be defined. **You can set a project** using the global option
+```--projectid```, otherwise it will use 'default' as the project identifier.
 
 ### List collections
 
