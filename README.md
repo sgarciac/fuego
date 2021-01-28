@@ -128,7 +128,7 @@ json-data``` or ```document-path json-data```. This is also the case for the
 delete and the get commands.
 
 In both ```add``` and ```set``` commands, the document argument can be either a
-json string (if it starts with the character '{') or a path to a json file, i.e.:
+json string (if it starts with the character ```{```) or a path to a json file, i.e.:
 
 ```sh
 fuego add animals ./dog.json
