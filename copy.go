@@ -51,12 +51,23 @@ func copyCommandAction(c *cli.Context) error {
 	sc := c.String("src-credentials")
 	dc := c.String("dest-credentials")
 
+	sp := c.String("src-projectid")
+	dp := c.String("dest-projectid")
+
 	if sc == "" {
 		sc = credentials
 	}
 
 	if dc == "" {
 		dc = credentials
+	}
+
+	if sp == "" {
+		sp = projectId
+	}
+
+	if dp == "" {
+		dp = projectId
 	}
 
 	option := CopyOption{
@@ -71,12 +82,12 @@ func copyCommandAction(c *cli.Context) error {
 		return cli.NewExitError(fmt.Sprintf("Can't copy from %s to %s", sType.String(), tType.String()), 87)
 	}
 
-	sourceClient, err := createClient(sc)
+	sourceClient, err := createClientWithProjectId(sc, sp)
 	if err != nil {
 		return cliClientError(err)
 	}
 
-	targetClient, err := createClient(dc)
+	targetClient, err := createClientWithProjectId(dc, dp)
 	if err != nil {
 		return cliClientError(err)
 	}

@@ -87,6 +87,14 @@ func main() {
 					Name:        "src-credentials, sc",
 					Usage:       "Google application source project credentials from `FILE`",
 				},
+				cli.StringFlag{
+					Name:        "dest-projectid, dp",
+					Usage:       "Target project ID",
+				},
+				cli.StringFlag{
+					Name:        "src-projectid, sp",
+					Usage:       "Source project ID",
+				},
 				cli.BoolFlag{
 					Name:  "merge",
 					Usage: "if set the set operation will do a update/patch",
