@@ -384,6 +384,13 @@ The default value of the `--src-credentials` and `--dest-credentials` is our cur
 fuego copy countries/france countries/germany --src-credentials ./project-a-key.json --dest-credentials ./project-b-key.json --overwrite --merge
 fuego copy countries/france/cities countries/germany/cities --src-credentials ./project-a-key.json --dest-credentials ./project-b-key.json
 ```
+We may also have a credential that has access to different projects. We can specify the source project ID by `--src-projectid` (or `-sp`) and target project credential by using `--dest-projectid` (or `-dp`).
+The default value of the `--src-prjectid` and `--dest-prjectid` is the ID of our current working project.
+```sh
+fuego copy countries/france countries/germany --src-projectid project-a --dest-projectid project-b --overwrite --merge
+fuego copy countries/france/cities countries/germany/cities --dest-projectid prject-c
+```
+
 ## Contributing
 
 See the [HACKING](HACKING.md) file for some guidance on how to contribute.
