@@ -19,6 +19,10 @@
       - [Selecting specific fields](#selecting-specific-fields)
       - [Pagination of query results](#pagination-of-query-results)
       - [Group queries](#group-queries)
+    - [Copying](#copying)
+      - [Copying collection](#copying-collection)
+      - [Copying document](#copying-document)
+      - [Cross projects copying](#cross-projects-copying)
   - [Contributing](#contributing)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -346,6 +350,40 @@ You can make [group
 queries](https://firebase.google.com/docs/firestore/query-data/queries) by using
 the -g flag. 
 
+
+### Copying
+Basic usage
+```sh
+fuego copy source target
+```
+#### Copying collection
+We can copy a collection and its sub collections
+```sh
+fuego copy countries/france/cities countries/germany/cities 
+```
+By default, existing documents in target collection will be skipped. If you want to overwrite the existing document, just use --overwrite
+```sh
+fuego copy countries/france/cities countries/germany/cities --overwrite
+```
+Also, use --merge let us can use merging mode to overwrite the existing documents
+```sh
+fuego copy countries/france/cities countries/germany/cities --overwrite --merge
+```
+
+#### Copying document
+We can copy a document and its sub collections.
+```sh
+fuego copy countries/france countries/germany
+```
+Parameters --merge and --overwrite can also be used to specify the copying behavior.
+
+#### Cross projects copying
+We may have firestore in different Google projects. We can specify the source project credential by using `--src-credentials` (or `-sc`) and target project credential by using `--dest-credentials` (or `-dc`).
+The default value of the `--src-credentials` and `--dest-credentials` is our current working project.
+```sh
+fuego copy countries/france countries/germany --src-credentials ./project-a-key.json --dest-credentials ./project-b-key.json --overwrite --merge
+fuego copy countries/france/cities countries/germany/cities --src-credentials ./project-a-key.json --dest-credentials ./project-b-key.json
+```
 ## Contributing
 
 See the [HACKING](HACKING.md) file for some guidance on how to contribute.
