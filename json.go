@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
+	"math"
 	"regexp"
 	"strings"
 	"time"
@@ -10,8 +11,8 @@ import (
 
 var rfc3339regex, _ = regexp.Compile("^" + rfc3339pattern + "$")
 
-// Replaces all string values in an object that are RFC3339 timestamps
-// by its corresponding time.Time object
+// Replaces all string values in an array that are RFC3339 timestamps
+// by its corresponding time.Time object, recursively.
 func timestampifySlice(slice []interface{}) {
 	for i, v := range slice {
 		switch v := v.(type) {
@@ -26,15 +27,13 @@ func timestampifySlice(slice []interface{}) {
 					panic("Unexpected error parsing rfc3339")
 				}
 				slice[i] = timestamp
-			} else {
-				slice[i] = v
 			}
 		}
 	}
 }
 
 // Replaces all string values in an object that are RFC3339 timestamps
-// by its corresponding time.Time object
+// by its corresponding time.Time object, recursively.
 func timestampifyMap(m map[string]interface{}) {
 	for k, v := range m {
 		switch v := v.(type) {
@@ -50,8 +49,38 @@ func timestampifyMap(m map[string]interface{}) {
 					panic("Unexpected error parsing rfc3339")
 				}
 				m[k] = timestamp
-			} else {
-				m[k] = v
+			}
+		}
+	}
+}
+
+// Replaces all NaN values in an array by null, recursively.
+func unNaNSlice(slice []interface{}) {
+	for i, v := range slice {
+		switch v := v.(type) {
+		case []interface{}:
+			timestampifySlice(v)
+		case map[string]interface{}:
+			timestampifyMap(v)
+		case float64:
+			if math.IsNaN(v) {
+				slice[i] = nil
+			}
+		}
+	}
+}
+
+// Replaces all NaN values in an object by null, recursively.
+func unNaNMap(m map[string]interface{}) {
+	for k, v := range m {
+		switch v := v.(type) {
+		case []interface{}:
+			timestampifySlice(v)
+		case map[string]interface{}:
+			timestampifyMap(v)
+		case float64:
+			if math.IsNaN(v) {
+				m[k] = nil
 			}
 		}
 	}
@@ -78,7 +107,8 @@ func unmarshallData(data string) (map[string]interface{}, error) {
 	return object, nil
 }
 
-func marshallData(object interface{}) (string, error) {
+func marshallData(object map[string]interface{}) (string, error) {
+	unNaNMap(object)
 	buffer, err := json.MarshalIndent(object, "", "    ")
 	if err != nil {
 		return "", err
