@@ -29,7 +29,6 @@ func timestampifySlice(slice []interface{}) {
 			} else {
 				slice[i] = v
 			}
-			slice[i] = strings.ToUpper(v)
 		}
 	}
 }
