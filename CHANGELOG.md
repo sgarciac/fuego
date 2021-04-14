@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.12.0]
+### Changed
+- Bug fixes
+
 ## [0.11.0]
 ### Added
 - Support for document paths
