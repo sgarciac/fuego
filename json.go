@@ -59,9 +59,9 @@ func unNaNSlice(slice []interface{}) {
 	for i, v := range slice {
 		switch v := v.(type) {
 		case []interface{}:
-			timestampifySlice(v)
+			unNaNSlice(v)
 		case map[string]interface{}:
-			timestampifyMap(v)
+			unNaNMap(v)
 		case float64:
 			if math.IsNaN(v) {
 				slice[i] = nil
@@ -75,9 +75,9 @@ func unNaNMap(m map[string]interface{}) {
 	for k, v := range m {
 		switch v := v.(type) {
 		case []interface{}:
-			timestampifySlice(v)
+			unNaNSlice(v)
 		case map[string]interface{}:
-			timestampifyMap(v)
+			unNaNMap(v)
 		case float64:
 			if math.IsNaN(v) {
 				m[k] = nil

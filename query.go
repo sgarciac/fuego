@@ -44,6 +44,7 @@ func (d *displayItemWriter) Write(doc *firestore.DocumentSnapshot) error {
 	displayItem["Data"] = doc.Data()
 
 	jsonString, err := marshallData(displayItem)
+
 	if err != nil {
 		return err
 	}
