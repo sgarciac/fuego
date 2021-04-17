@@ -18,7 +18,7 @@ func cliClientError(err error) *cli.ExitError {
 
 func main() {
 	app := cli.NewApp()
-	app.Version = "0.12.0"
+	app.Version = "0.12.1"
 	app.Name = "Fuego"
 	app.Usage = "A firestore client"
 	app.EnableBashCompletion = true
@@ -133,7 +133,7 @@ func main() {
 				cli.IntFlag{
 					Name:  "batch, b",
 					Usage: "Will fetch documents in several requests with at most `BATCH` documents per request to prevent timeouts (currently 60s).",
-					Value: 1000,
+					Value: 100000,
 				},
 			},
 		},
