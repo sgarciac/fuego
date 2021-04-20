@@ -14,6 +14,10 @@ import (
 // default projectid if none has been set.
 
 func createClient(credentials string) (*firestore.Client, error) {
+	return createClientWithProjectId(credentials, projectId)
+}
+
+func createClientWithProjectId(credentials string, projectId string) (*firestore.Client, error) {
 	var err error
 	var firebaseApp *firebase.App
 	if os.Getenv("FIRESTORE_EMULATOR_HOST") != "" {
@@ -24,7 +28,7 @@ func createClient(credentials string) (*firestore.Client, error) {
 		return client, err
 	} else if credentials != "" {
 		sa := option.WithCredentialsFile(credentials)
-		config := getConfig()
+		config := getConfigWithProjectId(projectId)
 		firebaseApp, err = firebase.NewApp(context.Background(), config, sa)
 		if err != nil {
 			return nil, err
@@ -32,7 +36,7 @@ func createClient(credentials string) (*firestore.Client, error) {
 		return firebaseApp.Firestore(context.Background())
 	} else {
 		// This will use GOOGLE_APPLICATION_CREDENTIALS
-		config := getConfig()
+		config := getConfigWithProjectId(projectId)
 		firebaseApp, err = firebase.NewApp(context.Background(), config)
 		if err != nil {
 			return nil, err
@@ -41,7 +45,7 @@ func createClient(credentials string) (*firestore.Client, error) {
 	}
 }
 
-func getConfig() *firebase.Config {
+func getConfigWithProjectId(projectId string) *firebase.Config {
 	config := firebase.Config{}
 	if projectId != "" {
 		config.ProjectID = projectId

@@ -73,6 +73,39 @@ func main() {
 			),
 		},
 		{
+			Name:      "copy",
+			Aliases:   []string{"s"},
+			Usage:     "copy collection or document",
+			ArgsUsage: "[collection-path collection-path | document-path document-path]",
+			Action:    copyCommandAction,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:        "dest-credentials, dc",
+					Usage:       "Google application target project credentials from `FILE`",
+				},
+				cli.StringFlag{
+					Name:        "src-credentials, sc",
+					Usage:       "Google application source project credentials from `FILE`",
+				},
+				cli.StringFlag{
+					Name:        "dest-projectid, dp",
+					Usage:       "Target project ID",
+				},
+				cli.StringFlag{
+					Name:        "src-projectid, sp",
+					Usage:       "Source project ID",
+				},
+				cli.BoolFlag{
+					Name:  "merge",
+					Usage: "if set the set operation will do a update/patch",
+				},
+				cli.BoolFlag{
+					Name:  "overwrite",
+					Usage: "overwrite the existing collection or document",
+				},
+			},
+		},
+		{
 			Name:      "get",
 			Aliases:   []string{"g"},
 			Usage:     "Get a document from a collection",

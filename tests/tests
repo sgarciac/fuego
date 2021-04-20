@@ -267,6 +267,45 @@ testParsingFieldPaths(){
 
 }
 
+testCopyDocumentAndCollection(){
+    # add a new document
+    id=$(../fuego add ${TEST_COLLECTION} "{\"base\": \"value\"}") || fail "Failed to add document"
+    subDocId1=$(../fuego add "${TEST_COLLECTION}/${id}/subCollection1" "{\"base\": \"sub value1\"}") || fail "Failed to add document"
+    subDocId2=$(../fuego add "${TEST_COLLECTION}/${id}/subCollection2" "{\"base\": \"sub value2\"}") || fail "Failed to add document"
+    echo ${id} ${subDocId1} ${subDocId2}
+    targetDocumentPath=${TEST_COLLECTION}/$(uuidgen)
+    targetCollectionPath=$(uuidgen)
+
+    ../fuego copy "${TEST_COLLECTION}/${id}" ${targetDocumentPath} --overwrite
+    ../fuego copy "${TEST_COLLECTION}" ${targetCollectionPath} --overwrite
+
+    # query copied document
+    result=$(../fuego get ${targetDocumentPath} | jq .)
+    expectedValue=$(echo {\"base\": \"value\"} | jq .)
+    assertEquals "Failed to copy document" "${expectedValue}" "${result}"
+
+    result=$(../fuego get "${targetDocumentPath}/subCollection1/${subDocId1}" | jq .)
+    expectedValue=$(echo {\"base\": \"sub value1\"} | jq .)
+    assertEquals "Failed to copy document" "${expectedValue}" "${result}"
+
+    result=$(../fuego get "${targetDocumentPath}/subCollection2/${subDocId2}" | jq .)
+    expectedValue=$(echo {\"base\": \"sub value2\"} | jq .)
+    assertEquals "Failed to copy document" "${expectedValue}" "${result}"
+
+    # query copied collection
+    result=$(../fuego get "${targetCollectionPath}/${id}" | jq .)
+    expectedValue=$(echo {\"base\": \"value\"} | jq .)
+    assertEquals "Failed to copy document" "${expectedValue}" "${result}"
+
+    result=$(../fuego get "${targetCollectionPath}/${id}/subCollection1/${subDocId1}" | jq .)
+    expectedValue=$(echo {\"base\": \"sub value1\"} | jq .)
+    assertEquals "Failed to copy document" "${expectedValue}" "${result}"
+
+    result=$(../fuego get "${targetCollectionPath}/${id}/subCollection2/${subDocId2}" | jq .)
+    expectedValue=$(echo {\"base\": \"sub value2\"} | jq .)
+    assertEquals "Failed to copy document" "${expectedValue}" "${result}"
+}
+
 
 # Load shUnit2.
 . ./shunit2
