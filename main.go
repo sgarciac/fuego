@@ -113,6 +113,13 @@ func main() {
 			Action:    getCommandAction,
 		},
 		{
+			Name:      "getall",
+			Aliases:   []string{"ga"},
+			Usage:     "Get all document from a collection by providing ids ",
+			ArgsUsage: "[collection-path document-id1,document-id2,...]",
+			Action:    getAllCommandAction,
+		},
+		{
 			Name:      "delete",
 			Aliases:   []string{"d"},
 			Usage:     "Delete a document from a collection",
