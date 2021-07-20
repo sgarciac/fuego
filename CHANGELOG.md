@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.13.0]
+### Changed
+- Add get all operation
+
 ## [0.12.0]
 ### Changed
 - Bug fixes
