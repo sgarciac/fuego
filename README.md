@@ -121,6 +121,21 @@ fuego get people Rv7ZfnLQWprdXuulqMdf
 # }
 ```
 
+Or fetch them using multiple ids:
+```sh
+fuego  getall people WkVlcPgEJIXzdyQS6H5d,f2TbJA5DIhBfXwKrMbHP
+[
+{
+"age": 41,
+"name": "sergio"
+},
+{
+"age": 22,
+"name": "rohan"
+}
+]
+```
+
 You can also replace an existing document:
 
 ```
