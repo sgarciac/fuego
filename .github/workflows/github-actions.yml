@@ -27,8 +27,10 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+
+      - name: Install firebase
         run: make install-firebase
       - name: Build
         run: make build
-      - name: Test
+      - name: Run emulator and test
         run: make test
