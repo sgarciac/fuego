@@ -14,6 +14,9 @@ jobs:
           node-version: '14'
       - name: Checkout code
         uses: actions/checkout@v2
-
+      - name: Install firebase
+        run: make install-firebase
       - name: Test
-        run: make
+        run: make test
+      - name: Build
+        run: make build
