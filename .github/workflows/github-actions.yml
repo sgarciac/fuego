@@ -25,6 +25,7 @@ jobs:
             ~/Library/Caches/go-build
             %LocalAppData%\go-build
             /usr/local/lib/node_modules
+            /home/runner/.cache/firebase/emulators
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
