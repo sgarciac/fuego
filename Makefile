@@ -1,5 +1,5 @@
 install-firebase:
-	sudo npm install -g firebase-tools
+	npm install -g firebase-tools
 
 test:
 	cd tests;firebase emulators:start --only firestore './tests'
