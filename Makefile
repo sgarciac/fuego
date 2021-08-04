@@ -3,3 +3,6 @@ install-firebase:
 
 test:
 	cd tests;firebase emulators:start --only firestore './tests'
+
+build:
+	go build
