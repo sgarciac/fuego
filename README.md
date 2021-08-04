@@ -161,6 +161,12 @@ fuego delete people/Rv7ZfnLQWprdXuulqMdf
 
 note: this won't delete any subcollection under the document.
 
+It's also possible to delete mutliple documents without transaction
+```sh
+fuego delete people Rv7ZfnLQWprdXuulqMdf,Rv7ZfnLQWprdXuulqMde
+```
+
+
 To update an existing document:
 
 ```sh
