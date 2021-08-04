@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.14.0]
+### Changed
+- Add delete all operation
+
+
 ## [0.13.0]
 ### Changed
 - Add get all operation
