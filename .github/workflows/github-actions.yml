@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Install firebase
         run: make install-firebase
-      - name: Test
-        run: make test
       - name: Build
         run: make build
+      - name: Test
+        run: make test
