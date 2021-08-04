@@ -23,11 +23,15 @@ func deleteAllCommandAction(c *cli.Context) error {
 	if err != nil {
 		return cliClientError(err)
 	}
+	deletedCount := 0
 
-	_, err = deleteAllDocuments(client, collectionPath, ids)
-
-	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to remove all documents. \n%v", err), 82)
+	for _, part := range partition(ids, maxWritesCount) {
+		d, err := deleteAllDocuments(client, collectionPath, part)
+		if err != nil {
+			return cli.NewExitError(fmt.Sprintf("Failed to remove all documents. \n%v", err), 82)
+		}
+		deletedCount += len(d)
+		fmt.Printf("Deleted  %v out of %v\n", deletedCount, len(ids))
 	}
 
 	defer client.Close()
@@ -40,5 +44,25 @@ func deleteAllDocuments(client *firestore.Client, collectionPath string, ids []s
 	for _, id := range ids {
 		batch.Delete(collectionRef.Doc(id))
 	}
-	return batch.Commit(context.Background())
+	commit, err := batch.Commit(context.Background())
+	return commit, err
+}
+
+func partition(bigList []string, partitionSize int) [][]string {
+
+	collectionLen := len(bigList)
+	numFullPartitions := collectionLen / partitionSize
+	capacity := numFullPartitions
+	if collectionLen%partitionSize != 0 {
+		capacity++
+	}
+	result := make([][]string, capacity)
+	var i int
+	for ; i < numFullPartitions; i++ {
+		result[i] = bigList[i*partitionSize : (i+1)*partitionSize]
+	}
+	if collectionLen%partitionSize != 0 { // left over
+		result[i] = bigList[i*partitionSize : collectionLen]
+	}
+	return result
 }
