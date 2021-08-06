@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - develop
-      - master
 name:  Dev Workflow - Test and check thing
 jobs:
   test:
