@@ -9,9 +9,11 @@ jobs:
     steps:
       - name: Install Go
         uses: actions/setup-go@v2
-      - uses: actions/setup-node@v2
         with:
           go-version: 1.16.x
+      - name: Install Node&Npm
+        uses: actions/setup-node@v2
+        with:
           node-version: '14'
       - name: Checkout code
         uses: actions/checkout@v2
@@ -27,11 +29,10 @@ jobs:
             ~/.cache/go-build
             ~/Library/Caches/go-build
             %LocalAppData%\go-build
-            /usr/local/lib/node_modules
             /home/runner/.cache/firebase/emulators
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-go-
+            ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
 
       - name: Install firebase
         run: make install-firebase
