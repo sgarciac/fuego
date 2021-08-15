@@ -18,7 +18,7 @@ func cliClientError(err error) *cli.ExitError {
 
 func main() {
 	app := cli.NewApp()
-	app.Version = "0.13.0"
+	app.Version = "0.14.0"
 	app.Name = "Fuego"
 	app.Usage = "A firestore client"
 	app.EnableBashCompletion = true
@@ -125,6 +125,13 @@ func main() {
 			Usage:     "Delete a document from a collection",
 			ArgsUsage: "[collection-path document-id | document-path]",
 			Action:    deleteCommandAction,
+		},
+		{
+			Name:      "deleteall",
+			Aliases:   []string{"da"},
+			Usage:     "Delete documents from a collection without transactional support",
+			ArgsUsage: "[collection-path document-id1,document-id2,...]",
+			Action:    deleteAllCommandAction,
 		},
 		{
 			Name:      "query",
