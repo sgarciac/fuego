@@ -5,7 +5,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/urfave/cli"
-	"strings"
 )
 
 func deleteAllCommandAction(c *cli.Context) error {
@@ -17,12 +16,16 @@ func deleteAllCommandAction(c *cli.Context) error {
 
 	var collectionPath string
 	var ids []string
+
 	collectionPath = c.Args().First()
-	ids = strings.Split(c.Args()[1], ",")
+	ids = c.Args()[1:]
+
 	client, err := createClient(credentials)
+
 	if err != nil {
 		return cliClientError(err)
 	}
+
 	deletedCount := 0
 
 	for _, part := range partition(ids, maxWritesCount) {
