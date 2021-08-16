@@ -1,19 +1,12 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [How to contribute to Fuego](#how-to-contribute-to-fuego)
-  - [Building fuego](#building-fuego)
-  - [Testing](#testing)
-  - [Releases](#releases)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # How to contribute to Fuego
 
 Fuego is written in the [go programming language](https://golang.org/) (1.12 or
 newer), you need to have it installed and be familiar with it, to contribute
 code to fuego.
+
+All new features should be based on the ```develop``` branch. The ```master```
+branch always contains the current stable version and the latest release.
 
 ## Building fuego
 
@@ -64,8 +57,44 @@ cd tests
 or
 ./tests -- nameoffirsttest nameofsecondtest
 ```
+## Branches (work in progress)
+
+```master``` branch always contains the latest stable version of fuego, and
+corresponds to the latest release. Under normal circumstances, only the
+```develop``` branch should be merged into master. Exceptions are urgent hot
+fixes.
+
+
+```develop``` branch contains the current development version. It should always
+compile and pass the tests. Most new development should start from this branch.
+
+Other branches should be names as follows:
+
+```group/name```
+
+Where group is one of the following items:
+
+  * *bug* : for bug fixes.
+  * *feat* : for new features.
+  * *doc* : for documentation improvements.
+  
+The name of the branch should be short, hyphen-separated and represent the
+purpose of the branch. 
+
+Branches should be creted with a single purpose and all commits smashed into a
+single one when merging to develop.
+
 
 ## Releases
+
+Releases are managed by a github action and a new release is created whenever 
+something is pushed into the ```master``` branch. Therefore pushing into master
+should be done carefully. 
+
+Pushing to master should always create a new version. In order to do this, you
+should update version in main.go before merging anything into master.
+
+### Creating a release locally.
 
 Releases are managed by goreleaser.
 
