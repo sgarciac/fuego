@@ -1,37 +1,10 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [fuego](#fuego)
-  - [Installation](#installation)
-    - [Precompiled binaries](#precompiled-binaries)
-    - [Building it locally](#building-it-locally)
-  - [Usage](#usage)
-    - [Authentication](#authentication)
-    - [Project](#project)
-    - [Firestore emulator usage](#firestore-emulator-usage)
-    - [List collections](#list-collections)
-    - [Writing and reading data](#writing-and-reading-data)
-      - [A note on types](#a-note-on-types)
-    - [Subcollections](#subcollections)
-    - [Queries](#queries)
-      - [Value and field path types in filters](#value-and-field-path-types-in-filters)
-      - [Selecting specific fields](#selecting-specific-fields)
-      - [Pagination of query results](#pagination-of-query-results)
-      - [Group queries](#group-queries)
-    - [Copying](#copying)
-      - [Copying collection](#copying-collection)
-      - [Copying document](#copying-document)
-      - [Cross projects copying](#cross-projects-copying)
-  - [Contributing](#contributing)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+ *PLEASE READ THE [STABLE VERSION DOCUMENTATION](https://sgarciac.github.io/fuego/) IF YOU ONLY WANT TO USE FUEGO*
 
 # fuego
 
 [![Mentioned in Awesome Firebase](https://awesome.re/mentioned-badge.svg)](https://github.com/jthegedus/awesome-firebase)
 
-A command-line firestore client
+A command-line firestore client.
 
 ## Installation
 
