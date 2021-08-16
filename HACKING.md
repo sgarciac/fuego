@@ -1,13 +1,3 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [How to contribute to Fuego](#how-to-contribute-to-fuego)
-  - [Building fuego](#building-fuego)
-  - [Testing](#testing)
-  - [Releases](#releases)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 # How to contribute to Fuego
 
