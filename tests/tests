@@ -58,7 +58,7 @@ testGetAllDocuments() {
     expectedValue2="string2"
     id1=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"${expectedValue1}\"}") || fail "Failed to add document"
     id2=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"${expectedValue2}\"}") || fail "Failed to add document"
-    result=$(../fuego getall ${TEST_COLLECTION} ${id1},${id2} | jq -r '.[].level1'| tr '\n' ' ')
+    result=$(../fuego getall ${TEST_COLLECTION} ${id1} ${id2} | jq -r '.[].level1'| tr '\n' ' ')
     assertEquals "Failed to read all added value" "${expectedValue1} ${expectedValue2} " "${result}"
 }
 
@@ -68,8 +68,8 @@ testDeleteAllDocuments() {
     expectedValue2="string2"
     id1=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"${expectedValue1}\"}") || fail "Failed to add document"
     id2=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"${expectedValue2}\"}") || fail "Failed to add document"
-    result=$(../fuego deleteall ${TEST_COLLECTION} ${id1},${id2} | jq -r '.[].level1'| tr '\n' ' ')
-    result=$(../fuego getall ${TEST_COLLECTION} ${id1},${id2} | jq -r '.[].level1'| tr '\n' ' ')
+    result=$(../fuego deleteall ${TEST_COLLECTION} ${id1} ${id2} | jq -r '.[].level1'| tr '\n' ' ')
+    result=$(../fuego getall ${TEST_COLLECTION} ${id1} ${id2} | jq -r '.[].level1'| tr '\n' ' ')
     assertEquals "Failed to read all added value" "" "${result}"
 }
 

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/urfave/cli"
-	"strings"
 )
 
 func getDocuments(client *firestore.Client, collectionPath string, ids []string) (string, error) {
@@ -38,20 +37,23 @@ func getDocuments(client *firestore.Client, collectionPath string, ids []string)
 func getAllCommandAction(c *cli.Context) error {
 	argsLength := len(c.Args())
 
-	if argsLength < 1 {
+	if argsLength < 2 {
 		return cli.NewExitError("Wrong number of arguments", 82)
 	}
 
 	var collectionPath string
-	var id []string
+	var ids []string
+
 	collectionPath = c.Args().First()
-	id = strings.Split(c.Args()[1], ",")
+	ids = c.Args()[1:]
+
 	client, err := createClient(credentials)
+
 	if err != nil {
 		return cliClientError(err)
 	}
 
-	data, err := getDocuments(client, collectionPath, id)
+	data, err := getDocuments(client, collectionPath, ids)
 
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("Failed to get data. \n%v", err), 82)
