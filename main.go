@@ -18,7 +18,7 @@ func cliClientError(err error) *cli.ExitError {
 
 func main() {
 	app := cli.NewApp()
-	app.Version = "0.14.0"
+	app.Version = "0.15.0"
 	app.Name = "Fuego"
 	app.Usage = "A firestore client"
 	app.EnableBashCompletion = true
@@ -80,20 +80,20 @@ func main() {
 			Action:    copyCommandAction,
 			Flags: []cli.Flag{
 				cli.StringFlag{
-					Name:        "dest-credentials, dc",
-					Usage:       "Google application target project credentials from `FILE`",
+					Name:  "dest-credentials, dc",
+					Usage: "Google application target project credentials from `FILE`",
 				},
 				cli.StringFlag{
-					Name:        "src-credentials, sc",
-					Usage:       "Google application source project credentials from `FILE`",
+					Name:  "src-credentials, sc",
+					Usage: "Google application source project credentials from `FILE`",
 				},
 				cli.StringFlag{
-					Name:        "dest-projectid, dp",
-					Usage:       "Target project ID",
+					Name:  "dest-projectid, dp",
+					Usage: "Target project ID",
 				},
 				cli.StringFlag{
-					Name:        "src-projectid, sp",
-					Usage:       "Source project ID",
+					Name:  "src-projectid, sp",
+					Usage: "Source project ID",
 				},
 				cli.BoolFlag{
 					Name:  "merge",
@@ -109,14 +109,14 @@ func main() {
 			Name:      "get",
 			Aliases:   []string{"g"},
 			Usage:     "Get a document from a collection",
-			ArgsUsage: "[collection-path document-id | document-path]",
+			ArgsUsage: "collection-path [document-id document-path]",
 			Action:    getCommandAction,
 		},
 		{
 			Name:      "getall",
 			Aliases:   []string{"ga"},
 			Usage:     "Get all document from a collection by providing ids ",
-			ArgsUsage: "[collection-path document-id1,document-id2,...]",
+			ArgsUsage: "collection-path document-id1 [document-id2 ...]",
 			Action:    getAllCommandAction,
 		},
 		{
@@ -130,7 +130,7 @@ func main() {
 			Name:      "deleteall",
 			Aliases:   []string{"da"},
 			Usage:     "Delete documents from a collection without transactional support",
-			ArgsUsage: "[collection-path document-id1,document-id2,...]",
+			ArgsUsage: "collection-path document-id1 [document-id2 ...]",
 			Action:    deleteAllCommandAction,
 		},
 		{
