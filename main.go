@@ -16,6 +16,8 @@ func cliClientError(err error) *cli.ExitError {
 	return cli.NewExitError(fmt.Sprintf("Failed to create client. \n%v", err), 80)
 }
 
+boo
+
 func main() {
 	app := cli.NewApp()
 	app.Version = "0.15.0"
