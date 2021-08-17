@@ -23,8 +23,8 @@ jobs:
         id: version
       - name: "Check releases notes"
         uses: andstor/file-existence-action@v1
-        allow_failure: true
         with:
+          allow_failure: true
           files: release-notes/${{ steps.version.outputs.TAG_NAME }}.md
       - uses: actions/cache@v2
         with:
