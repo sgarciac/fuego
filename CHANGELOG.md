@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.15.0]
+### Changed
+- Changes arguments for getall and deleteall commands.
+- Adds documentation for creating releases.
+
 ## [0.14.0]
 ### Changed
 - Add delete all operation

@@ -17,6 +17,15 @@ jobs:
           node-version: '14'
       - name: Checkout code
         uses: actions/checkout@v2
+      - name: Retrieve new version
+        run: |
+          echo "::set-output name=TAG_NAME::$(cat main.go|grep app.Version|grep -Eo '[0-9.]{2,100}')"
+        id: version
+      - name: "Check releases notes"
+        uses: andstor/file-existence-action@v1
+        allow_failure: true
+        with:
+          files: release-notes/${{ steps.version.outputs.TAG_NAME }}.md
       - uses: actions/cache@v2
         with:
           # In order:
