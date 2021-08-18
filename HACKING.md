@@ -61,14 +61,14 @@ or
 
 ```master``` branch always contains the latest stable version of fuego, and
 corresponds to the latest release. Under normal circumstances, only the
-```develop``` branch should be merged into master. Exceptions are urgent hot
-fixes.
+```develop``` branch should be merged into master. (Exceptions being hot fixes).
 
 
-```develop``` branch contains the current development version. It should always
-compile and pass the tests. Most new development should start from this branch.
+```develop``` branch contains the current development version. It should be kept
+as clean as possible. It should always compile and pass the tests. Most new
+development should start from this branch.
 
-Other branches should be names as follows:
+Other branches should be named as following:
 
 ```group/name```
 
@@ -77,12 +77,16 @@ Where group is one of the following items:
   * *bug* : for bug fixes.
   * *feat* : for new features.
   * *doc* : for documentation improvements.
+  * *chore* : for miscelaneous changes, refactors, etc.
+  
+Example: ```feat/add-xyz-command```.  
   
 The name of the branch should be short, hyphen-separated and represent the
 purpose of the branch. 
 
-Branches should be creted with a single purpose and all commits smashed into a
-single one when merging to develop.
+Branches should be created with a single purpose and have a reduced number of
+commits.  Use 'smash and merge' if possible when merging to develop. Keep the
+develop branch free of 'wip's commits.
 
 
 ## Releases
@@ -91,8 +95,18 @@ Releases are managed by a github action and a new release is created whenever
 something is pushed into the ```master``` branch. Therefore pushing into master
 should be done carefully. 
 
-Pushing to master should always create a new version. In order to do this, you
-should update version in main.go before merging anything into master.
+Release notes are taken from files in the ```release-notes``` directory,
+following this convention: 
+
+release-notes/*version*.md  (i.e. release-notes/0.15.0.md)
+
+In order to create a new release you should:
+
+1. Change the version number in the main.go file.
+2. Create a relese-notes/*version*.md file that contains the release notes.
+3. Update the CHANGELOG.md file.
+4. Create a PR from develop to master
+5. Admin will merge the PR.
 
 ### Creating a release locally.
 
