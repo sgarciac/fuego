@@ -177,11 +177,6 @@ func main() {
 					Name:  "select",
 					Usage: "Return only `FIELD_PATH` fields in result. Parameter can be given multiple times",
 				},
-				cli.IntFlag{
-					Name:  "batch, b",
-					Usage: "Will fetch documents in several requests with at most `BATCH` documents per request to prevent timeouts (currently 60s).",
-					Value: 1000,
-				},
 			},
 		},
 	}
