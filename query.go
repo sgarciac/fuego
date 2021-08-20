@@ -106,19 +106,15 @@ func queryCommandAction(c *cli.Context) error {
 	orderbyFields := c.StringSlice("orderby")
 	orderdirFields := c.StringSlice("orderdir")
 	limit := c.Int("limit")
-	batch := c.Int("batch")
 
 	queryParser := getQueryParser()
+
 	fieldPathParser := getFieldPathParser()
 
 	client, err := createClient(credentials)
 
 	if err != nil {
 		return cliClientError(err)
-	}
-
-	if limit < batch {
-		batch = limit
 	}
 
 	// init the query either from a collection ref or a collection group.
@@ -128,12 +124,13 @@ func queryCommandAction(c *cli.Context) error {
 
 	if queryGroup {
 		collectionGroupRef = client.CollectionGroup(collectionPathOrId)
-		query = collectionGroupRef.Limit(batch)
+		query = collectionGroupRef.Limit(limit)
 	} else {
 		collectionRef = client.Collection(collectionPathOrId)
-		query = collectionRef.Limit(batch)
+		query = collectionRef.Limit(limit)
 	}
 
+	// add the conditions one by one.
 	for i := 1; i < c.NArg(); i++ {
 		queryString := c.Args().Get(i)
 		var parsedQuery Firestorequery
@@ -191,6 +188,7 @@ func queryCommandAction(c *cli.Context) error {
 		query = query.EndBefore(docsnap)
 	}
 
+	// selected fields.
 	if len(selectFields) > 0 {
 		var selectFieldPaths []firestore.FieldPath
 		for _, selectField := range selectFields {
@@ -204,54 +202,28 @@ func queryCommandAction(c *cli.Context) error {
 		query = query.SelectPaths(selectFieldPaths...)
 	}
 
-	// max amount of documents still to retrieve
-	toQuery := limit
-
 	displayItemWriter := newDisplayItemWriter(&c.App.Writer)
 	defer displayItemWriter.Close()
 
-	// make queries with a maximum of `batch` results until we have `limit` results or no more documents are returned
-	for toQuery > 0 {
-		// TODO the Close call should not be defered out of a for loop. Maybe move the iteration into a function and
-		// defer there?
-		documentIterator := query.Documents(context.Background())
-		var last *firestore.DocumentSnapshot
-		retrieved := 0
+	documentIterator := query.Documents(context.Background())
 
-		for {
-			doc, err := documentIterator.Next()
-			if err == iterator.Done {
-				break
-			} else if err != nil {
-				documentIterator.Stop()
-				return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
-			}
-
-			last = doc
-			retrieved++
-
-			err = displayItemWriter.Write(doc)
-			if err != nil {
-				documentIterator.Stop()
-				return cli.NewExitError(fmt.Sprintf("Error while writing output. \n%v", err), 86)
-			}
+	for {
+		doc, err := documentIterator.Next()
+		if err == iterator.Done {
+			break
+		} else if err != nil {
+			documentIterator.Stop()
+			return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
 		}
 
-		documentIterator.Stop()
-
-		if retrieved == 0 {
-			// no more results
-			toQuery = 0
-		} else {
-			toQuery -= retrieved
-			// if we do not need a complete batch we must adjust the max_query
-			if toQuery < batch {
-				query = query.Limit(toQuery)
-			}
-			// we need to figure out what the ordering is and add the correct fields
-			query = query.StartAfter(last)
+		err = displayItemWriter.Write(doc)
+		if err != nil {
+			documentIterator.Stop()
+			return cli.NewExitError(fmt.Sprintf("Error while writing output. \n%v", err), 86)
 		}
 	}
+
+	documentIterator.Stop()
 
 	return nil
 }
