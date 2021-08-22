@@ -153,21 +153,14 @@ fuego get people Rv7ZfnLQWprdXuulqMdf
 # }
 ```
 
-#### A note on types
+#### Advanced types
 
-fuego read and write commands are constrained by JSON data types: string,
-number, object, array and boolean, which don't cover all of firestore data
-types. 
+Our examples here use only basic JSON to represent firestore documents. However,
+JSON types are not enough to represent some of firestore types, for instance
+geo-locations or timestamps.
 
-When writing data, you can make fuego treat all strings that match the
-rfc3339 datetime format as firestore timestamps, using the --timestamp (or --ts) flag. For
-example:
-
-```sh
-fuego add --ts dates '{"randomdate": "2012-11-01T22:08:41+00:00"}'
-```
-
-will add a new document whose field named "randomdate" is a timestamp and not a string.
+Please read the [TYPES](TYPES.md) documentation if you want to to use those
+types.
 
 ### Subcollections
 
