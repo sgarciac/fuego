@@ -36,6 +36,13 @@ func main() {
 		},
 	}
 
+	displayFlags := []cli.Flag{
+		cli.BoolFlag{
+			Name:  "extendedjson, ej",
+			Usage: "Display documents as extended json",
+		},
+	}
+
 	app.Commands = []cli.Command{
 		{
 			Name:    "collections",
@@ -100,6 +107,7 @@ func main() {
 			Usage:     "Get a document from a collection",
 			ArgsUsage: "collection-path [document-id document-path]",
 			Action:    getCommandAction,
+			Flags:     displayFlags,
 		},
 		{
 			Name:      "getall",
@@ -107,6 +115,7 @@ func main() {
 			Usage:     "Get all document from a collection by providing ids ",
 			ArgsUsage: "collection-path document-id1 [document-id2 ...]",
 			Action:    getAllCommandAction,
+			Flags:     displayFlags,
 		},
 		{
 			Name:      "delete",
@@ -128,45 +137,47 @@ func main() {
 			Usage:     "Query a collection",
 			ArgsUsage: "[collection-path | collection-id] QUERY*",
 			Action:    queryCommandAction,
-			Flags: []cli.Flag{
-				cli.StringSliceFlag{
-					Name:  "orderby, ob",
-					Usage: "`FIELD_PATH` to order results by",
-				},
-				cli.BoolFlag{
-					Name:  "group, g",
-					Usage: "perform a group query",
-				},
-				cli.StringSliceFlag{
-					Name:  "orderdir, od",
-					Usage: "`DIRECTION` to order results (options: ASC/DESC)",
-				},
-				cli.IntFlag{
-					Name:  "limit, l",
-					Usage: "Fetch a maximum of `LIMIT` documents",
-					Value: 100,
-				},
-				cli.StringFlag{
-					Name:  "startat, sat",
-					Usage: "Results start at document `ID`",
-				},
-				cli.StringFlag{
-					Name:  "startafter, sar",
-					Usage: "Results start after document `ID`",
-				},
-				cli.StringFlag{
-					Name:  "endat, ea",
-					Usage: "Results end at document `ID`",
-				},
-				cli.StringFlag{
-					Name:  "endbefore, eb",
-					Usage: "Results end before document `ID`",
-				},
-				cli.StringSliceFlag{
-					Name:  "select",
-					Usage: "Return only `FIELD_PATH` fields in result. Parameter can be given multiple times",
-				},
-			},
+			Flags: append(
+				displayFlags,
+				[]cli.Flag{
+					cli.StringSliceFlag{
+						Name:  "orderby, ob",
+						Usage: "`FIELD_PATH` to order results by",
+					},
+					cli.BoolFlag{
+						Name:  "group, g",
+						Usage: "perform a group query",
+					},
+					cli.StringSliceFlag{
+						Name:  "orderdir, od",
+						Usage: "`DIRECTION` to order results (options: ASC/DESC)",
+					},
+					cli.IntFlag{
+						Name:  "limit, l",
+						Usage: "Fetch a maximum of `LIMIT` documents",
+						Value: 100,
+					},
+					cli.StringFlag{
+						Name:  "startat, sat",
+						Usage: "Results start at document `ID`",
+					},
+					cli.StringFlag{
+						Name:  "startafter, sar",
+						Usage: "Results start after document `ID`",
+					},
+					cli.StringFlag{
+						Name:  "endat, ea",
+						Usage: "Results end at document `ID`",
+					},
+					cli.StringFlag{
+						Name:  "endbefore, eb",
+						Usage: "Results end before document `ID`",
+					},
+					cli.StringSliceFlag{
+						Name:  "select",
+						Usage: "Return only `FIELD_PATH` fields in result. Parameter can be given multiple times",
+					},
+				}...),
 		},
 	}
 

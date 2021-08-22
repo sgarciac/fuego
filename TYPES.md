@@ -42,6 +42,12 @@ example of [MongoDB's Extended JSON format
 
 ## Fuego's extended JSON format.
 
+### Nil
+
+```
+<null>
+```
+
 ### Arrays
 
 ```

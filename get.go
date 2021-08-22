@@ -11,7 +11,8 @@ func getData(
 	client *firestore.Client,
 	collectionPath string,
 	documentPath string,
-	id string) (string, error) {
+	id string,
+	extendedJson bool) (string, error) {
 
 	var documentRef *firestore.DocumentRef
 	if collectionPath != "" {
@@ -24,7 +25,7 @@ func getData(
 	if err != nil {
 		return "", err
 	}
-	jsonString, err := marshallData(docsnap.Data())
+	jsonString, err := marshallData(docsnap.Data(), extendedJson)
 	if err != nil {
 		return "", err
 	}
@@ -37,6 +38,8 @@ func getCommandAction(c *cli.Context) error {
 	if argsLength < 1 || argsLength > 2 {
 		return cli.NewExitError("Wrong number of arguments", 82)
 	}
+
+	extendedJson := c.Bool("extendedjson")
 
 	var collectionPath, documentPath, id string
 
@@ -52,7 +55,7 @@ func getCommandAction(c *cli.Context) error {
 		return cliClientError(err)
 	}
 
-	data, err := getData(client, collectionPath, documentPath, id)
+	data, err := getData(client, collectionPath, documentPath, id, extendedJson)
 
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("Failed to get data. \n%v", err), 82)

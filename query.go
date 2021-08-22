@@ -21,7 +21,7 @@ func newDisplayItemWriter(writer *io.Writer) displayItemWriter {
 	return displayItemWriter{true, writer}
 }
 
-func (d *displayItemWriter) Write(doc *firestore.DocumentSnapshot) error {
+func (d *displayItemWriter) Write(doc *firestore.DocumentSnapshot, extendedJson bool) error {
 	if d.isFirst {
 		_, err := fmt.Fprintln(*d.writer, "[")
 		if err != nil {
@@ -43,7 +43,7 @@ func (d *displayItemWriter) Write(doc *firestore.DocumentSnapshot) error {
 	displayItem["UpdateTime"] = doc.UpdateTime
 	displayItem["Data"] = doc.Data()
 
-	jsonString, err := marshallData(displayItem)
+	jsonString, err := marshallData(displayItem, extendedJson)
 
 	if err != nil {
 		return err
@@ -93,6 +93,9 @@ func documentSnapshot(client *firestore.Client, document string, collectionRef *
 // query collection-path query*
 func queryCommandAction(c *cli.Context) error {
 	collectionPathOrId := c.Args().First()
+
+	// display
+	extendedJson := c.Bool("extendedjson")
 
 	// pagination
 	startAt := c.String("startat")
@@ -216,7 +219,7 @@ func queryCommandAction(c *cli.Context) error {
 			return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
 		}
 
-		err = displayItemWriter.Write(doc)
+		err = displayItemWriter.Write(doc, extendedJson)
 		if err != nil {
 			documentIterator.Stop()
 			return cli.NewExitError(fmt.Sprintf("Error while writing output. \n%v", err), 86)

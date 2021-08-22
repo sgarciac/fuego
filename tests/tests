@@ -58,7 +58,7 @@ testGetAllDocuments() {
     expectedValue2="string2"
     id1=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"${expectedValue1}\"}") || fail "Failed to add document"
     id2=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"${expectedValue2}\"}") || fail "Failed to add document"
-    result=$(../fuego getall ${TEST_COLLECTION} ${id1} ${id2} | jq -r '.[].level1'| tr '\n' ' ')
+    result=$(../fuego getall ${TEST_COLLECTION} ${id1} ${id2} | jq -r '.[].Data.level1'| tr '\n' ' ')
     assertEquals "Failed to read all added value" "${expectedValue1} ${expectedValue2} " "${result}"
 }
 
@@ -68,9 +68,9 @@ testDeleteAllDocuments() {
     expectedValue2="string2"
     id1=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"${expectedValue1}\"}") || fail "Failed to add document"
     id2=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"${expectedValue2}\"}") || fail "Failed to add document"
-    result=$(../fuego deleteall ${TEST_COLLECTION} ${id1} ${id2} | jq -r '.[].level1'| tr '\n' ' ')
-    result=$(../fuego getall ${TEST_COLLECTION} ${id1} ${id2} | jq -r '.[].level1'| tr '\n' ' ')
-    assertEquals "Failed to read all added value" "" "${result}"
+    ../fuego deleteall ${TEST_COLLECTION} ${id1} ${id2} > /dev/null
+    result=$(../fuego query ${TEST_COLLECTION})
+    assertEquals "Failed to delete documents." "" "${result}"
 }
 
 testUpdatingDocument(){
@@ -136,14 +136,13 @@ testGroupQuery() {
 }
 
 testQueryDifferentValueTypes(){
-    # Query integer value
-    id=$(../fuego add --ts ${TEST_COLLECTION} "{\"number\": 1, \"timestamp\": \"2019-02-26T02:39:44.458Z\", \"string\": \"string1\", \"bool\": true, \"array\": [1, 2, 3]}") || fail "Failed to add document"
+    id=$(../fuego add ${TEST_COLLECTION} "{\"number\": 1, \"timestamp\": {\"\$date\": \"2019-02-26T02:39:44.458Z\"}, \"string\": \"string1\", \"bool\": true, \"array\": [1, 2, 3]}") || fail "Failed to add document"
 
-		# equality
+    # equality
     result=$(../fuego query ${TEST_COLLECTION} "number == 1" | jq ".[0].ID")
     assertEquals "Failed to query integer on value" "\"${id}\"" "$result"
 
-    # Add and query timestamp
+    # Query timestamp
     result=$(../fuego query ${TEST_COLLECTION} "timestamp == 2019-02-26T02:39:44.458Z" | jq ".[0].ID")
     assertEquals "Failed to query timestamp" "\"${id}\"" "$result"
 
@@ -159,16 +158,16 @@ testQueryDifferentValueTypes(){
     result=$(../fuego query ${TEST_COLLECTION} "bool == true" | jq ".[0].ID")
     assertEquals "Failed to query timestamp" "\"${id}\"" "$result"
 
-		# in
-		result=$(../fuego query ${TEST_COLLECTION} "number in [1 2 3]" | jq ".[0].ID")
+    # in
+    result=$(../fuego query ${TEST_COLLECTION} "number in [1 2 3]" | jq ".[0].ID")
     assertEquals "Failed to query integer on value" "\"${id}\"" "$result"
 
-		# array-contains
-		result=$(../fuego query ${TEST_COLLECTION} "array array-contains 1" | jq ".[0].ID")
+    # array-contains
+    result=$(../fuego query ${TEST_COLLECTION} "array array-contains 1" | jq ".[0].ID")
     assertEquals "Failed to query integer on value" "\"${id}\"" "$result"
 
-		# array-contains-any
-		result=$(../fuego query ${TEST_COLLECTION} "array array-contains-any [1]" | jq ".[0].ID")
+    # array-contains-any
+    result=$(../fuego query ${TEST_COLLECTION} "array array-contains-any [1]" | jq ".[0].ID")
     assertEquals "Failed to query integer on value" "\"${id}\"" "$result"
 }
 

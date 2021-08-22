@@ -3,35 +3,23 @@ package main
 import (
 	firestore "cloud.google.com/go/firestore"
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/urfave/cli"
 )
 
-func getDocuments(client *firestore.Client, collectionPath string, ids []string) (string, error) {
-	var data []map[string]interface{}
+func getDocuments(client *firestore.Client,
+	collectionPath string,
+	ids []string,
+	extendedJson bool,
+) ([]*firestore.DocumentSnapshot, error) {
+	collectionRef := client.Collection(collectionPath)
 
-	if collectionPath != "" {
-		collectionRef := client.Collection(collectionPath)
-
-		var docRefs []*firestore.DocumentRef
-		for _, elem := range ids {
-			docRefs = append(docRefs, collectionRef.Doc(elem))
-		}
-
-		all, err := client.GetAll(context.Background(), docRefs)
-		if err != nil {
-			return "", err
-		}
-		for _, docSnap := range all {
-			elem := docSnap.Data()
-			if elem != nil {
-				data = append(data, elem)
-			}
-		}
+	var docRefs []*firestore.DocumentRef
+	for _, elem := range ids {
+		docRefs = append(docRefs, collectionRef.Doc(elem))
 	}
-	result, err := json.MarshalIndent(data, "", "  ")
-	return string(result), err
+
+	return client.GetAll(context.Background(), docRefs)
 }
 
 func getAllCommandAction(c *cli.Context) error {
@@ -40,6 +28,8 @@ func getAllCommandAction(c *cli.Context) error {
 	if argsLength < 2 {
 		return cli.NewExitError("Wrong number of arguments", 82)
 	}
+
+	extendedJson := c.Bool("extendedjson")
 
 	var collectionPath string
 	var ids []string
@@ -53,13 +43,20 @@ func getAllCommandAction(c *cli.Context) error {
 		return cliClientError(err)
 	}
 
-	data, err := getDocuments(client, collectionPath, ids)
-
+	data, err := getDocuments(client, collectionPath, ids, extendedJson)
 	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to get data. \n%v", err), 82)
+		return cli.NewExitError(fmt.Sprintf("Error fetching documents. \n%v", err), 86)
 	}
 
-	fmt.Fprintf(c.App.Writer, "%v\n", data)
+	displayItemWriter := newDisplayItemWriter(&c.App.Writer)
+	defer displayItemWriter.Close()
+
+	for _, doc := range data {
+		err = displayItemWriter.Write(doc, extendedJson)
+		if err != nil {
+			return cli.NewExitError(fmt.Sprintf("Error while writing output. \n%v", err), 86)
+		}
+	}
 
 	defer client.Close()
 	return nil

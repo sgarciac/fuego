@@ -160,8 +160,8 @@ JSON types are not enough to represent some of firestore types, for instance
 geo-locations or timestamps.
 
 Please read the [TYPES](TYPES.md) documentation if you want to know how fuego
-maps JSON documents to firestore documents, and how to use a more advanced type
-system using our 'extended JSON'.
+maps JSON documents to firestore documents, and how to express the more advanced
+type system using our 'extended JSON'.
 
 ### Subcollections
 
