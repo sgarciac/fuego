@@ -153,7 +153,7 @@ fuego get people Rv7ZfnLQWprdXuulqMdf
 # }
 ```
 
-#### Advanced types
+### Advanced types
 
 Our examples here use only basic JSON to represent firestore documents. However,
 JSON types are not enough to represent some of firestore types, for instance
