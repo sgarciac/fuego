@@ -36,13 +36,6 @@ func main() {
 		},
 	}
 
-	writingFlags := []cli.Flag{
-		cli.BoolFlag{
-			Name:  "timestamp, ts",
-			Usage: "treat strings values that match rfc3339 as timestamps",
-		},
-	}
-
 	app.Commands = []cli.Command{
 		{
 			Name:    "collections",
@@ -56,7 +49,6 @@ func main() {
 			Usage:     "Add a new document to a collection",
 			ArgsUsage: "collection-path json-document",
 			Action:    addCommandAction,
-			Flags:     writingFlags,
 		},
 		{
 			Name:      "set",
@@ -64,13 +56,10 @@ func main() {
 			Usage:     "Set the contents of a document",
 			ArgsUsage: "[collection-path document-id json-document | document-path json-document]",
 			Action:    setCommandAction,
-			Flags: append(
-				writingFlags,
-				cli.BoolFlag{
-					Name:  "merge",
-					Usage: "if set the set operation will do a update/patch",
-				},
-			),
+			Flags: []cli.Flag{cli.BoolFlag{
+				Name:  "merge",
+				Usage: "if set the set operation will do a update/patch",
+			}},
 		},
 		{
 			Name:      "copy",

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	latlng "google.golang.org/genproto/googleapis/type/latlng"
 	"io/ioutil"
 	"math"
 	"regexp"
@@ -11,44 +12,85 @@ import (
 
 var rfc3339regex, _ = regexp.Compile("^" + rfc3339pattern + "$")
 
-// Replaces all string values in an array that are RFC3339 timestamps
-// by its corresponding time.Time object, recursively.
-func timestampifySlice(slice []interface{}) {
-	for i, v := range slice {
+// prepareTypesMap traverses a map, replacing extended json values
+// by the golang value used by the firestore library to represent the given type.
+func prepareTypesMap(m map[string]interface{}) {
+	for k, v := range m {
 		switch v := v.(type) {
 		case []interface{}:
-			timestampifySlice(v)
+			prepareTypesSlice(v)
 		case map[string]interface{}:
-			timestampifyMap(v)
-		case string:
-			if rfc3339regex.MatchString(v) {
-				timestamp, err := time.Parse(time.RFC3339Nano, v)
-				if err != nil {
-					panic("Unexpected error parsing rfc3339")
+			if len(v) == 1 {
+				if content, ok := v["$boolean"]; ok {
+					typedContent := content.(bool)
+					m[k] = typedContent
+				} else if content, ok := v["$date"]; ok {
+					typedContent := content.(string)
+					timestamp, err := time.Parse(time.RFC3339Nano, typedContent)
+					if err != nil {
+						panic("Unexpected error parsing rfc3339")
+					}
+					m[k] = timestamp
+				} else if content, ok := v["$numberDouble"]; ok {
+					typedContent := content.(float64)
+					m[k] = typedContent
+				} else if content, ok := v["$numberInt"]; ok {
+					typedContent := content.(float64)
+					m[k] = int64(math.Round(typedContent))
+				} else if content, ok := v["$string"]; ok {
+					typedContent := content.(string)
+					m[k] = typedContent
+				} else if content, ok := v["$geopoint"]; ok {
+					typedContent := content.(map[string]interface{})
+					longitude := typedContent["$longitude"].(float64)
+					latitude := typedContent["$latitude"].(float64)
+					m[k] = &latlng.LatLng{Latitude: latitude, Longitude: longitude}
 				}
-				slice[i] = timestamp
+
+			} else {
+				prepareTypesMap(v)
 			}
 		}
 	}
 }
 
-// Replaces all string values in an object that are RFC3339 timestamps
-// by its corresponding time.Time object, recursively.
-func timestampifyMap(m map[string]interface{}) {
-	for k, v := range m {
+// prepareTypesMap traverses a slice, replacing extended json values
+// by the golang value used by the firestore library to represent the given type.
+func prepareTypesSlice(slice []interface{}) {
+	for i, v := range slice {
 		switch v := v.(type) {
 		case []interface{}:
-			timestampifySlice(v)
+			prepareTypesSlice(v)
 		case map[string]interface{}:
-			timestampifyMap(v)
-		case string:
-			if rfc3339regex.MatchString(v) {
-				// hoping our regex prevents wrong parsing
-				timestamp, err := time.Parse(time.RFC3339, v)
-				if err != nil {
-					panic("Unexpected error parsing rfc3339")
+			if len(v) == 1 {
+				if content, ok := v["$boolean"]; ok {
+					typedContent := content.(bool)
+					slice[i] = typedContent
+				} else if content, ok := v["$date"]; ok {
+					typedContent := content.(string)
+					timestamp, err := time.Parse(time.RFC3339Nano, typedContent)
+					if err != nil {
+						panic("Unexpected error parsing rfc3339")
+					}
+					slice[i] = timestamp
+				} else if content, ok := v["$numberDouble"]; ok {
+					typedContent := content.(float64)
+					slice[i] = typedContent
+				} else if content, ok := v["$numberInt"]; ok {
+					typedContent := content.(float64)
+					slice[i] = int64(math.Round(typedContent))
+				} else if content, ok := v["$string"]; ok {
+					typedContent := content.(string)
+					slice[i] = typedContent
+				} else if content, ok := v["$geopoint"]; ok {
+					typedContent := content.(map[string]interface{})
+					longitude := typedContent["$longitude"].(float64)
+					latitude := typedContent["$latitude"].(float64)
+					slice[i] = &latlng.LatLng{Latitude: latitude, Longitude: longitude}
 				}
-				m[k] = timestamp
+
+			} else {
+				prepareTypesMap(v)
 			}
 		}
 	}
