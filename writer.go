@@ -51,6 +51,7 @@ func writeSnapshot(writer io.Writer, doc *firestore.DocumentSnapshot, extendedJs
 	displayItem["ReadTime"] = doc.ReadTime
 	displayItem["UpdateTime"] = doc.UpdateTime
 	displayItem["Data"] = doc.Data()
+	displayItem["Path"] = doc.Ref.Path
 
 	jsonString, err := marshallData(displayItem, extendedJson)
 
