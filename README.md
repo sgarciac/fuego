@@ -89,24 +89,44 @@ Of fetch them, using the ID:
 ```sh
 fuego get people Rv7ZfnLQWprdXuulqMdf
 # {
-#    "age": 41,
-#    "name": "sergio"
+#     "CreateTime": "2021-08-22T23:53:31.439821Z",
+#     "Data": {
+#         "age": 41,
+#         "name": "sergio"
+#     },
+#     "ID": "Rv7ZfnLQWprdXuulqMdf",
+#     "ReadTime": "2021-08-23T01:57:12.30626Z",
+#     "UpdateTime": "2021-08-22T23:53:31.439821Z"
 # }
+ 
+
 ```
 
 Or fetch them using multiple ids:
 ```sh
-fuego  getall people WkVlcPgEJIXzdyQS6H5d,f2TbJA5DIhBfXwKrMbHP
+fuego  getall people WkVlcPgEJIXzdyQS6H5d f2TbJA5DIhBfXwKrMbHP
 [
-{
-"age": 41,
-"name": "sergio"
-},
-{
-"age": 22,
-"name": "rohan"
-}
-]
+# {
+#     "CreateTime": "2021-08-22T23:53:31.439821Z",
+#     "Data": {
+#         "age": 41,
+#         "name": "sergio"
+#     },
+#     "ID": "WkVlcPgEJIXzdyQS6H5d",
+#     "ReadTime": "2021-08-23T01:57:12.30626Z",
+#     "UpdateTime": "2021-08-22T23:53:31.439821Z"
+# },
+# {
+#     "CreateTime": "2021-08-22T23:53:31.439821Z",
+#     "Data": {
+#         "age": 23,
+#         "name": "rohan"
+#     },
+#     "ID": "f2TbJA5DIhBfXwKrMbHP",
+#     "ReadTime": "2021-08-23T01:57:12.30626Z",
+#     "UpdateTime": "2021-08-22T23:53:31.439821Z"
+# }
+# ]
 ```
 
 You can also replace an existing document:
@@ -146,11 +166,19 @@ To update an existing document:
 fuego set --merge people Rv7ZfnLQWprdXuulqMdf '{"location": "unknown"}'
 # Rv7ZfnLQWprdXuulqMdf <- fuego prints the ID of the updated document
 fuego get people Rv7ZfnLQWprdXuulqMdf
+
 # {
-#    "age": 41,
-#    "location": "unknonw",
-#    "name": "sergio"
+#     "CreateTime": "2021-08-22T23:53:31.439821Z",
+#     "Data": {
+#         "age": 41,
+#         "name": "sergio",
+#         "location": "unknown"
+#     },
+#     "ID": "Rv7ZfnLQWprdXuulqMdf",
+#     "ReadTime": "2021-08-23T01:57:12.30626Z",
+#     "UpdateTime": "2021-08-22T23:53:31.439821Z"
 # }
+
 ```
 
 ### Advanced types
