@@ -12,7 +12,7 @@ func getData(
 	collectionPath string,
 	documentPath string,
 	id string,
-	extendedJson bool) (string, error) {
+) (*firestore.DocumentSnapshot, error) {
 
 	var documentRef *firestore.DocumentRef
 	if collectionPath != "" {
@@ -21,15 +21,7 @@ func getData(
 	} else {
 		documentRef = client.Doc(documentPath)
 	}
-	docsnap, err := documentRef.Get(context.Background())
-	if err != nil {
-		return "", err
-	}
-	jsonString, err := marshallData(docsnap.Data(), extendedJson)
-	if err != nil {
-		return "", err
-	}
-	return jsonString, nil
+	return documentRef.Get(context.Background())
 }
 
 func getCommandAction(c *cli.Context) error {
@@ -51,18 +43,20 @@ func getCommandAction(c *cli.Context) error {
 	}
 
 	client, err := createClient(credentials)
+
 	if err != nil {
 		return cliClientError(err)
 	}
 
-	data, err := getData(client, collectionPath, documentPath, id, extendedJson)
+	defer client.Close()
+
+	docsnap, err := getData(client, collectionPath, documentPath, id)
 
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("Failed to get data. \n%v", err), 82)
 	}
 
-	fmt.Fprintf(c.App.Writer, "%v\n", data)
+	writeSnapshot(c.App.Writer, docsnap, extendedJson)
 
-	defer client.Close()
 	return nil
 }

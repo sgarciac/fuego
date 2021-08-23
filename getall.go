@@ -10,7 +10,7 @@ import (
 func getDocuments(client *firestore.Client,
 	collectionPath string,
 	ids []string,
-	extendedJson bool,
+
 ) ([]*firestore.DocumentSnapshot, error) {
 	collectionRef := client.Collection(collectionPath)
 
@@ -43,7 +43,7 @@ func getAllCommandAction(c *cli.Context) error {
 		return cliClientError(err)
 	}
 
-	data, err := getDocuments(client, collectionPath, ids, extendedJson)
+	data, err := getDocuments(client, collectionPath, ids)
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("Error fetching documents. \n%v", err), 86)
 	}
