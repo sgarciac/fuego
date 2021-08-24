@@ -11,8 +11,8 @@ A command-line firestore client.
 ### Precompiled binaries
 
 Download one of the precompiled binaries from the [latest
-release](https://github.com/sgarciac/fuego/releases). (builts available for
-windows, linux, macintosh/darwin)
+release](https://github.com/sgarciac/fuego/releases). (builds available for
+windows, Linux, Macintosh/Darwin)
 
 ### Building it locally
 
@@ -37,7 +37,7 @@ click on the _Service accounts_ tab and generate a new private key.
 Once you have your service account key file, fuego will be able to find it using
 one of the following options:
 
-1. Use the ```--credentials``` flag everytime you execute fuego, i.e.:
+1. Use the ```--credentials``` flag every time you execute fuego, i.e.:
 
 ```sh
 fuego --credentials ./my-account-service-private-key.json get mycollection mydocumentid
@@ -73,7 +73,7 @@ project will be defined. **You can set a project** using the global option
 fuego collections
 ```
 
-Will return the list of projet's collections.
+Will return the list of project's collections.
 
 ### Writing and reading data
 
@@ -120,7 +120,7 @@ json-data``` or ```document-path json-data```. This is also the case for the
 delete and the get commands.
 
 In both ```add``` and ```set``` commands, the document argument can be either a
-json string (if it starts with the character ```{```) or a path to a json file, i.e.:
+JSON string (if it starts with the character ```{```) or a path to a JSON file, i.e.:
 
 ```sh
 fuego add animals ./dog.json
@@ -134,7 +134,7 @@ fuego delete people/Rv7ZfnLQWprdXuulqMdf
 
 note: this won't delete any subcollection under the document.
 
-It's also possible to delete mutliple documents without transaction
+It's also possible to delete multiple documents without transaction
 ```sh
 fuego delete people Rv7ZfnLQWprdXuulqMdf,Rv7ZfnLQWprdXuulqMde
 ```
@@ -181,7 +181,7 @@ fuego query countries/france/cities
 ### Queries
 
 Let's explain queries by example. First, we'll create a collection of physics
-nobel laureates, 
+Nobel laureates,
 
 ```sh
 fuego add nobel '{"name": "Arthur Ashkin", "year": 2018, "birthplace": {"country":"USA", "city": "New York"}}'
@@ -219,7 +219,7 @@ fuego query nobel
 Which will fetch and display the documents in the collection, unfiltered. By default, fuego will fetch only 100 documents. You can change the limit using the ```--limit``` flag.
 
 You can also order the results using the ```--orderby``` and ```--orderdir```
-flags. For example, to sort our nobel laureates by country of origin, in
+flags. For example, to sort our Nobel laureates by country of origin, in
 ascending order:
 
 ```sh
@@ -228,7 +228,7 @@ fuego query --orderby birthplace.country --orderdir ASC nobel
 
 You can add filters, using the firestore supported operators (>, <, >=, <=, ==,
 in, array-contains or array-contains-any). You can combine several filters in a
-single query. For example, to get the 2018 nobel laureates from the USA:
+single query. For example, to get the 2018 Nobel laureates from the USA:
 
 ```sh
 fuego query nobel 'birthplace.country == "USA"' 'year == 2018'
@@ -256,7 +256,7 @@ which will print:
 
 ```
 
-Let's say we want to find the least recent nobel from the USA, we can write the following query:
+Let's say we want to find the least recent Nobel from the USA, we can write the following query:
 
 ```sh
 fuego query --limit 1 --orderby year --orderdir ASC nobel "birthplace.country == 'USA'" 
