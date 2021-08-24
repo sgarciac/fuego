@@ -34,17 +34,17 @@ testAddSetReadDeleteDocument() {
     # Adding...
     expectedValue="string1"
     id=$(../fuego add ${TEST_COLLECTION} "{\"level1\": \"${expectedValue}\"}") || fail "Failed to add document"
-    result=$(../fuego get ${TEST_COLLECTION} ${id} | jq ".level1")
+    result=$(../fuego get ${TEST_COLLECTION} ${id} | jq ".Data.level1")
     assertEquals "Failed to read added value" "\"${expectedValue}\"" "${result}"
 
     # Setting...
     expectedValue="string2"
     ../fuego set ${TEST_COLLECTION} ${id} "{\"level1\": \"${expectedValue}\"}" || fail "Failed to set document"
-    result=$(../fuego get ${TEST_COLLECTION} ${id} | jq ".level1")
+    result=$(../fuego get ${TEST_COLLECTION} ${id} | jq ".Data.level1")
     assertEquals "Failed to read set value" "\"${expectedValue}\"" "${result}"
 
 		# Also test reading using document-path
-    result=$(../fuego get ${TEST_COLLECTION}/${id} | jq ".level1")
+    result=$(../fuego get ${TEST_COLLECTION}/${id} | jq ".Data.level1")
     assertEquals "Failed to read set value" "\"${expectedValue}\"" "${result}"
 
 		# And deleting...
@@ -79,13 +79,13 @@ testUpdatingDocument(){
 
     # add a new field using document path
     ../fuego set --merge ${TEST_COLLECTION}/${id} "{\"version\": 2}" || fail "Failed to add document"
-    result=$(../fuego get ${TEST_COLLECTION} ${id} | jq .)
+    result=$(../fuego get ${TEST_COLLECTION} ${id} | jq .Data)
     expectedValue=$(echo {\"level1\": \"value\", \"version\": 2} | jq .)
     assertEquals "Failed to update new fields" "${expectedValue}" "${result}"
 
     # overwrite existing field
     ../fuego set --merge ${TEST_COLLECTION} ${id} "{\"version\": 15}" || fail "Failed to add document"
-    result=$(../fuego get ${TEST_COLLECTION} ${id} | jq .)
+    result=$(../fuego get ${TEST_COLLECTION} ${id} | jq .Data)
     expectedValue=$(echo {\"level1\": \"value\", \"version\": 15} | jq .)
     assertEquals "Failed to update existing fields" "${expectedValue}" "${result}"
 }
@@ -96,7 +96,7 @@ testUpdatingDeepDocument(){
 
     # add a new field
     ../fuego set --merge ${TEST_COLLECTION} ${id} "{\"level1\": {\"level2\": {\"level3\": {\"level4\": \"value\"}}}}" || fail "Failed to add document"
-    result=$(../fuego get ${TEST_COLLECTION} ${id} | jq .)
+    result=$(../fuego get ${TEST_COLLECTION} ${id} | jq .Data)
     expectedValue=$(echo {\"base\": \"value\", \"level1\": {\"level2\": {\"level3\": {\"level4\": \"value\"}}}} | jq .)
     assertEquals "Failed to update deeply nested field fields" "${expectedValue}" "${result}"
 }
@@ -169,6 +169,39 @@ testQueryDifferentValueTypes(){
     # array-contains-any
     result=$(../fuego query ${TEST_COLLECTION} "array array-contains-any [1]" | jq ".[0].ID")
     assertEquals "Failed to query integer on value" "\"${id}\"" "$result"
+}
+
+testExtendedJson() {
+    # insert several types.
+    id=$(../fuego add ${TEST_COLLECTION} '{"intval": {"$numberInt": 1}, "doubleval": {"$numberDouble": 1}, "innerIntval": {"intval": {"$numberInt": 1}}, "arrayIntval": [{"$numberInt": 1}], "dateval": {"$date": "2019-02-26T02:39:44.458Z"}, "geopointval": {"$geopoint": {"$latitude": 1, "$longitude": 2}}, "binaryval": {"$binary": "aGVsbG93b3JsZA=="}, "stringval": {"$string": "helloworld"}}')
+    result=$(../fuego get -ej ${TEST_COLLECTION} $id)
+
+    intval=$(echo $result | jq '.Data.intval."$numberInt"')
+    assertEquals "Failed to fetch numberInt" "1" "${intval}" 
+
+    doubleval=$(echo $result | jq '.Data.doubleval."$numberDouble"')
+    assertEquals "Failed to fetch numberDouble" "1" "${doubleval}" 
+
+    innerIntval=$(echo $result | jq '.Data.innerIntval.intval."$numberInt"')
+    assertEquals "Failed to fetch a nested numberInt " "1" "${innerIntval}" 
+
+    arrayIntval=$(echo $result | jq '.Data.arrayIntval[0]."$numberInt"')
+    assertEquals "Failed to fetch a numberInt within an array" "1" "${arrayIntval}" 
+
+    latitude=$(echo $result | jq '.Data.geopointval."$geopoint"."$latitude"')
+    longitude=$(echo $result | jq '.Data.geopointval."$geopoint"."$longitude"')
+
+    assertEquals "Failed to fetch a latitude " "1" "${latitude}"
+    assertEquals "Failed to fetch a longitude " "2" "${longitude}"
+
+    dateval=$(echo $result | jq '.Data.dateval."$date"')
+    assertEquals "Failed to fetch a date" "\"2019-02-26T02:39:44.458Z\"" "$dateval"
+
+    stringval=$(echo $result | jq '.Data.stringval."$string"')
+    assertEquals "Failed to fetch a date" "\"helloworld\"" "$stringval"
+
+    binaryval=$(echo $result | jq '.Data.binaryval."$binary"')
+    assertEquals "Failed to fetch a date" "\"aGVsbG93b3JsZA==\"" "$binaryval"
 }
 
 
@@ -280,28 +313,28 @@ testCopyDocumentAndCollection(){
     ../fuego copy "${TEST_COLLECTION}" ${targetCollectionPath} --overwrite
 
     # query copied document
-    result=$(../fuego get ${targetDocumentPath} | jq .)
+    result=$(../fuego get ${targetDocumentPath} | jq .Data)
     expectedValue=$(echo {\"base\": \"value\"} | jq .)
     assertEquals "Failed to copy document" "${expectedValue}" "${result}"
 
-    result=$(../fuego get "${targetDocumentPath}/subCollection1/${subDocId1}" | jq .)
+    result=$(../fuego get "${targetDocumentPath}/subCollection1/${subDocId1}" | jq .Data)
     expectedValue=$(echo {\"base\": \"sub value1\"} | jq .)
     assertEquals "Failed to copy document" "${expectedValue}" "${result}"
 
-    result=$(../fuego get "${targetDocumentPath}/subCollection2/${subDocId2}" | jq .)
+    result=$(../fuego get "${targetDocumentPath}/subCollection2/${subDocId2}" | jq .Data)
     expectedValue=$(echo {\"base\": \"sub value2\"} | jq .)
     assertEquals "Failed to copy document" "${expectedValue}" "${result}"
 
     # query copied collection
-    result=$(../fuego get "${targetCollectionPath}/${id}" | jq .)
+    result=$(../fuego get "${targetCollectionPath}/${id}" | jq .Data)
     expectedValue=$(echo {\"base\": \"value\"} | jq .)
     assertEquals "Failed to copy document" "${expectedValue}" "${result}"
 
-    result=$(../fuego get "${targetCollectionPath}/${id}/subCollection1/${subDocId1}" | jq .)
+    result=$(../fuego get "${targetCollectionPath}/${id}/subCollection1/${subDocId1}" | jq .Data)
     expectedValue=$(echo {\"base\": \"sub value1\"} | jq .)
     assertEquals "Failed to copy document" "${expectedValue}" "${result}"
 
-    result=$(../fuego get "${targetCollectionPath}/${id}/subCollection2/${subDocId2}" | jq .)
+    result=$(../fuego get "${targetCollectionPath}/${id}/subCollection2/${subDocId2}" | jq .Data)
     expectedValue=$(echo {\"base\": \"sub value2\"} | jq .)
     assertEquals "Failed to copy document" "${expectedValue}" "${result}"
 }
@@ -310,4 +343,4 @@ testCopyDocumentAndCollection(){
 # Load shUnit2.
 . ./shunit2
 
-}
+

@@ -119,7 +119,7 @@ func firestoreValueToExtendedJsonValue(v interface{}) interface{} {
 
 	case time.Time:
 		return map[string]interface{}{
-			"$date": v.Format(time.RFC3339),
+			"$date": v.Format(time.RFC3339Nano),
 		}
 
 	case string:
