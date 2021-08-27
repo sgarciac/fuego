@@ -89,24 +89,44 @@ Of fetch them, using the ID:
 ```sh
 fuego get people Rv7ZfnLQWprdXuulqMdf
 # {
-#    "age": 41,
-#    "name": "sergio"
+#     "CreateTime": "2021-08-22T23:53:31.439821Z",
+#     "Data": {
+#         "age": 41,
+#         "name": "sergio"
+#     },
+#     "ID": "Rv7ZfnLQWprdXuulqMdf",
+#     "ReadTime": "2021-08-23T01:57:12.30626Z",
+#     "UpdateTime": "2021-08-22T23:53:31.439821Z"
 # }
+ 
+
 ```
 
 Or fetch them using multiple ids:
 ```sh
-fuego  getall people WkVlcPgEJIXzdyQS6H5d,f2TbJA5DIhBfXwKrMbHP
+fuego  getall people WkVlcPgEJIXzdyQS6H5d f2TbJA5DIhBfXwKrMbHP
 [
-{
-"age": 41,
-"name": "sergio"
-},
-{
-"age": 22,
-"name": "rohan"
-}
-]
+# {
+#     "CreateTime": "2021-08-22T23:53:31.439821Z",
+#     "Data": {
+#         "age": 41,
+#         "name": "sergio"
+#     },
+#     "ID": "WkVlcPgEJIXzdyQS6H5d",
+#     "ReadTime": "2021-08-23T01:57:12.30626Z",
+#     "UpdateTime": "2021-08-22T23:53:31.439821Z"
+# },
+# {
+#     "CreateTime": "2021-08-22T23:53:31.439821Z",
+#     "Data": {
+#         "age": 23,
+#         "name": "rohan"
+#     },
+#     "ID": "f2TbJA5DIhBfXwKrMbHP",
+#     "ReadTime": "2021-08-23T01:57:12.30626Z",
+#     "UpdateTime": "2021-08-22T23:53:31.439821Z"
+# }
+# ]
 ```
 
 You can also replace an existing document:
@@ -146,28 +166,30 @@ To update an existing document:
 fuego set --merge people Rv7ZfnLQWprdXuulqMdf '{"location": "unknown"}'
 # Rv7ZfnLQWprdXuulqMdf <- fuego prints the ID of the updated document
 fuego get people Rv7ZfnLQWprdXuulqMdf
+
 # {
-#    "age": 41,
-#    "location": "unknonw",
-#    "name": "sergio"
+#     "CreateTime": "2021-08-22T23:53:31.439821Z",
+#     "Data": {
+#         "age": 41,
+#         "name": "sergio",
+#         "location": "unknown"
+#     },
+#     "ID": "Rv7ZfnLQWprdXuulqMdf",
+#     "ReadTime": "2021-08-23T01:57:12.30626Z",
+#     "UpdateTime": "2021-08-22T23:53:31.439821Z"
 # }
+
 ```
 
-#### A note on types
+### Advanced types
 
-fuego read and write commands are constrained by JSON data types: string,
-number, object, array and boolean, which don't cover all of firestore data
-types. 
+Our examples here use only basic JSON to represent firestore documents. However,
+JSON types are not enough to represent some of firestore types, for instance
+geo-locations or timestamps.
 
-When writing data, you can make fuego treat all strings that match the
-rfc3339 datetime format as firestore timestamps, using the --timestamp (or --ts) flag. For
-example:
-
-```sh
-fuego add --ts dates '{"randomdate": "2012-11-01T22:08:41+00:00"}'
-```
-
-will add a new document whose field named "randomdate" is a timestamp and not a string.
+Please read the [TYPES](TYPES.md) documentation if you want to know how fuego
+maps JSON documents to firestore documents, and how to express the more advanced
+type system using our 'extended JSON'.
 
 ### Subcollections
 

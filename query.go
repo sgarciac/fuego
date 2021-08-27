@@ -6,64 +6,8 @@ import (
 	"fmt"
 	"github.com/urfave/cli"
 	"google.golang.org/api/iterator"
-	"io"
-	"log"
 	"strings"
 )
-
-// wrapper to stream the json serialized results
-type displayItemWriter struct {
-	isFirst bool
-	writer  *io.Writer
-}
-
-func newDisplayItemWriter(writer *io.Writer) displayItemWriter {
-	return displayItemWriter{true, writer}
-}
-
-func (d *displayItemWriter) Write(doc *firestore.DocumentSnapshot) error {
-	if d.isFirst {
-		_, err := fmt.Fprintln(*d.writer, "[")
-		if err != nil {
-			return err
-		}
-		d.isFirst = false
-	} else {
-		_, err := fmt.Fprintln(*d.writer, ",")
-		if err != nil {
-			return err
-		}
-	}
-
-	var displayItem = make(map[string]interface{})
-
-	displayItem["ID"] = doc.Ref.ID
-	displayItem["CreateTime"] = doc.CreateTime
-	displayItem["ReadTime"] = doc.ReadTime
-	displayItem["UpdateTime"] = doc.UpdateTime
-	displayItem["Data"] = doc.Data()
-
-	jsonString, err := marshallData(displayItem)
-
-	if err != nil {
-		return err
-	}
-
-	_, err = fmt.Fprintln(*d.writer, jsonString)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (d *displayItemWriter) Close() {
-	if !d.isFirst {
-		_, err := fmt.Fprintln(*d.writer, "]")
-		if err != nil {
-			log.Panicf("Could not write finishing part of results. %v", err)
-		}
-	}
-}
 
 func getDir(name string) firestore.Direction {
 	if name == "DESC" {
@@ -93,6 +37,9 @@ func documentSnapshot(client *firestore.Client, document string, collectionRef *
 // query collection-path query*
 func queryCommandAction(c *cli.Context) error {
 	collectionPathOrId := c.Args().First()
+
+	// display
+	extendedJson := c.Bool("extendedjson")
 
 	// pagination
 	startAt := c.String("startat")
@@ -216,7 +163,7 @@ func queryCommandAction(c *cli.Context) error {
 			return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
 		}
 
-		err = displayItemWriter.Write(doc)
+		err = displayItemWriter.Write(doc, extendedJson)
 		if err != nil {
 			documentIterator.Stop()
 			return cli.NewExitError(fmt.Sprintf("Error while writing output. \n%v", err), 86)

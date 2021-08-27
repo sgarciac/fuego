@@ -11,16 +11,14 @@ func addData(
 	client *firestore.Client,
 	collection string,
 	data string,
-	timestampify bool) (string, error) {
+) (string, error) {
 
 	object, err := unmarshallData(data)
 	if err != nil {
 		return "", err
 	}
 
-	if timestampify {
-		timestampifyMap(object)
-	}
+	transformExtendedJsonMapToFirestoreMap(object)
 
 	doc, _, err := client.
 		Collection(collection).
@@ -35,14 +33,13 @@ func addData(
 
 func addCommandAction(c *cli.Context) error {
 	collectionPath := c.Args().First()
-	timestampify := c.Bool("timestamp")
 	data := c.Args().Get(1)
 
 	client, err := createClient(credentials)
 	if err != nil {
 		return cliClientError(err)
 	}
-	id, err := addData(client, collectionPath, data, timestampify)
+	id, err := addData(client, collectionPath, data)
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("Failed to add data. \n%v", err), 81)
 	}
