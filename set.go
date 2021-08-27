@@ -13,7 +13,6 @@ func setData(
 	documentPath string,
 	id string,
 	data string,
-	timestampify bool,
 	merge bool) error {
 
 	object, err := unmarshallData(data)
@@ -21,9 +20,7 @@ func setData(
 		return err
 	}
 
-	if timestampify {
-		timestampifyMap(object)
-	}
+	transformExtendedJsonMapToFirestoreMap(object)
 
 	var options []firestore.SetOption
 	if merge {
@@ -55,7 +52,6 @@ func setCommandAction(c *cli.Context) error {
 		return cli.NewExitError("Wrong number of arguments", 85)
 	}
 
-	timestampify := c.Bool("timestamp")
 	merge := c.Bool("merge")
 
 	var collectionPath, id, data, documentPath string
@@ -74,7 +70,7 @@ func setCommandAction(c *cli.Context) error {
 		return cliClientError(err)
 	}
 
-	err = setData(client, collectionPath, documentPath, id, data, timestampify, merge)
+	err = setData(client, collectionPath, documentPath, id, data, merge)
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("Failed to write data. \n%v", err), 85)
 	}
