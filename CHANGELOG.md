@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.20.0]
+### Changed
+- Input JSON is now interpreted using the semantics described in the TYPES.md
+  file, which supports a larger set of firestore types.
+- Documents output *can* be demanded to be transformed to the same notation, in
+  order to have extra typing information.
+- All documents are not displayed using the full document snapshot data
+  information.
+- Document snapshot data now includes the full path of the ducument.
+- Several documentation improvements.
+
 ## [0.15.0]
 ### Changed
 - Changes arguments for getall and deleteall commands.
