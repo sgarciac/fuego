@@ -1,4 +1,7 @@
 # Changelog
+## [0.20.1]
+### Changed
+- Remove --batch option from documentation.
 
 ## [0.20.0]
 ### Changed

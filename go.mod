@@ -14,7 +14,7 @@ require (
 	github.com/urfave/cli v1.22.1
 	golang.org/x/oauth2 v0.0.0-20201203001011-0b49973bad19 // indirect
 	google.golang.org/api v0.36.0
-	google.golang.org/genproto v0.0.0-20210821163610-241b8fcbd6c8 // indirect
+	google.golang.org/genproto v0.0.0-20210821163610-241b8fcbd6c8
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776 // indirect
 )
