@@ -1,4 +1,9 @@
 # Changelog
+
+## [0.21.0]
+### Added
+- Support for 'reference' data type.
+
 ## [0.20.1]
 ### Changed
 - Remove --batch option from documentation.
