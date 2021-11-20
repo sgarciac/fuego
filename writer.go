@@ -45,15 +45,20 @@ func (d *displayItemWriter) Close() {
 
 func writeSnapshot(writer io.Writer, doc *firestore.DocumentSnapshot, extendedJson bool) error {
 	var displayItem = make(map[string]interface{})
+	var data = doc.Data()
+
+	if extendedJson {
+		transformFirestoreMapToExtendedJsonMap(data)
+	}
 
 	displayItem["ID"] = doc.Ref.ID
 	displayItem["CreateTime"] = doc.CreateTime
 	displayItem["ReadTime"] = doc.ReadTime
 	displayItem["UpdateTime"] = doc.UpdateTime
-	displayItem["Data"] = doc.Data()
+	displayItem["Data"] = data
 	displayItem["Path"] = doc.Ref.Path
 
-	jsonString, err := marshallData(displayItem, extendedJson)
+	jsonString, err := marshallData(displayItem, false)
 
 	if err != nil {
 		return err
