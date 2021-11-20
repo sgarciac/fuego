@@ -18,7 +18,7 @@ func addData(
 		return "", err
 	}
 
-	transformExtendedJsonMapToFirestoreMap(object)
+	transformExtendedJsonMapToFirestoreMap(object, client)
 
 	doc, _, err := client.
 		Collection(collection).

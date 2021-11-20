@@ -22,7 +22,7 @@ oneTimeSetUp() {
 
 setUp() {
     TEST_COLLECTION=tests-`uuidgen`
-		TEST_COLLECTION_2=tests-`uuidgen`
+    TEST_COLLECTION_2=tests-`uuidgen`
     echo "Testing with collection ${TEST_COLLECTION}"
 }
 
