@@ -20,7 +20,7 @@ func setData(
 		return err
 	}
 
-	transformExtendedJsonMapToFirestoreMap(object)
+	transformExtendedJsonMapToFirestoreMap(object, client)
 
 	var options []firestore.SetOption
 	if merge {

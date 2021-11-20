@@ -115,8 +115,11 @@ or
 ```
 
 ### Reference
+```
+{"$reference": <String>}
+```
 
-???
+Where the string is the full path to a document.
 
 ### String
 
