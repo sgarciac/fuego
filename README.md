@@ -25,6 +25,14 @@ go build . # and 'go install .' if you want
 ./fuego --help
 ```
 
+### Snap 
+
+Linux users can use snap to install fuego. Only the stable version is provided.
+
+```sh
+snap install fuego
+```
+
 ## Usage
 
 ### Authentication

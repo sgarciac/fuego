@@ -105,6 +105,7 @@ In order to create a new release you should:
 1. Change the version number in the main.go file.
 2. Create a relese-notes/*version*.md file that contains the release notes.
 3. Update the CHANGELOG.md file.
+5. Update the version number in snap/snapcraft.yaml
 4. Create a PR from develop to master
 5. Admin will merge the PR.
 
