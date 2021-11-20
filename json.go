@@ -1,6 +1,7 @@
 package main
 
 import (
+	firestore "cloud.google.com/go/firestore"
 	"encoding/base64"
 	"encoding/json"
 	latlng "google.golang.org/genproto/googleapis/type/latlng"
@@ -12,10 +13,11 @@ import (
 )
 
 var rfc3339regex, _ = regexp.Compile("^" + rfc3339pattern + "$")
+var firestoreDocumentsRoot, _ = regexp.Compile("^projects/.+/databases/.+/documents/")
 
 // Return the corresponding firestore primitive value from an extended json
 // primitive value, or nil if the value is not one of the extended json forms.
-func extendedJsonValueToFirestoreValue(v map[string]interface{}) interface{} {
+func extendedJsonValueToFirestoreValue(v map[string]interface{}, client *firestore.Client) interface{} {
 	if content, ok := v["$boolean"]; ok {
 		return content.(bool)
 	} else if content, ok := v["$date"]; ok {
@@ -37,6 +39,8 @@ func extendedJsonValueToFirestoreValue(v map[string]interface{}) interface{} {
 		longitude := typedContent["$longitude"].(float64)
 		latitude := typedContent["$latitude"].(float64)
 		return &latlng.LatLng{Latitude: latitude, Longitude: longitude}
+	} else if content, ok := v["$reference"]; ok {
+		return client.Doc(content.(string))
 	} else if content, ok := v["$binary"]; ok {
 		typedContent := content.(string)
 		data, err := base64.StdEncoding.DecodeString(typedContent)
@@ -52,20 +56,20 @@ func extendedJsonValueToFirestoreValue(v map[string]interface{}) interface{} {
 // transformExtendedJsonMapToFirestoreMap traverses a map, replacing extended
 // json values by the golang value used by the firestore library to represent
 // the given type.
-func transformExtendedJsonMapToFirestoreMap(m map[string]interface{}) {
+func transformExtendedJsonMapToFirestoreMap(m map[string]interface{}, client *firestore.Client) {
 	for k, v := range m {
 		switch v := v.(type) {
 		case []interface{}:
-			transformExtendedJsonArrayToFirestoreArray(v)
+			transformExtendedJsonArrayToFirestoreArray(v, client)
 		case map[string]interface{}:
 			if len(v) == 1 {
-				if transformedValue := extendedJsonValueToFirestoreValue(v); transformedValue != nil {
+				if transformedValue := extendedJsonValueToFirestoreValue(v, client); transformedValue != nil {
 					m[k] = transformedValue
 				} else {
-					transformExtendedJsonMapToFirestoreMap(v)
+					transformExtendedJsonMapToFirestoreMap(v, client)
 				}
 			} else {
-				transformExtendedJsonMapToFirestoreMap(v)
+				transformExtendedJsonMapToFirestoreMap(v, client)
 			}
 		}
 	}
@@ -74,20 +78,20 @@ func transformExtendedJsonMapToFirestoreMap(m map[string]interface{}) {
 // transformExtendedJsonArrayToFirestoreArray traverses a slice, replacing
 // extended json values by the golang value used by the firestore library to
 // represent the given type.
-func transformExtendedJsonArrayToFirestoreArray(slice []interface{}) {
+func transformExtendedJsonArrayToFirestoreArray(slice []interface{}, client *firestore.Client) {
 	for i, v := range slice {
 		switch v := v.(type) {
 		case []interface{}:
-			transformExtendedJsonArrayToFirestoreArray(v)
+			transformExtendedJsonArrayToFirestoreArray(v, client)
 		case map[string]interface{}:
 			if len(v) == 1 {
-				if transformedValue := extendedJsonValueToFirestoreValue(v); transformedValue != nil {
+				if transformedValue := extendedJsonValueToFirestoreValue(v, client); transformedValue != nil {
 					slice[i] = transformedValue
 				} else {
-					transformExtendedJsonMapToFirestoreMap(v)
+					transformExtendedJsonMapToFirestoreMap(v, client)
 				}
 			} else {
-				transformExtendedJsonMapToFirestoreMap(v)
+				transformExtendedJsonMapToFirestoreMap(v, client)
 			}
 		}
 	}
@@ -134,6 +138,11 @@ func firestoreValueToExtendedJsonValue(v interface{}) interface{} {
 				"$longitude": v.Longitude,
 			},
 		}
+	case *firestore.DocumentRef:
+		return map[string]interface{}{
+			"$reference": firestoreDocumentsRoot.ReplaceAllString(v.Path, ""),
+		}
+
 	case []byte:
 		return map[string]interface{}{
 			"$binary": base64.StdEncoding.EncodeToString(v),
