@@ -14,6 +14,14 @@ Download one of the precompiled binaries from the [latest
 release](https://github.com/sgarciac/fuego/releases). (builds available for
 windows, Linux, Macintosh/Darwin)
 
+### Snap
+
+Linux users can install fuego via snap:
+
+```sh
+snap install fuego
+```
+
 ### Building it locally
 
 If you are comfortable building programs, you can build fuego yourself using [go](https://golang.org/dl/):

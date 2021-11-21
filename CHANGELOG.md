@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.21.1]
+### Added
+- Documentation about snap.
+
 ## [0.21.0]
 ### Added
 - Support for 'reference' data type.
