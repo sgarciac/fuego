@@ -159,15 +159,15 @@ testQueryDifferentValueTypes(){
     assertEquals "Failed to query timestamp" "\"${id}\"" "$result"
 
     # in
-    result=$(../fuego query ${TEST_COLLECTION} "number in [1 2 3]" | jq ".[0].ID")
+    result=$(../fuego query ${TEST_COLLECTION} "number [in] [1 2 3]" | jq ".[0].ID")
     assertEquals "Failed to query integer on value" "\"${id}\"" "$result"
 
     # array-contains
-    result=$(../fuego query ${TEST_COLLECTION} "array array-contains 1" | jq ".[0].ID")
+    result=$(../fuego query ${TEST_COLLECTION} "array [array-contains] 1" | jq ".[0].ID")
     assertEquals "Failed to query integer on value" "\"${id}\"" "$result"
 
     # array-contains-any
-    result=$(../fuego query ${TEST_COLLECTION} "array array-contains-any [1]" | jq ".[0].ID")
+    result=$(../fuego query ${TEST_COLLECTION} "array [array-contains-any] [1]" | jq ".[0].ID")
     assertEquals "Failed to query integer on value" "\"${id}\"" "$result"
 }
 
