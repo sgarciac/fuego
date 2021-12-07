@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.31.0]
+### Changes
+- Changes the operator syntax: [in] to <in>, etc.
+
 ## [0.30.0]
 ### Fixes
  -Fixes bug in parsing. Breaking change, operations in, array-contains and

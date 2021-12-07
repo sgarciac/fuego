@@ -88,7 +88,6 @@ Branches should be created with a single purpose and have a reduced number of
 commits.  Use 'smash and merge' if possible when merging to develop. Keep the
 develop branch free of 'wip's commits.
 
-
 ## Releases
 
 Releases are managed by a github action and a new release is created whenever 
