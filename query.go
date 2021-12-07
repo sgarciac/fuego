@@ -16,6 +16,19 @@ func getDir(name string) firestore.Direction {
 	return firestore.Asc
 }
 
+func operatorTokenToFirestore(operator string) string {
+	switch operator {
+	case "<in>":
+		return "in"
+	case "<array-contains-any>":
+		return "array-contains-any"
+	case "<array-contains>":
+		return "array-contains"
+	default:
+		return operator
+	}
+}
+
 // get the snapshot of a document, receiving either a document path, or a
 // collection reference and a document id.  The document-path of document id are
 // passed in the 'document' parameter.
@@ -84,7 +97,7 @@ func queryCommandAction(c *cli.Context) error {
 		if err := queryParser.ParseString(queryString, &parsedQuery); err != nil {
 			return cli.NewExitError(fmt.Sprintf("Error parsing query '%s' %v", queryString, err), 83)
 		}
-		query = query.WherePath(parsedQuery.Key, strings.Trim(parsedQuery.Operator, "[]"), parsedQuery.Value.get())
+		query = query.WherePath(parsedQuery.Key, operatorTokenToFirestore(parsedQuery.Operator), parsedQuery.Value.get())
 	}
 
 	// order by
