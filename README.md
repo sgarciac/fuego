@@ -257,11 +257,13 @@ fuego query --orderby birthplace.country --orderdir ASC nobel
 ``` 
 
 You can add filters, using the firestore supported operators (>, <, >=, <=, ==,
-in, array-contains or array-contains-any). You can combine several filters in a
+[in], [array-contains] or [array-contains-any]). You can combine several filters in a
 single query. For example, to get the 2018 Nobel laureates from the USA:
 
 ```sh
 fuego query nobel 'birthplace.country == "USA"' 'year == 2018'
+
+fuego query nobel 'birtplace.country [in] ["USA", "DEU"]
 ```
 
 which will print:

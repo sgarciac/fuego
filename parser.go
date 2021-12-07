@@ -33,8 +33,7 @@ type Firestorefieldpath struct {
 }
 
 type Firestorequery struct {
-	// Must take care of the "in" operator.
-	Key      []string        `@(SimpleFieldPath | String | "in" | "array-contains-any" | "array-contains")(Dot @(SimpleFieldPath | String | "in" | "array-contains-any" | "array-contains"))*`
+	Key      []string        `@(SimpleFieldPath | String)(Dot @(SimpleFieldPath | String))*`
 	Operator string          `@Operator`
 	Value    *Firestorevalue `@@`
 }
@@ -68,7 +67,7 @@ func (value *Firestorevalue) get() interface{} {
 func getQueryParser() *participle.Parser {
 	queryLexer := lexer.Must(lexer.Regexp(`(\s+)` +
 		`|(?P<DateTime>` + rfc3339pattern + `)` +
-		`|(?P<Operator><=|>=|<|>|==|in\s|array-contains-any\s|array-contains\s)` +
+		`|(?P<Operator>\[in\]|\[array-contains-any\]|\[array-contains\]|<=|>=|<|>|==)` +
 		`|(?P<SimpleFieldPath>[a-zA-Z_][a-zA-Z0-9_]*)` +
 		`|(?P<Number>[-+]?\d*\.?\d+)` +
 		`|(?P<OpenList>\[)` +

@@ -84,7 +84,7 @@ func queryCommandAction(c *cli.Context) error {
 		if err := queryParser.ParseString(queryString, &parsedQuery); err != nil {
 			return cli.NewExitError(fmt.Sprintf("Error parsing query '%s' %v", queryString, err), 83)
 		}
-		query = query.WherePath(parsedQuery.Key, strings.Trim(parsedQuery.Operator, " "), parsedQuery.Value.get())
+		query = query.WherePath(parsedQuery.Key, strings.Trim(parsedQuery.Operator, "[]"), parsedQuery.Value.get())
 	}
 
 	// order by
