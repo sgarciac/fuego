@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.31.1]
+### Changes
+- Documentation
+
 ## [0.31.0]
 ### Changes
 - Changes the operator syntax: [in] to <in>, etc.
