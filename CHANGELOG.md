@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.30.0]
+### Fixes
+ -Fixes bug in parsing. Breaking change, operations in, array-contains and
+  array-contains-any are now [in], [array-contains] and [array-contains-any].
+
 ## [0.21.1]
 ### Added
 - Documentation about snap.
