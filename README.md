@@ -346,7 +346,7 @@ Arrays values should be expressed as in the following example. Notice that items
 are separated by space:
 
 ```sh
-fuego query cities 'name in ["bogota" "cali" "medellin"]'
+fuego query cities 'name [in] ["bogota" "cali" "medellin"]'
 ```
 
 
