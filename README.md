@@ -256,14 +256,17 @@ ascending order:
 fuego query --orderby birthplace.country --orderdir ASC nobel
 ``` 
 
-You can add filters, using the firestore supported operators (>, <, >=, <=, ==,
-<in>, <array-contains> or <array-contains-any>). You can combine several filters in a
+You can add filters, using the firestore supported operators :
+
+```
+>, <, >=, <=, ==, <in>, <array-contains> or <array-contains-any>
+```
+
+You can combine several filters in a
 single query. For example, to get the 2018 Nobel laureates from the USA:
 
 ```sh
 fuego query nobel 'birthplace.country == "USA"' 'year == 2018'
-
-fuego query nobel 'birtplace.country <in> ["USA", "DEU"]
 ```
 
 which will print:
@@ -287,6 +290,15 @@ which will print:
 ]
 
 ```
+
+
+Or USA and Germany.
+
+```sh
+fuego query nobel 'birthplace.country <in> ["USA","DEU"]' 'year == 2018'
+```
+
+
 
 Let's say we want to find the least recent Nobel from the USA, we can write the following query:
 
