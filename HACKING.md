@@ -103,10 +103,11 @@ release-notes/*version*.md  (i.e. release-notes/0.15.0.md)
 In order to create a new release you should:
 
 1. Change the version number in the main.go file.
-2. Create a relese-notes/*version*.md file that contains the release notes.
-3. Update the CHANGELOG.md file.
-4. Create a PR from develop to master
-5. Admin will merge the PR.
+2. Change the version in snap/snapcraft.yaml
+3. Create a relese-notes/*version*.md file that contains the release notes.
+4. Update the CHANGELOG.md file.
+5. Create a PR from develop to master
+6. Admin will merge the PR.
 
 ### Creating a release locally.
 
