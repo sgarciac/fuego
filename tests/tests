@@ -123,7 +123,7 @@ testQueryKeys(){
 testQueryWithSelect(){
     ../fuego add ${TEST_COLLECTION} "{\"p1\": 1, \"p2\": {\"number\": 1, \"string\":\"blah\"}}"
     result=$(../fuego query --select p1 --select '"p2".number' ${TEST_COLLECTION} "p1 == 1" | jq -c ".[0].Data")
-    assertEquals "Failed to select properties" "{\"p1\":1,\"p2\":{\"number\":1}}" "${result}" 
+    assertEquals "Failed to select properties" "{\"p1\":1,\"p2\":{\"number\":1}}" "${result}"
 }
 
 testGroupQuery() {
@@ -138,9 +138,15 @@ testGroupQuery() {
 testQueryDifferentValueTypes(){
     id=$(../fuego add ${TEST_COLLECTION} "{\"number\": 1, \"timestamp\": {\"\$date\": \"2019-02-26T02:39:44.458Z\"}, \"string\": \"string1\", \"bool\": true, \"array\": [1, 2, 3]}") || fail "Failed to add document"
 
+    id2=$(../fuego add ${TEST_COLLECTION} "{\"number\": 100, \"timestamp\": {\"\$date\": \"2022-06-23T02:39:44.458Z\"}, \"string\": \"string2\", \"bool\": false, \"array\": [4, 5, 6]}") || fail "Failed to add document"
+
     # equality
     result=$(../fuego query ${TEST_COLLECTION} "number == 1" | jq ".[0].ID")
     assertEquals "Failed to query integer on value" "\"${id}\"" "$result"
+
+    # inequality
+    result=$(../fuego query ${TEST_COLLECTION} "number != 1" | jq ".[0].ID")
+    assertEquals "Failed to query integer on not value" "\"${id2}\"" "$result"
 
     # Query timestamp
     result=$(../fuego query ${TEST_COLLECTION} "timestamp == 2019-02-26T02:39:44.458Z" | jq ".[0].ID")
@@ -160,7 +166,11 @@ testQueryDifferentValueTypes(){
 
     # in
     result=$(../fuego query ${TEST_COLLECTION} "number <in> [1 2 3]" | jq ".[0].ID")
-    assertEquals "Failed to query integer on value" "\"${id}\"" "$result"
+    assertEquals "Failed to query integer in values" "\"${id}\"" "$result"
+
+    # not-in
+    result=$(../fuego query ${TEST_COLLECTION} "string <not-in> [\"string1\"]" | jq ".[0].ID")
+    assertEquals "Failed to query string not-in values" "\"${id2}\"" "$result"
 
     # array-contains
     result=$(../fuego query ${TEST_COLLECTION} "array <array-contains> 1" | jq ".[0].ID")
@@ -177,16 +187,16 @@ testExtendedJson() {
     result=$(../fuego get -ej ${TEST_COLLECTION} $id)
 
     intval=$(echo $result | jq '.Data.intval."$numberInt"')
-    assertEquals "Failed to fetch numberInt" "1" "${intval}" 
+    assertEquals "Failed to fetch numberInt" "1" "${intval}"
 
     doubleval=$(echo $result | jq '.Data.doubleval."$numberDouble"')
-    assertEquals "Failed to fetch numberDouble" "1" "${doubleval}" 
+    assertEquals "Failed to fetch numberDouble" "1" "${doubleval}"
 
     innerIntval=$(echo $result | jq '.Data.innerIntval.intval."$numberInt"')
-    assertEquals "Failed to fetch a nested numberInt " "1" "${innerIntval}" 
+    assertEquals "Failed to fetch a nested numberInt " "1" "${innerIntval}"
 
     arrayIntval=$(echo $result | jq '.Data.arrayIntval[0]."$numberInt"')
-    assertEquals "Failed to fetch a numberInt within an array" "1" "${arrayIntval}" 
+    assertEquals "Failed to fetch a numberInt within an array" "1" "${arrayIntval}"
 
     latitude=$(echo $result | jq '.Data.geopointval."$geopoint"."$latitude"')
     longitude=$(echo $result | jq '.Data.geopointval."$geopoint"."$longitude"')
@@ -342,5 +352,3 @@ testCopyDocumentAndCollection(){
 
 # Load shUnit2.
 . ./shunit2
-
-

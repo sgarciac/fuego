@@ -106,7 +106,7 @@ fuego get people Rv7ZfnLQWprdXuulqMdf
 #     "ReadTime": "2021-08-23T01:57:12.30626Z",
 #     "UpdateTime": "2021-08-22T23:53:31.439821Z"
 # }
- 
+
 
 ```
 
@@ -254,12 +254,12 @@ ascending order:
 
 ```sh
 fuego query --orderby birthplace.country --orderdir ASC nobel
-``` 
+```
 
 You can add filters, using the firestore supported operators :
 
 ```
->, <, >=, <=, ==, <in>, <array-contains> or <array-contains-any>
+>, <, >=, <=, ==, !=, <in>, <not-in>, <array-contains> or <array-contains-any>
 ```
 
 You can combine several filters in a
@@ -303,14 +303,14 @@ fuego query nobel 'birthplace.country <in> ["USA","DEU"]' 'year == 2018'
 Let's say we want to find the least recent Nobel from the USA, we can write the following query:
 
 ```sh
-fuego query --limit 1 --orderby year --orderdir ASC nobel "birthplace.country == 'USA'" 
+fuego query --limit 1 --orderby year --orderdir ASC nobel "birthplace.country == 'USA'"
 ```
 
 oops, we get the following error from the server, because our query needs an index to work:
 
 ```
-rpc error: code = FailedPrecondition desc = The query requires an index. 
-You can create it here: 
+rpc error: code = FailedPrecondition desc = The query requires an index.
+You can create it here:
 https://console.firebase.google.com/project/myproject/database/firestore/indexes?create_index=EgVub2JlbBoWChJiaXJ0aH....
 ```
 
@@ -368,19 +368,19 @@ Use the --select flag to explicitely ask for the specific fields you want to be
 retrieved (you can define many using several --select)
 
 ```sh
-fuego query --select name --select year --limit 1 --orderby year --orderdir ASC nobel "birthplace.country == 'USA'" 
+fuego query --select name --select year --limit 1 --orderby year --orderdir ASC nobel "birthplace.country == 'USA'"
 ```
 
 #### Pagination of query results
-If necessary, you can use the firestore pagination parameters to manually page through results. 
-Combining --limit with the flags --startat, --startafter, --endat, and --endbefore, 
+If necessary, you can use the firestore pagination parameters to manually page through results.
+Combining --limit with the flags --startat, --startafter, --endat, and --endbefore,
 which all accept the ID of a document.
 
 #### Group queries
 
 You can make [group
 queries](https://firebase.google.com/docs/firestore/query-data/queries) by using
-the -g flag. 
+the -g flag.
 
 
 ### Copying
@@ -391,7 +391,7 @@ fuego copy source target
 #### Copying collection
 We can copy a collection and its sub collections
 ```sh
-fuego copy countries/france/cities countries/germany/cities 
+fuego copy countries/france/cities countries/germany/cities
 ```
 By default, existing documents in target collection will be skipped. If you want to overwrite the existing document, just use --overwrite
 ```sh
