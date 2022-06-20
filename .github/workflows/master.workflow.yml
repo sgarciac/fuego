@@ -68,10 +68,14 @@ jobs:
           echo "::set-output name=TAG_NAME::$(cat main.go|grep app.Version|grep -Eo '[0-9.]{2,100}')"
         id: version
 
-      - uses: actions-ecosystem/action-push-tag@v1
-        with:
-          tag: ${{ steps.version.outputs.TAG_NAME }}
-
+      - name: Tag
+        run: |
+          tag=${{ steps.version.outputs.TAG_NAME }}
+          message='Release ${{ steps.version.outputs.TAG_NAME }}'
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          git tag -a "${tag}" -m "${message}"
+          git push origin "${tag}"
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
