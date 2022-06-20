@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.32.0]
+### Added
+- Support to != and not-in operators
+
 ## [0.31.1]
 ### Changes
 - Documentation
