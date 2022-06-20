@@ -20,6 +20,8 @@ func operatorTokenToFirestore(operator string) string {
 	switch operator {
 	case "<in>":
 		return "in"
+	case "<not-in>":
+		return "not-in"
 	case "<array-contains-any>":
 		return "array-contains-any"
 	case "<array-contains>":
