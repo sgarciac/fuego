@@ -1,6 +1,6 @@
 name: fuego
 base: core18
-version: '0.32.0'
+version: '0.33.0'
 summary: Fuego is a command line client for the firestore database.
 description: |
   Fuego is a command line client for the firestore database
@@ -9,6 +9,10 @@ description: |
 grade: stable # must be 'stable' to release into candidate/stable channels
 confinement: strict # use 'strict' once you have the right plugs and slots
 
+apps:
+  fuego:
+    command:
+      bin/fuego
 parts:
   fuego:
     plugin: go
