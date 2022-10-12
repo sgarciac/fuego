@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.33.0]
+### Added
+- A snap 'app' for the snap release.
+
 ## [0.32.0]
 ### Added
 - Support to != and not-in operators
