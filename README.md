@@ -376,7 +376,7 @@ If necessary, you can use the firestore pagination parameters to manually page t
 Combining --limit with the flags --startat, --startafter, --endat, and --endbefore,
 which all accept the ID of a document.
 
-#### Group queries (subcollections)
+#### Group queries
 
 You can make [group
 queries](https://firebase.google.com/docs/firestore/query-data/queries) to query subcollections by using
