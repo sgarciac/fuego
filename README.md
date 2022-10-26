@@ -379,9 +379,14 @@ which all accept the ID of a document.
 #### Group queries
 
 You can make [group
-queries](https://firebase.google.com/docs/firestore/query-data/queries) by using
+queries](https://firebase.google.com/docs/firestore/query-data/queries) to query all the subcollections sharing a common ID by using
 the -g flag.
 
+```sh
+fuego add cities/france/landmarks '{"name": "The Eiffel Tower"}'
+fuego add cities/sf/landmarks '{"name": "Golden Gate Bridge"}'
+fuego query -g landmarks
+```
 
 ### Copying
 Basic usage
