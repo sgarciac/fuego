@@ -16,10 +16,11 @@ windows, Linux, Macintosh/Darwin)
 
 ### Snap
 
-Linux users can install fuego via snap:
+Linux users can install fuego via snap. However, you'll probably need to install it using --devmode for it to be able to access
+to your GOOGLE_APPLICATION_CREDENTIALS file.
 
 ```sh
-snap install fuego
+snap install fuego --devmode
 ```
 
 ### Building it locally
