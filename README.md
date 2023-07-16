@@ -163,6 +163,13 @@ fuego delete people/Rv7ZfnLQWprdXuulqMdf
 
 note: this won't delete any subcollection under the document.
 
+To delete a document including subcollections, use the ```--recursive, -r``` flag.
+Using the ```-r``` flag will also delete missing documents. A missing document is a 
+document that does not exist but has sub-documents.
+```sh
+fuego delete -r people/Rv7ZfnLQWprdXuulqMdf
+```
+
 It's also possible to delete multiple documents without transaction
 ```sh
 fuego delete people Rv7ZfnLQWprdXuulqMdf,Rv7ZfnLQWprdXuulqMde
