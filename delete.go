@@ -5,14 +5,19 @@ import (
 	"context"
 	"fmt"
 	"github.com/urfave/cli"
+	"google.golang.org/api/iterator"
+	"log"
 )
 
 func deleteCommandAction(c *cli.Context) error {
 	argsLength := len(c.Args())
+	var err error
 
 	if argsLength < 1 || argsLength > 2 {
 		return cli.NewExitError("Wrong number of arguments", 82)
 	}
+
+	deleteRecursive := c.Bool("recursive")
 
 	client, err := createClient(credentials)
 	if err != nil {
@@ -31,10 +36,80 @@ func deleteCommandAction(c *cli.Context) error {
 		documentRef = client.Doc(documentPath)
 	}
 
+	if deleteRecursive {
+		deleteBatch := client.Batch()
+		err = deleteSubCollections(documentRef, client, deleteBatch)
+		if err != nil {
+			return err
+		}
+
+		_, err = deleteBatch.Commit(context.Background())
+		if err != nil {
+			return cli.NewExitError(fmt.Sprintf("failed to delete sub-collections batch. %v\n", err), 82)
+		}
+	}
+
 	res, err := documentRef.Delete(context.Background())
 	if err != nil {
 		return cli.NewExitError(fmt.Sprintf("Failed to delete data. \n%v", res), 82)
 	}
 	defer client.Close()
+	return nil
+}
+
+func deleteSubCollections(r *firestore.DocumentRef, c *firestore.Client, b *firestore.WriteBatch) error {
+
+	subCollectionIter := r.Collections(context.Background())
+
+	for {
+		subCol, err := subCollectionIter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return cli.NewExitError(fmt.Sprintf("failed to iterate over sub-collections (error at %v).", subCol.Path), 82)
+		}
+
+		err = deleteCollection(subCol, c, b)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func deleteCollection(r *firestore.CollectionRef, c *firestore.Client, b *firestore.WriteBatch) error {
+
+	iter := r.DocumentRefs(context.Background())
+	for {
+		numDeleted := 0
+		for {
+			doc, err := iter.Next()
+			if err == iterator.Done {
+				break
+			}
+			if err != nil {
+				return cli.NewExitError(fmt.Sprintf(
+					"could not iterate over sub-collection %s (error on document %s). error %s\n",
+					r.ID, doc.Path, err), 82)
+			}
+
+			err = deleteSubCollections(doc, c, b)
+			if err != nil {
+				return err
+			}
+
+			b.Delete(doc)
+			numDeleted++
+		}
+
+		if numDeleted == 0 {
+			break
+		}
+
+		log.Printf("added sub-collection %s to delete-batch! (number of deleted documents: %d)", r.Path, numDeleted)
+	}
+
 	return nil
 }
