@@ -349,6 +349,32 @@ testCopyDocumentAndCollection(){
     assertEquals "Failed to copy document" "${expectedValue}" "${result}"
 }
 
+testDeleteRecursive(){
+      # adding new documents with nested sub-collections
+      id=$(../fuego add ${TEST_COLLECTION} "{\"base\": \"value\"}") || fail "Failed to add document"
+      subDocId1=$(../fuego add "${TEST_COLLECTION}/${id}/subCollection1" "{\"base\": \"sub value1\"}") || fail "Failed to add document"
+      subSubDocId1=$(../fuego add "${TEST_COLLECTION}/${id}/subCollection1/${subDocId1}/subSubCollection1" "{\"base\": \"subsub value1\"}")|| fail "Failed to add document"
 
+      subDocId2=$(../fuego add "${TEST_COLLECTION}/${id}/subCollection2" "{\"base\": \"sub value2\"}") || fail "Failed to add document"
+      subSubDocId2=$(../fuego add "${TEST_COLLECTION}/${id}/subCollection2/${subDocId2}/subSubCollection2" "{\"base\": \"subsub value2\"}")|| fail "Failed to add document"
+      echo ${id} ${subDocId1} ${subSubDocId1} ${subDocId2} ${subSubDocId2}
+
+      # delete one collection without recursive flag. To test deletion of missing documents.
+      ../fuego delete "${TEST_COLLECTION}/${id}/subCollection1" ${subDocId1}
+      assertFalse "Should not have read deleted value" "../fuego get ${TEST_COLLECTION}/${id}/subCollection1 ${subDocId1}"
+
+      # check that sub-collection of deleted collection still exists
+      expectedValue=$(echo "{\"base\": \"subsub value1\"}" | jq .)
+      result=$(../fuego get "${TEST_COLLECTION}/${id}/subCollection1/${subDocId1}/subSubCollection1/${subSubDocId1}"  | jq .Data)
+      assertEquals "Should be able to read SubCollection" "${result}" "${expectedValue}"
+
+      # call delete again, but with recursive flag.
+      ../fuego delete -r "${TEST_COLLECTION}" ${id}
+
+      # check that all documents are deleted, also the missing documents.
+      assertFalse "Should not have read deleted value2" "../fuego get ${TEST_COLLECTION}/${id}/subCollection1/${subDocId1}/subSubCollection1 ${subSubDocId1}"
+      assertFalse "Should not have read deleted value3" "../fuego get ${TEST_COLLECTION}/${id}/subCollection2 ${subDocId2}"
+      assertFalse "Should not have read deleted value2" "../fuego get ${TEST_COLLECTION}/${id}/subCollection2/${subDocId2}/subSubCollection2 ${subSubDocId2}"
+}
 # Load shUnit2.
 . ./shunit2

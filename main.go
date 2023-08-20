@@ -43,6 +43,13 @@ func main() {
 		},
 	}
 
+	deleteFlags := []cli.Flag{
+		cli.BoolFlag{
+			Name:  "recursive, r",
+			Usage: "Recursively delete sub-collections",
+		},
+	}
+
 	app.Commands = []cli.Command{
 		{
 			Name:    "collections",
@@ -123,6 +130,7 @@ func main() {
 			Usage:     "Delete a document from a collection",
 			ArgsUsage: "[collection-path document-id | document-path]",
 			Action:    deleteCommandAction,
+			Flags:     deleteFlags,
 		},
 		{
 			Name:      "deleteall",
