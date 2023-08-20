@@ -1,5 +1,10 @@
 # Changelog
 
+
+## [0.34.0]
+### Added
+- Recursive option to delete command
+
 ## [0.33.0]
 ### Added
 - A snap 'app' for the snap release.
@@ -100,7 +105,7 @@
 ### Added
 - batched queries
 - support complex property names in all commands
-- support for multiple orderby's parameters 
+- support for multiple orderby's parameters
 
 ## [0.4.0]
 ### Added
@@ -120,5 +125,3 @@
 ### Added
 - add,set,get and query commands
 - README
-
-
