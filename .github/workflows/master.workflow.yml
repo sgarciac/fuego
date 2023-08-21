@@ -80,7 +80,7 @@ jobs:
         uses: goreleaser/goreleaser-action@v2
         with:
           distribution: goreleaser
-          version: latest
+          version: v1.12.3
           args: release --rm-dist --release-notes=release-notes/${{ steps.version.outputs.TAG_NAME }}.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
