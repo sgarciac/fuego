@@ -95,7 +95,6 @@ jobs:
       - name: Install Snapcraft
         uses: samuelmeuli/action-snapcraft@v2
         with:
-          snapcraft_token: ${{ secrets.snapcraft_token }}
           use_lxd: true
       - name: Build snap
         run: sg lxd -c 'snapcraft --use-lxd' && snapcraft upload  --release=stable fuego_*.snap
