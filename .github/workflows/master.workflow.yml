@@ -84,15 +84,3 @@ jobs:
           args: release --rm-dist --release-notes=release-notes/${{ steps.version.outputs.TAG_NAME }}.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  snap-release-job:
-    needs: test
-    runs-on: ubuntu-latest
-    env:
-      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.snapcraft_token }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Install Snapcraft
-        uses: samuelmeuli/action-snapcraft@v2
-      - name: Build snap
-        run: sg lxd -c 'snapcraft --use-lxd' #&& snapcraft upload  --release=stable fuego_*.snap
