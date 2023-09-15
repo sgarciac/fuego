@@ -1,12 +1,13 @@
 package main
 
 import (
-	firestore "cloud.google.com/go/firestore"
 	"context"
 	"fmt"
+	"log"
+
+	firestore "cloud.google.com/go/firestore"
 	"github.com/urfave/cli"
 	"google.golang.org/api/iterator"
-	"log"
 )
 
 func deleteCommandAction(c *cli.Context) error {
@@ -18,6 +19,11 @@ func deleteCommandAction(c *cli.Context) error {
 	}
 
 	deleteRecursive := c.Bool("recursive")
+	deleteField := c.String("field")
+
+	if deleteRecursive && deleteField != "" {
+		return cli.NewExitError("recursive delete and field delete can't be combined!", 82)
+	}
 
 	client, err := createClient(credentials)
 	if err != nil {
@@ -36,6 +42,8 @@ func deleteCommandAction(c *cli.Context) error {
 		documentRef = client.Doc(documentPath)
 	}
 
+	defer client.Close()
+
 	if deleteRecursive {
 		deleteBatch := client.Batch()
 		err = deleteSubCollections(documentRef, client, deleteBatch)
@@ -47,6 +55,23 @@ func deleteCommandAction(c *cli.Context) error {
 		if err != nil {
 			return cli.NewExitError(fmt.Sprintf("failed to delete sub-collections batch. %v\n", err), 82)
 		}
+	}
+
+	if deleteField != "" {
+
+		_, err := documentRef.Update(
+			context.Background(),
+			[]firestore.Update{{
+				Path:  deleteField,
+				Value: firestore.Delete,
+			},
+			})
+
+		if err != nil {
+			return cli.NewExitError(fmt.Sprintf("failed to delete field. \n%v", err), 82)
+		}
+
+		return nil
 	}
 
 	res, err := documentRef.Delete(context.Background())

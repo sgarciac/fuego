@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/urfave/cli"
 	"log"
 	"os"
+
+	"github.com/urfave/cli"
 )
 
 // Global configuration
@@ -47,6 +48,10 @@ func main() {
 		cli.BoolFlag{
 			Name:  "recursive, r",
 			Usage: "Recursively delete sub-collections",
+		},
+		cli.StringFlag{
+			Name:  "field, f",
+			Usage: "Delete specific field of document",
 		},
 	}
 
