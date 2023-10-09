@@ -175,6 +175,12 @@ It's also possible to delete multiple documents without transaction
 fuego delete people Rv7ZfnLQWprdXuulqMdf,Rv7ZfnLQWprdXuulqMde
 ```
 
+Deleting a specific field of a document, the ```--field, -f``` flag can be used.
+```sh
+fuego delete people/Rv7ZfnLQWprdXuulqMdf -f age
+```
+This command will delete the age field from the given doument path.
+
 
 To update an existing document:
 
