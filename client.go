@@ -27,7 +27,7 @@ func createClientWithProjectId(credentials string, projectId string) (*firestore
 	}
 
 	if database == "" {
-		database = "(default)" // use default database if not specified
+		database = firestore.DefaultDatabaseID
 	}
 
 	options := make([]option.ClientOption, 0)
