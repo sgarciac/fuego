@@ -11,6 +11,7 @@ import (
 // Global configuration
 var credentials string
 var projectId string
+var database string
 
 // Common errors
 func cliClientError(err error) *cli.ExitError {
@@ -34,6 +35,11 @@ func main() {
 			Name:        "projectid, p",
 			Destination: &projectId,
 			Usage:       "Overwrite project id",
+		},
+		cli.StringFlag{
+			Name:        "database, d",
+			Destination: &database,
+			Usage:       "Overwrite database name ",
 		},
 	}
 
