@@ -1,11 +1,12 @@
 package main
 
 import (
-	firestore "cloud.google.com/go/firestore"
 	"context"
+	"os"
+
+	firestore "cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go"
 	"google.golang.org/api/option"
-	"os"
 )
 
 // create client or fails.
@@ -18,31 +19,23 @@ func createClient(credentials string) (*firestore.Client, error) {
 }
 
 func createClientWithProjectId(credentials string, projectId string) (*firestore.Client, error) {
-	var err error
-	var firebaseApp *firebase.App
 	if os.Getenv("FIRESTORE_EMULATOR_HOST") != "" {
 		if projectId == "" {
 			projectId = "default"
 		}
-		client, err := firestore.NewClient(context.Background(), projectId)
-		return client, err
-	} else if credentials != "" {
-		sa := option.WithCredentialsFile(credentials)
-		config := getConfigWithProjectId(projectId)
-		firebaseApp, err = firebase.NewApp(context.Background(), config, sa)
-		if err != nil {
-			return nil, err
-		}
-		return firebaseApp.Firestore(context.Background())
-	} else {
-		// This will use GOOGLE_APPLICATION_CREDENTIALS
-		config := getConfigWithProjectId(projectId)
-		firebaseApp, err = firebase.NewApp(context.Background(), config)
-		if err != nil {
-			return nil, err
-		}
-		return firebaseApp.Firestore(context.Background())
+		return firestore.NewClient(context.Background(), projectId)
 	}
+
+	if database == "" {
+		database = firestore.DefaultDatabaseID
+	}
+
+	options := make([]option.ClientOption, 0)
+	if credentials != "" {
+		options = append(options, option.WithCredentialsFile(credentials))
+	}
+
+	return firestore.NewClientWithDatabase(context.Background(), projectId, database, options...)
 }
 
 func getConfigWithProjectId(projectId string) *firebase.Config {
