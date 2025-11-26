@@ -1,10 +1,11 @@
 package main
 
 import (
-	firestore "cloud.google.com/go/firestore"
 	"context"
 	"fmt"
-	"github.com/urfave/cli"
+
+	firestore "cloud.google.com/go/firestore"
+	"github.com/urfave/cli/v3"
 )
 
 func setData(
@@ -45,11 +46,11 @@ func setData(
 	return nil
 }
 
-func setCommandAction(c *cli.Context) error {
-	argsLength := len(c.Args())
+func setCommandAction(ctx context.Context, c *cli.Command) error {
+	argsLength := c.Args().Len()
 
 	if argsLength < 2 || argsLength > 3 {
-		return cli.NewExitError("Wrong number of arguments", 85)
+		return cli.Exit("Wrong number of arguments", 85)
 	}
 
 	merge := c.Bool("merge")
@@ -72,13 +73,13 @@ func setCommandAction(c *cli.Context) error {
 
 	err = setData(client, collectionPath, documentPath, id, data, merge)
 	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to write data. \n%v", err), 85)
+		return cli.Exit(fmt.Sprintf("Failed to write data. \n%v", err), 85)
 	}
 
 	if collectionPath != "" {
-		fmt.Fprintf(c.App.Writer, "%v\n", id)
+		fmt.Fprintf(c.Root().Writer, "%v\n", id)
 	} else {
-		fmt.Fprintf(c.App.Writer, "%v\n", documentPath)
+		fmt.Fprintf(c.Root().Writer, "%v\n", documentPath)
 	}
 	defer client.Close()
 	return nil

@@ -7,7 +7,7 @@ import (
 
 	"cloud.google.com/go/firestore"
 	"cloud.google.com/go/firestore/apiv1/firestorepb"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v3"
 	"google.golang.org/api/iterator"
 )
 
@@ -40,7 +40,7 @@ func documentSnapshot(client *firestore.Client, document string, collectionRef *
 	var documentRef *firestore.DocumentRef
 
 	if group && !strings.Contains(document, "/") {
-		return nil, cli.NewExitError("If you use the group option, you must use a document-path for pagination arguments", 83)
+		return nil, cli.Exit("If you use the group option, you must use a document-path for pagination arguments", 83)
 	}
 
 	if strings.Contains(document, "/") {
@@ -52,7 +52,7 @@ func documentSnapshot(client *firestore.Client, document string, collectionRef *
 }
 
 // query collection-path query*
-func queryCommandAction(c *cli.Context) error {
+func queryCommandAction(ctx context.Context, c *cli.Command) error {
 	collectionPathOrId := c.Args().First()
 
 	// display
@@ -100,7 +100,7 @@ func queryCommandAction(c *cli.Context) error {
 		queryString := c.Args().Get(i)
 		parsedQuery, err := queryParser.ParseString("", queryString)
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("Error parsing query '%s' %v", queryString, err), 83)
+			return cli.Exit(fmt.Sprintf("Error parsing query '%s' %v", queryString, err), 83)
 		}
 		query = query.WherePath(parsedQuery.Key, operatorTokenToFirestore(parsedQuery.Operator), parsedQuery.Value.get())
 	}
@@ -110,7 +110,7 @@ func queryCommandAction(c *cli.Context) error {
 		parsedOrderBy, err := fieldPathParser.ParseString("", orderbyRaw)
 		var orderDir string
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("Error parsing orderby '%s' %v",
+			return cli.Exit(fmt.Sprintf("Error parsing orderby '%s' %v",
 				orderbyRaw, err), 83)
 		}
 		if i < len(orderdirFields) {
@@ -124,7 +124,7 @@ func queryCommandAction(c *cli.Context) error {
 	if startAt != "" {
 		docsnap, err := documentSnapshot(client, startAt, collectionRef, queryGroup)
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("Failed to get '%s'", startAt), 83)
+			return cli.Exit(fmt.Sprintf("Failed to get '%s'", startAt), 83)
 		}
 		query = query.StartAt(docsnap)
 	}
@@ -132,7 +132,7 @@ func queryCommandAction(c *cli.Context) error {
 	if startAfter != "" {
 		docsnap, err := documentSnapshot(client, startAfter, collectionRef, queryGroup)
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("Failed to get '%s'", startAfter), 83)
+			return cli.Exit(fmt.Sprintf("Failed to get '%s'", startAfter), 83)
 		}
 		query = query.StartAfter(docsnap)
 	}
@@ -140,7 +140,7 @@ func queryCommandAction(c *cli.Context) error {
 	if endAt != "" {
 		docsnap, err := documentSnapshot(client, endAt, collectionRef, queryGroup)
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("Failed to get '%s'", endAt), 83)
+			return cli.Exit(fmt.Sprintf("Failed to get '%s'", endAt), 83)
 		}
 		query = query.EndAt(docsnap)
 	}
@@ -148,7 +148,7 @@ func queryCommandAction(c *cli.Context) error {
 	if endBefore != "" {
 		docsnap, err := documentSnapshot(client, endBefore, collectionRef, queryGroup)
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("Failed to get '%s'", endBefore), 83)
+			return cli.Exit(fmt.Sprintf("Failed to get '%s'", endBefore), 83)
 		}
 		query = query.EndBefore(docsnap)
 	}
@@ -159,7 +159,7 @@ func queryCommandAction(c *cli.Context) error {
 		for _, selectField := range selectFields {
 			parsedSelect, err := fieldPathParser.ParseString("", selectField)
 			if err != nil {
-				return cli.NewExitError(fmt.Sprintf("Error parsing select '%s' %v",
+				return cli.Exit(fmt.Sprintf("Error parsing select '%s' %v",
 					selectField, err), 83)
 			}
 			selectFieldPaths = append(selectFieldPaths, parsedSelect.Key)
@@ -167,7 +167,7 @@ func queryCommandAction(c *cli.Context) error {
 		query = query.SelectPaths(selectFieldPaths...)
 	}
 
-	displayItemWriter := newDisplayItemWriter(&c.App.Writer)
+	displayItemWriter := newDisplayItemWriter(&c.Root().Writer)
 	defer displayItemWriter.Close()
 
 	if count {
@@ -175,7 +175,7 @@ func queryCommandAction(c *cli.Context) error {
 		aggrRes, err := aggrQuery.Get(context.Background())
 
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("Failed to retrieve aggregation. \n%v", err), 84)
+			return cli.Exit(fmt.Sprintf("Failed to retrieve aggregation. \n%v", err), 84)
 		}
 
 		count := aggrRes["count"].(*firestorepb.Value).GetIntegerValue()
@@ -193,13 +193,13 @@ func queryCommandAction(c *cli.Context) error {
 			break
 		} else if err != nil {
 			documentIterator.Stop()
-			return cli.NewExitError(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
+			return cli.Exit(fmt.Sprintf("Failed to get documents. \n%v", err), 84)
 		}
 
 		err = displayItemWriter.Write(doc, extendedJson)
 		if err != nil {
 			documentIterator.Stop()
-			return cli.NewExitError(fmt.Sprintf("Error while writing output. \n%v", err), 86)
+			return cli.Exit(fmt.Sprintf("Error while writing output. \n%v", err), 86)
 		}
 	}
 

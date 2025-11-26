@@ -1,11 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v3"
 )
 
 // Global configuration
@@ -14,54 +15,60 @@ var projectId string
 var database string
 
 // Common errors
-func cliClientError(err error) *cli.ExitError {
-	return cli.NewExitError(fmt.Sprintf("Failed to create client. \n%v", err), 80)
+func cliClientError(err error) cli.ExitCoder {
+	return cli.Exit(fmt.Sprintf("Failed to create client. \n%v", err), 80)
 }
 
 func main() {
-	app := cli.NewApp()
+	app := &cli.Command{}
 	app.Version = "0.34.0"
 	app.Name = "Fuego"
 	app.Usage = "A firestore client"
-	app.EnableBashCompletion = true
+	app.EnableShellCompletion = true
 
 	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:        "credentials, c",
+		&cli.StringFlag{
+			Name:        "credentials",
+			Aliases:     []string{"c"},
 			Destination: &credentials,
 			Usage:       "Load google application credentials from `FILE`",
 		},
-		cli.StringFlag{
-			Name:        "projectid, p",
+		&cli.StringFlag{
+			Name:        "projectid",
+			Aliases:     []string{"p"},
 			Destination: &projectId,
 			Usage:       "Overwrite project id",
 		},
-		cli.StringFlag{
-			Name:        "database, d",
+		&cli.StringFlag{
+			Name:        "database",
+			Aliases:     []string{"d"},
 			Destination: &database,
 			Usage:       "Overwrite database name ",
 		},
 	}
 
 	displayFlags := []cli.Flag{
-		cli.BoolFlag{
-			Name:  "extendedjson, ej",
-			Usage: "Display documents as extended json",
+		&cli.BoolFlag{
+			Name:    "extendedjson",
+			Aliases: []string{"ej"},
+			Usage:   "Display documents as extended json",
 		},
 	}
 
 	deleteFlags := []cli.Flag{
-		cli.BoolFlag{
-			Name:  "recursive, r",
-			Usage: "Recursively delete sub-collections",
+		&cli.BoolFlag{
+			Name:    "recursive",
+			Aliases: []string{"r"},
+			Usage:   "Recursively delete sub-collections",
 		},
-		cli.StringFlag{
-			Name:  "field, f",
-			Usage: "Delete specific field of document",
+		&cli.StringFlag{
+			Name:    "field",
+			Aliases: []string{"f"},
+			Usage:   "Delete specific field of document",
 		},
 	}
 
-	app.Commands = []cli.Command{
+	app.Commands = []*cli.Command{
 		{
 			Name:    "collections",
 			Aliases: []string{"c"},
@@ -81,7 +88,7 @@ func main() {
 			Usage:     "Set the contents of a document",
 			ArgsUsage: "[collection-path document-id json-document | document-path json-document]",
 			Action:    setCommandAction,
-			Flags: []cli.Flag{cli.BoolFlag{
+			Flags: []cli.Flag{&cli.BoolFlag{
 				Name:  "merge",
 				Usage: "if set the set operation will do a update/patch",
 			}},
@@ -93,27 +100,31 @@ func main() {
 			ArgsUsage: "[collection-path collection-path | document-path document-path]",
 			Action:    copyCommandAction,
 			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "dest-credentials, dc",
-					Usage: "Google application target project credentials from `FILE`",
+				&cli.StringFlag{
+					Name:    "dest-credentials",
+					Aliases: []string{"dc"},
+					Usage:   "Google application target project credentials from `FILE`",
 				},
-				cli.StringFlag{
-					Name:  "src-credentials, sc",
-					Usage: "Google application source project credentials from `FILE`",
+				&cli.StringFlag{
+					Name:    "src-credentials",
+					Aliases: []string{"sc"},
+					Usage:   "Google application source project credentials from `FILE`",
 				},
-				cli.StringFlag{
-					Name:  "dest-projectid, dp",
-					Usage: "Target project ID",
+				&cli.StringFlag{
+					Name:    "dest-projectid",
+					Aliases: []string{"dp"},
+					Usage:   "Target project ID",
 				},
-				cli.StringFlag{
-					Name:  "src-projectid, sp",
-					Usage: "Source project ID",
+				&cli.StringFlag{
+					Name:    "src-projectid",
+					Aliases: []string{"sp"},
+					Usage:   "Source project ID",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "merge",
 					Usage: "if set the set operation will do a update/patch",
 				},
-				cli.BoolFlag{
+				&cli.BoolFlag{
 					Name:  "overwrite",
 					Usage: "overwrite the existing collection or document",
 				},
@@ -159,44 +170,52 @@ func main() {
 			Flags: append(
 				displayFlags,
 				[]cli.Flag{
-					cli.StringSliceFlag{
-						Name:  "orderby, ob",
-						Usage: "`FIELD_PATH` to order results by",
+					&cli.StringSliceFlag{
+						Name:    "orderby",
+						Aliases: []string{"ob"},
+						Usage:   "`FIELD_PATH` to order results by",
 					},
-					cli.BoolFlag{
-						Name:  "group, g",
-						Usage: "perform a group query",
+					&cli.BoolFlag{
+						Name:    "group",
+						Aliases: []string{"g"},
+						Usage:   "perform a group query",
 					},
-					cli.StringSliceFlag{
-						Name:  "orderdir, od",
-						Usage: "`DIRECTION` to order results (options: ASC/DESC)",
+					&cli.StringSliceFlag{
+						Name:    "orderdir",
+						Aliases: []string{"od"},
+						Usage:   "`DIRECTION` to order results (options: ASC/DESC)",
 					},
-					cli.IntFlag{
-						Name:  "limit, l",
-						Usage: "Fetch a maximum of `LIMIT` documents",
-						Value: 100,
+					&cli.IntFlag{
+						Name:    "limit",
+						Aliases: []string{"l"},
+						Usage:   "Fetch a maximum of `LIMIT` documents",
+						Value:   100,
 					},
-					cli.StringFlag{
-						Name:  "startat, sat",
-						Usage: "Results start at document `ID`",
+					&cli.StringFlag{
+						Name:    "startat",
+						Aliases: []string{"sat"},
+						Usage:   "Results start at document `ID`",
 					},
-					cli.StringFlag{
-						Name:  "startafter, sar",
-						Usage: "Results start after document `ID`",
+					&cli.StringFlag{
+						Name:    "startafter",
+						Aliases: []string{"sar"},
+						Usage:   "Results start after document `ID`",
 					},
-					cli.StringFlag{
-						Name:  "endat, ea",
-						Usage: "Results end at document `ID`",
+					&cli.StringFlag{
+						Name:    "endat",
+						Aliases: []string{"ea"},
+						Usage:   "Results end at document `ID`",
 					},
-					cli.StringFlag{
-						Name:  "endbefore, eb",
-						Usage: "Results end before document `ID`",
+					&cli.StringFlag{
+						Name:    "endbefore",
+						Aliases: []string{"eb"},
+						Usage:   "Results end before document `ID`",
 					},
-					cli.StringSliceFlag{
+					&cli.StringSliceFlag{
 						Name:  "select",
 						Usage: "Return only `FIELD_PATH` fields in result. Parameter can be given multiple times",
 					},
-					cli.BoolFlag{
+					&cli.BoolFlag{
 						Name:  "count",
 						Usage: "Return the aggregation count",
 					},
@@ -204,7 +223,7 @@ func main() {
 		},
 	}
 
-	err := app.Run(os.Args)
+	err := app.Run(context.Background(), os.Args)
 	if err != nil {
 		log.Fatal(err)
 	}

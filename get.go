@@ -1,10 +1,11 @@
 package main
 
 import (
-	firestore "cloud.google.com/go/firestore"
 	"context"
 	"fmt"
-	"github.com/urfave/cli"
+
+	firestore "cloud.google.com/go/firestore"
+	"github.com/urfave/cli/v3"
 )
 
 func getData(
@@ -24,11 +25,11 @@ func getData(
 	return documentRef.Get(context.Background())
 }
 
-func getCommandAction(c *cli.Context) error {
-	argsLength := len(c.Args())
+func getCommandAction(ctx context.Context, c *cli.Command) error {
+	argsLength := c.Args().Len()
 
 	if argsLength < 1 || argsLength > 2 {
-		return cli.NewExitError("Wrong number of arguments", 82)
+		return cli.Exit("Wrong number of arguments", 82)
 	}
 
 	extendedJson := c.Bool("extendedjson")
@@ -53,10 +54,10 @@ func getCommandAction(c *cli.Context) error {
 	docsnap, err := getData(client, collectionPath, documentPath, id)
 
 	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to get data. \n%v", err), 82)
+		return cli.Exit(fmt.Sprintf("Failed to get data. \n%v", err), 82)
 	}
 
-	writeSnapshot(c.App.Writer, docsnap, extendedJson)
+	writeSnapshot(c.Root().Writer, docsnap, extendedJson)
 
 	return nil
 }
