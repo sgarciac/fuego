@@ -1,12 +1,13 @@
 package main
 
 import (
-	"cloud.google.com/go/firestore"
 	"context"
 	"fmt"
+	"strings"
+
+	"cloud.google.com/go/firestore"
 	"github.com/urfave/cli"
 	"google.golang.org/api/iterator"
-	"strings"
 )
 
 func getDir(name string) firestore.Direction {
@@ -95,8 +96,8 @@ func queryCommandAction(c *cli.Context) error {
 	// add the conditions one by one.
 	for i := 1; i < c.NArg(); i++ {
 		queryString := c.Args().Get(i)
-		var parsedQuery Firestorequery
-		if err := queryParser.ParseString(queryString, &parsedQuery); err != nil {
+		parsedQuery, err := queryParser.ParseString("", queryString)
+		if err != nil {
 			return cli.NewExitError(fmt.Sprintf("Error parsing query '%s' %v", queryString, err), 83)
 		}
 		query = query.WherePath(parsedQuery.Key, operatorTokenToFirestore(parsedQuery.Operator), parsedQuery.Value.get())
@@ -104,9 +105,9 @@ func queryCommandAction(c *cli.Context) error {
 
 	// order by
 	for i, orderbyRaw := range orderbyFields {
-		var parsedOrderBy Firestorefieldpath
+		parsedOrderBy, err := fieldPathParser.ParseString("", orderbyRaw)
 		var orderDir string
-		if err := fieldPathParser.ParseString(orderbyRaw, &parsedOrderBy); err != nil {
+		if err != nil {
 			return cli.NewExitError(fmt.Sprintf("Error parsing orderby '%s' %v",
 				orderbyRaw, err), 83)
 		}
@@ -154,8 +155,8 @@ func queryCommandAction(c *cli.Context) error {
 	if len(selectFields) > 0 {
 		var selectFieldPaths []firestore.FieldPath
 		for _, selectField := range selectFields {
-			var parsedSelect Firestorefieldpath
-			if err := fieldPathParser.ParseString(selectField, &parsedSelect); err != nil {
+			parsedSelect, err := fieldPathParser.ParseString("", selectField)
+			if err != nil {
 				return cli.NewExitError(fmt.Sprintf("Error parsing select '%s' %v",
 					selectField, err), 83)
 			}
