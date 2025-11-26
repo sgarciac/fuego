@@ -196,6 +196,10 @@ func main() {
 						Name:  "select",
 						Usage: "Return only `FIELD_PATH` fields in result. Parameter can be given multiple times",
 					},
+					cli.BoolFlag{
+						Name:  "count",
+						Usage: "Return the aggregation count",
+					},
 				}...),
 		},
 	}

@@ -407,5 +407,12 @@ testFieldDelete(){
     assertEquals "Failed to delete from First level" "${result}" "${expectedValue}"
 }
 
+testAggregationQueryCount(){
+    ../fuego add ${TEST_COLLECTION} {}
+    ../fuego add ${TEST_COLLECTION} {}
+    result=$(../fuego query --count ${TEST_COLLECTION} | jq ".Count")
+    assertEquals "Failed to get aggregation count" "2" "$result"
+}
+
 # Load shUnit2.
 . ./shunit2
