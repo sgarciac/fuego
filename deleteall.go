@@ -1,24 +1,25 @@
 package main
 
 import (
-	firestore "cloud.google.com/go/firestore"
 	"context"
 	"fmt"
-	"github.com/urfave/cli"
+
+	firestore "cloud.google.com/go/firestore"
+	"github.com/urfave/cli/v3"
 )
 
-func deleteAllCommandAction(c *cli.Context) error {
-	argsLength := len(c.Args())
+func deleteAllCommandAction(ctx context.Context, c *cli.Command) error {
+	argsLength := c.Args().Len()
 
 	if argsLength < 2 {
-		return cli.NewExitError("Wrong number of arguments", 82)
+		return cli.Exit("Wrong number of arguments", 82)
 	}
 
 	var collectionPath string
 	var ids []string
 
 	collectionPath = c.Args().First()
-	ids = c.Args()[1:]
+	ids = c.Args().Slice()[1:]
 
 	client, err := createClient(credentials)
 
@@ -31,7 +32,7 @@ func deleteAllCommandAction(c *cli.Context) error {
 	for _, part := range partition(ids, maxWritesCount) {
 		d, err := deleteAllDocuments(client, collectionPath, part)
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("Failed to remove all documents. \n%v", err), 82)
+			return cli.Exit(fmt.Sprintf("Failed to remove all documents. \n%v", err), 82)
 		}
 		deletedCount += len(d)
 		fmt.Printf("Deleted  %v out of %v\n", deletedCount, len(ids))

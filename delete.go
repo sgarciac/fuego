@@ -6,23 +6,23 @@ import (
 	"log"
 
 	firestore "cloud.google.com/go/firestore"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v3"
 	"google.golang.org/api/iterator"
 )
 
-func deleteCommandAction(c *cli.Context) error {
-	argsLength := len(c.Args())
+func deleteCommandAction(ctx context.Context, c *cli.Command) error {
+	argsLength := c.Args().Len()
 	var err error
 
 	if argsLength < 1 || argsLength > 2 {
-		return cli.NewExitError("Wrong number of arguments", 82)
+		return cli.Exit("Wrong number of arguments", 82)
 	}
 
 	deleteRecursive := c.Bool("recursive")
 	deleteField := c.String("field")
 
 	if deleteRecursive && deleteField != "" {
-		return cli.NewExitError("recursive delete and field delete can't be combined!", 82)
+		return cli.Exit("recursive delete and field delete can't be combined!", 82)
 	}
 
 	client, err := createClient(credentials)
@@ -53,7 +53,7 @@ func deleteCommandAction(c *cli.Context) error {
 
 		_, err = deleteBatch.Commit(context.Background())
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("failed to delete sub-collections batch. %v\n", err), 82)
+			return cli.Exit(fmt.Sprintf("failed to delete sub-collections batch. %v\n", err), 82)
 		}
 	}
 
@@ -68,7 +68,7 @@ func deleteCommandAction(c *cli.Context) error {
 			})
 
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("failed to delete field. \n%v", err), 82)
+			return cli.Exit(fmt.Sprintf("failed to delete field. \n%v", err), 82)
 		}
 
 		return nil
@@ -76,7 +76,7 @@ func deleteCommandAction(c *cli.Context) error {
 
 	res, err := documentRef.Delete(context.Background())
 	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to delete data. \n%v", res), 82)
+		return cli.Exit(fmt.Sprintf("Failed to delete data. \n%v", res), 82)
 	}
 	defer client.Close()
 	return nil
@@ -92,7 +92,7 @@ func deleteSubCollections(r *firestore.DocumentRef, c *firestore.Client, b *fire
 			break
 		}
 		if err != nil {
-			return cli.NewExitError(fmt.Sprintf("failed to iterate over sub-collections (error at %v).", subCol.Path), 82)
+			return cli.Exit(fmt.Sprintf("failed to iterate over sub-collections (error at %v).", subCol.Path), 82)
 		}
 
 		err = deleteCollection(subCol, c, b)
@@ -115,7 +115,7 @@ func deleteCollection(r *firestore.CollectionRef, c *firestore.Client, b *firest
 				break
 			}
 			if err != nil {
-				return cli.NewExitError(fmt.Sprintf(
+				return cli.Exit(fmt.Sprintf(
 					"could not iterate over sub-collection %s (error on document %s). error %s\n",
 					r.ID, doc.Path, err), 82)
 			}

@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/alecthomas/participle"
-	"github.com/alecthomas/participle/lexer"
 	"strings"
 	"time"
+
+	"github.com/alecthomas/participle/v2"
+	"github.com/alecthomas/participle/v2/lexer"
 )
 
 // Queries grammar (It is probably overkill to use a parser generator)
@@ -64,33 +65,33 @@ func (value *Firestorevalue) get() interface{} {
 	}
 }
 
-func getQueryParser() *participle.Parser {
-	queryLexer := lexer.Must(lexer.Regexp(`(\s+)` +
-		`|(?P<DateTime>` + rfc3339pattern + `)` +
-		`|(?P<Operator><in>|<not-in>|<array-contains-any>|<array-contains>|<=|>=|<|>|==|!=)` +
-		`|(?P<SimpleFieldPath>[a-zA-Z_][a-zA-Z0-9_]*)` +
-		`|(?P<Number>[-+]?\d*\.?\d+)` +
-		`|(?P<OpenList>\[)` +
-		`|(?P<CloseList>\])` +
-		`|(?P<String>('[^']*')|("((\\")|[^"])*"))` +
-		`|(?P<Dot>\.)`,
-	))
-	parser := participle.MustBuild(
-		&Firestorequery{},
+func getQueryParser() *participle.Parser[Firestorequery] {
+	queryLexer := lexer.MustSimple([]lexer.SimpleRule{
+		{Name: "whitespace", Pattern: `\s+`},
+		{Name: "DateTime", Pattern: `` + rfc3339pattern + ``},
+		{Name: "Operator", Pattern: `<in>|<not-in>|<array-contains-any>|<array-contains>|<=|>=|<|>|==|!=`},
+		{Name: "SimpleFieldPath", Pattern: `[a-zA-Z_][a-zA-Z0-9_]*`},
+		{Name: "Number", Pattern: `[-+]?\d*\.?\d+`},
+		{Name: "OpenList", Pattern: `\[`},
+		{Name: "CloseList", Pattern: `\]`},
+		{Name: "String", Pattern: `('[^']*')|("((\\")|[^"])*")`},
+		{Name: "Dot", Pattern: `\.`},
+	})
+	parser := participle.MustBuild[Firestorequery](
 		participle.Lexer(queryLexer),
 		participle.Unquote("String"),
 	)
 	return parser
 }
 
-func getFieldPathParser() *participle.Parser {
-	queryLexer := lexer.Must(lexer.Regexp(`(\s+)` +
-		`|(?P<SimpleFieldPath>[a-zA-Z_][a-zA-Z0-9_]*)` +
-		`|(?P<String>('[^']*')|("((\\")|[^"])*"))` +
-		`|(?P<Dot>\.)`,
-	))
-	parser := participle.MustBuild(
-		&Firestorefieldpath{},
+func getFieldPathParser() *participle.Parser[Firestorefieldpath] {
+	queryLexer := lexer.MustSimple([]lexer.SimpleRule{
+		{Name: "whitespace", Pattern: `\s+`},
+		{Name: "SimpleFieldPath", Pattern: `[a-zA-Z_][a-zA-Z0-9_]*`},
+		{Name: "String", Pattern: `('[^']*')|("((\\")|[^"])*")`},
+		{Name: "Dot", Pattern: `\.`},
+	})
+	parser := participle.MustBuild[Firestorefieldpath](
 		participle.Lexer(queryLexer),
 		participle.Unquote("String"),
 	)

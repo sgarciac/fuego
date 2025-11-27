@@ -71,3 +71,23 @@ func writeSnapshot(writer io.Writer, doc *firestore.DocumentSnapshot, extendedJs
 	}
 	return nil
 }
+
+func (d *displayItemWriter) WriteCounter(path string, count int64) error {
+	var displayItem = make(map[string]interface{})
+
+	displayItem["Count"] = count
+	displayItem["Path"] = path
+
+	jsonString, err := marshallData(displayItem, false)
+
+	if err != nil {
+		return err
+	}
+
+	_, err = fmt.Fprintln(*d.writer, jsonString)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}

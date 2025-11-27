@@ -1,10 +1,11 @@
 package main
 
 import (
-	firestore "cloud.google.com/go/firestore"
 	"context"
 	"fmt"
-	"github.com/urfave/cli"
+
+	firestore "cloud.google.com/go/firestore"
+	"github.com/urfave/cli/v3"
 )
 
 func addData(
@@ -31,7 +32,7 @@ func addData(
 	return doc.ID, nil
 }
 
-func addCommandAction(c *cli.Context) error {
+func addCommandAction(ctx context.Context, c *cli.Command) error {
 	collectionPath := c.Args().First()
 	data := c.Args().Get(1)
 
@@ -41,9 +42,9 @@ func addCommandAction(c *cli.Context) error {
 	}
 	id, err := addData(client, collectionPath, data)
 	if err != nil {
-		return cli.NewExitError(fmt.Sprintf("Failed to add data. \n%v", err), 81)
+		return cli.Exit(fmt.Sprintf("Failed to add data. \n%v", err), 81)
 	}
-	fmt.Fprintf(c.App.Writer, "%v\n", id)
+	fmt.Fprintf(c.Root().Writer, "%v\n", id)
 	defer client.Close()
 	return nil
 }
